@@ -19,19 +19,38 @@ from .catalogue import App, by_category, enrich, load_apps  # noqa: E402
 
 
 def icon_name_for(app: App) -> str:
-    """The app's own icon if the theme actually has it, else a generic one.
+    """The app's own icon if the theme really has it, else the first generic
+    fallback that does.
 
-    Falling back only when the catalogue field is empty is not enough: an app
-    that is not installed yet has no icon on disk, because icons ship with the
-    package. GTK then renders "image-missing", a broken-image glyph, which
-    looks like a bug rather than "not installed yet".
+    Two traps here, both hit in practice:
+
+    * Falling back only when the catalogue field is empty is not enough. An app
+      that is not installed has no icon on disk -- icons ship with the package --
+      so GTK renders "image-missing", a broken-image glyph that reads as a bug.
+    * The obvious fallback names mostly do not resolve either. On this device
+      `package-x-generic` and `application-x-executable` exist only in
+      AdwaitaLegacy, which is not the active theme, so naming one of those just
+      moves the broken glyph rather than removing it. Hence a chain, checked
+      against the live theme rather than assumed.
     """
     display = Gdk.Display.get_default()
-    if display is not None and app.icon:
-        theme = Gtk.IconTheme.get_for_display(display)
-        if theme.has_icon(app.icon):
-            return app.icon
-    return "package-x-generic"
+    if display is None:
+        return "application-x-executable-symbolic"
+
+    theme = Gtk.IconTheme.get_for_display(display)
+    if app.icon and theme.has_icon(app.icon):
+        return app.icon
+
+    for candidate in (
+        "application-x-executable-symbolic",
+        "package-x-generic-symbolic",
+        "application-x-executable",
+        "package-x-generic",
+        "dialog-information-symbolic",
+    ):
+        if theme.has_icon(candidate):
+            return candidate
+    return "application-x-executable-symbolic"
 
 
 class AppRow(Adw.ActionRow):
