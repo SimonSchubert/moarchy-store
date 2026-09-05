@@ -195,11 +195,23 @@ class DetailPage(Adw.NavigationPage):
 
     @staticmethod
     def _row(title: str, value: str) -> Adw.ActionRow:
-        row = Adw.ActionRow(title=title)
-        label = Gtk.Label(label=value)
-        label.add_css_class("dim-label")
-        label.set_selectable(True)
-        row.add_suffix(label)
+        """Short values sit beside the title; long ones go underneath.
+
+        A suffix label competes with the title for a 360px row, and the title
+        loses -- "Toolkit" was being hyphenated to "Toolk-it" to make room for
+        the value. Below a threshold there is room for both; above it, the
+        subtitle wraps cleanly instead.
+        """
+        if len(value) <= 20:
+            row = Adw.ActionRow(title=title)
+            label = Gtk.Label(label=value)
+            label.add_css_class("dim-label")
+            label.set_selectable(True)
+            row.add_suffix(label)
+            return row
+
+        row = Adw.ActionRow(title=title, subtitle=value)
+        row.set_subtitle_lines(3)
         return row
 
     @staticmethod
@@ -207,6 +219,7 @@ class DetailPage(Adw.NavigationPage):
         return {
             "libadwaita": "libadwaita — adapts to phone widths",
             "kirigami": "Kirigami — built for Plasma Mobile",
+            # (both are long by design; _row moves them to the subtitle)
             "tui": "Terminal app",
             "gtk": "GTK",
             "qt": "Qt",
