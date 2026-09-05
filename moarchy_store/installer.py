@@ -53,15 +53,22 @@ def run(
     app: App,
     on_line: Callable[[str], None],
     on_done: Callable[[bool, str], None],
+    icon: str = "",
 ) -> threading.Thread:
     """Start `action` on `app`. Callbacks fire on a worker thread -- marshal to
-    the main loop with GLib.idle_add before touching any widget."""
+    the main loop with GLib.idle_add before touching any widget.
+
+    `icon` is the catalogue icon after the *live* theme has had a say, which
+    only the UI can work out. The store's own rows fall back when a name does
+    not resolve; a desktop entry's Icon= has no such chain, so passing the
+    resolved name is what keeps the drawer from showing a broken glyph.
+    """
     if action not in ("install", "remove"):
         raise ValueError(f"unknown action {action!r}")
 
     worker = _plugin_worker if app.is_plugin else _package_worker
     thread = threading.Thread(
-        target=worker, args=(action, app, on_line, on_done), daemon=True
+        target=worker, args=(action, app, on_line, on_done, icon), daemon=True
     )
     thread.start()
     return thread
@@ -109,6 +116,7 @@ def _package_worker(
     app: App,
     on_line: Callable[[str], None],
     on_done: Callable[[bool, str], None],
+    icon: str = "",
 ) -> None:
     code, tail = _stream(["pkexec", HELPER, action, app.pkg], on_line)
 
@@ -134,6 +142,7 @@ def _plugin_worker(
     app: App,
     on_line: Callable[[str], None],
     on_done: Callable[[bool, str], None],
+    icon: str = "",
 ) -> None:
     env = plugins.environment()
 
@@ -190,7 +199,7 @@ def _plugin_worker(
         # drawer.
         try:
             if plugins.write_desktop_entry(
-                app.plugin_id, app.name, app.summary, app.icon
+                app.plugin_id, app.name, app.summary, icon or app.icon
             ):
                 on_line(f"Added {app.name} to the app drawer")
         except OSError as exc:

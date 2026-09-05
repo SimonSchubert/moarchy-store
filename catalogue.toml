@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 4
+serial = 5
 
 # --- Reading ---------------------------------------------------------------
 
@@ -676,9 +676,12 @@ tested = ""
 # summons, which is the one plugin shape that suits a phone -- and none has
 # been run on hardware yet.
 #
-# Icons are generic freedesktop names, not app icons: a plugin ships no
-# packaged icon theme, so anything more specific would be a guess that renders
-# as a broken glyph.
+# Icons are generic freedesktop names, not app icons: a plugin ships no packaged
+# icon theme, so anything more specific would be a guess. Checked against the
+# live theme rather than assumed -- the first attempt used document-edit and
+# document-new, which Adwaita has and Yaru, the theme actually in use here, does
+# not. The store falls back for its own rows either way; the drawer entry it
+# writes has no fallback chain, so a wrong name there is a broken icon.
 
 [[app]]
 source = "plugin"
@@ -688,7 +691,7 @@ name = "Note Note"
 category = "Notes"
 toolkit = "quickshell"
 summary = "Markdown notebooks, always editable and autosaved. Python is stdlib-only and the sync providers stay dormant until you sign in."
-icon = "document-edit-symbolic"
+icon = "text-x-generic-symbolic"
 tested = ""
 
 [[app]]
@@ -699,7 +702,7 @@ name = "Jot"
 category = "Notes"
 toolkit = "quickshell"
 summary = "Quick capture: one thought, appended to an inbox file. The smallest thing here and the one that suits a phone best."
-icon = "document-new-symbolic"
+icon = "edit-symbolic"
 tested = ""
 
 [[app]]

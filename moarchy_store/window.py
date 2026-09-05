@@ -292,6 +292,8 @@ class DetailPage(Adw.NavigationPage):
             self.app,
             on_line=lambda line: GLib.idle_add(self._say, line),
             on_done=lambda ok, err: GLib.idle_add(self._finish, ok, err, action),
+            # Resolved here because only the UI has a display to ask.
+            icon=icon_name_for(self.app),
         )
 
     def _say(self, text: str) -> bool:
