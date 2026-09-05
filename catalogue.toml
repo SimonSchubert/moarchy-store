@@ -14,6 +14,9 @@
 #   category  grouping in the UI
 #   toolkit   libadwaita | kirigami | gtk | qt | tui -- why it adapts, or that it does not
 #   summary   one line, written for someone deciding whether to install
+#   icon      freedesktop icon name, taken from the app's own .desktop file --
+#             not guessed. TUIs have no .desktop file, so they get a terminal icon.
+#   screenshot  file in screenshots/, served from GitHub at runtime
 #   tested    device string the entry was verified on, or "" if unverified
 #
 # "tested" is not decoration. An entry with an empty tested field is a
@@ -29,6 +32,8 @@ name = "Foliate"
 category = "Reading"
 toolkit = "libadwaita"
 summary = "E-book reader. One of the best things about having a Linux phone."
+icon = "com.github.johnfactotum.Foliate"
+screenshot = "foliate.png"
 tested = "pinephone-a64"
 
 [[app]]
@@ -37,6 +42,8 @@ name = "Papers"
 category = "Reading"
 toolkit = "libadwaita"
 summary = "PDF viewer, GNOME's successor to Evince. Reflows to one page wide."
+icon = "org.gnome.Papers"
+screenshot = "papers.png"
 tested = "pinephone-a64"
 
 [[app]]
@@ -45,6 +52,8 @@ name = "Loupe"
 category = "Reading"
 toolkit = "libadwaita"
 summary = "Image viewer with gesture zoom."
+icon = "org.gnome.Loupe"
+screenshot = "loupe.png"
 tested = "pinephone-a64"
 
 # --- Utilities -------------------------------------------------------------
@@ -55,6 +64,8 @@ name = "Clocks"
 category = "Utilities"
 toolkit = "libadwaita"
 summary = "World clocks, alarms, stopwatch, timer. Bottom tab bar, fully adaptive."
+icon = "org.gnome.clocks"
+screenshot = "gnome-clocks.png"
 tested = "pinephone-a64"
 
 [[app]]
@@ -63,6 +74,8 @@ name = "Kalk"
 category = "Utilities"
 toolkit = "kirigami"
 summary = "Calculator with unit and currency conversion. Built for touch."
+icon = "org.kde.kalk"
+screenshot = "kalk.png"
 tested = "pinephone-a64"
 
 [[app]]
@@ -71,6 +84,8 @@ name = "KClock"
 category = "Utilities"
 toolkit = "kirigami"
 summary = "Clock, alarms and timers, Plasma Mobile style."
+icon = "org.kde.kclock"
+screenshot = "kclock.png"
 tested = "pinephone-a64"
 
 [[app]]
@@ -79,6 +94,8 @@ name = "KWeather"
 category = "Utilities"
 toolkit = "kirigami"
 summary = "Weather forecasts. Light, and honest about being a phone app."
+icon = "org.kde.kweather"
+screenshot = "kweather.png"
 tested = "pinephone-a64"
 
 [[app]]
@@ -87,6 +104,8 @@ name = "Keysmith"
 category = "Utilities"
 toolkit = "kirigami"
 summary = "TOTP two-factor codes. Genuinely useful to have on the phone itself."
+icon = "org.kde.keysmith"
+screenshot = "keysmith.png"
 tested = "pinephone-a64"
 
 [[app]]
@@ -95,6 +114,8 @@ name = "Calindori"
 category = "Utilities"
 toolkit = "kirigami"
 summary = "Calendar with local storage. No account required."
+icon = "calindori"
+screenshot = "calindori.png"
 tested = "pinephone-a64"
 
 # --- Files and text --------------------------------------------------------
@@ -105,6 +126,8 @@ name = "Portfolio"
 category = "Files"
 toolkit = "libadwaita"
 summary = "File manager designed for touch from the start, not scaled down."
+icon = "dev.tchx84.Portfolio"
+screenshot = "portfolio-file-manager.png"
 tested = "pinephone-a64"
 
 [[app]]
@@ -113,6 +136,8 @@ name = "Index"
 category = "Files"
 toolkit = "kirigami"
 summary = "Maui file manager. Runs fine as a plain Wayland client, no KDE session."
+icon = "index"
+screenshot = "index-fm.png"
 tested = "pinephone-a64"
 
 [[app]]
@@ -121,6 +146,8 @@ name = "Text Editor"
 category = "Files"
 toolkit = "libadwaita"
 summary = "Plain text editing that cooperates with the on-screen keyboard."
+icon = "org.gnome.TextEditor"
+screenshot = "gnome-text-editor.png"
 tested = "pinephone-a64"
 
 # --- Terminal --------------------------------------------------------------
@@ -131,6 +158,8 @@ name = "QML Konsole"
 category = "Terminal"
 toolkit = "kirigami"
 summary = "Terminal with touch-sized controls and a key toolbar."
+icon = "org.kde.qmlkonsole"
+screenshot = "qmlkonsole.png"
 tested = "pinephone-a64"
 
 [[app]]
@@ -139,6 +168,7 @@ name = "Foot"
 category = "Terminal"
 toolkit = "gtk"
 summary = "Fast, tiny Wayland terminal. The one the session uses by default."
+icon = "foot"
 tested = "pinephone-a64"
 
 [[app]]
@@ -147,6 +177,7 @@ name = "Bottom (btm)"
 category = "Terminal"
 toolkit = "tui"
 summary = "System monitor that fits a tiled terminal at 47 columns, unlike btop."
+icon = "utilities-terminal"
 tested = "pinephone-a64"
 
 [[app]]
@@ -155,6 +186,7 @@ name = "Impala"
 category = "Terminal"
 toolkit = "tui"
 summary = "Wi-Fi picker for the terminal. Faster than any GUI on this hardware."
+icon = "utilities-terminal"
 tested = "pinephone-a64"
 
 [[app]]
@@ -163,6 +195,7 @@ name = "bluetui"
 category = "Terminal"
 toolkit = "tui"
 summary = "Bluetooth pairing and connection from the terminal."
+icon = "utilities-terminal"
 tested = "pinephone-a64"
 
 # --- Web -------------------------------------------------------------------
@@ -173,6 +206,7 @@ name = "Web (Epiphany)"
 category = "Web"
 toolkit = "libadwaita"
 summary = "WebKit browser with a real mobile layout; URL bar at the bottom. Far lighter than Chromium."
+icon = "org.gnome.Epiphany"
 tested = "pinephone-a64"
 
 # --- Media -----------------------------------------------------------------
@@ -183,6 +217,7 @@ name = "Amberol"
 category = "Media"
 toolkit = "libadwaita"
 summary = "Local music player. Deliberately small in scope, which suits the device."
+icon = "io.bassi.Amberol"
 tested = ""
 
 [[app]]
@@ -191,4 +226,5 @@ name = "mpv"
 category = "Media"
 toolkit = "gtk"
 summary = "Video player. Can offload decoding to the A64's cedrus hardware decoder."
+icon = "mpv"
 tested = ""

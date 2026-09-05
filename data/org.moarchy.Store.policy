@@ -11,7 +11,7 @@
     package that is not in the root-owned catalogue, so authenticating here
     grants "install one of these curated apps", not "install anything".
 
-    auth_admin_keep rather than auth_admin: on a phone, typing a password into
+    auth_self_keep rather than auth_admin: on a phone, typing a password into
     an auth dialog with an on-screen keyboard is painful enough that being
     asked once per package would make the app unusable.
   -->
@@ -20,9 +20,9 @@
     <message>Authentication is required to change installed apps</message>
     <icon_name>system-software-install</icon_name>
     <defaults>
-      <allow_any>auth_admin_keep</allow_any>
-      <allow_inactive>auth_admin_keep</allow_inactive>
-      <allow_active>auth_admin_keep</allow_active>
+      <allow_any>auth_self_keep</allow_any>
+      <allow_inactive>auth_self_keep</allow_inactive>
+      <allow_active>auth_self_keep</allow_active>
     </defaults>
     <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/moarchy-store/moarchy-store-helper</annotate>
     <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>

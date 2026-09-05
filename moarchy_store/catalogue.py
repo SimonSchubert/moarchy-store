@@ -27,6 +27,8 @@ class App:
     category: str
     toolkit: str
     summary: str
+    icon: str = ""
+    screenshot: str = ""
     tested: str = ""
 
     # Filled in from pacman, not from the catalogue.
@@ -78,6 +80,8 @@ def load_apps() -> list[App]:
                     category=entry.get("category", "Other"),
                     toolkit=entry.get("toolkit", ""),
                     summary=entry.get("summary", ""),
+                    icon=entry.get("icon", ""),
+                    screenshot=entry.get("screenshot", ""),
                     tested=entry.get("tested", ""),
                 )
             )

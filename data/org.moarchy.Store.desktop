@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Store
+Name=App Store
 GenericName=App Store
 Comment=Curated Linux phone apps that actually fit a small screen
 Exec=moarchy-store

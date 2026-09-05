@@ -14,7 +14,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, GLib, Gtk  # noqa: E402
 
-from . import installer  # noqa: E402
+from . import installer, media  # noqa: E402
 from .catalogue import App, by_category, enrich, load_apps  # noqa: E402
 
 
@@ -27,6 +27,12 @@ class AppRow(Adw.ActionRow):
         self.set_subtitle_lines(2)
         self.set_activatable(True)
         self.connect("activated", lambda *_: on_activate(app))
+
+        icon = Gtk.Image.new_from_icon_name(app.icon or "application-x-executable")
+        icon.set_pixel_size(32)
+        icon.set_margin_top(6)
+        icon.set_margin_bottom(6)
+        self.add_prefix(icon)
 
         if app.installed:
             tick = Gtk.Image.new_from_icon_name("object-select-symbolic")
@@ -55,7 +61,7 @@ class DetailPage(Adw.NavigationPage):
         status = Adw.StatusPage(
             title=app.name,
             description=app.summary,
-            icon_name="application-x-executable-symbolic",
+            icon_name=app.icon or "application-x-executable",
         )
         status.set_vexpand(False)
         group_intro = Adw.PreferencesGroup()
@@ -80,6 +86,25 @@ class DetailPage(Adw.NavigationPage):
         )
         page.add(facts)
 
+        # Screenshots are fetched from GitHub and cached. The group only
+        # appears once an image actually arrives, so an offline phone shows a
+        # clean page rather than a broken-image placeholder.
+        self.shot_group = Adw.PreferencesGroup(title="Screenshot")
+        self.shot_picture = Gtk.Picture()
+        self.shot_picture.set_can_shrink(True)
+        self.shot_picture.set_content_fit(Gtk.ContentFit.CONTAIN)
+        self.shot_picture.set_size_request(-1, 420)
+        self.shot_picture.add_css_class("card")
+        self.shot_group.add(self.shot_picture)
+        self.shot_group.set_visible(False)
+        page.add(self.shot_group)
+
+        if app.screenshot:
+            media.fetch(
+                app.screenshot,
+                lambda path: GLib.idle_add(self._show_screenshot, path),
+            )
+
         actions = Adw.PreferencesGroup()
         self.button = Gtk.Button()
         self.button.set_halign(Gtk.Align.CENTER)
@@ -98,6 +123,14 @@ class DetailPage(Adw.NavigationPage):
 
         toolbar.set_content(page)
         self.set_child(toolbar)
+
+    def _show_screenshot(self, path) -> bool:
+        try:
+            self.shot_picture.set_filename(str(path))
+            self.shot_group.set_visible(True)
+        except Exception:
+            pass  # a corrupt cache entry is not worth breaking the page over
+        return False
 
     @staticmethod
     def _row(title: str, value: str) -> Adw.ActionRow:
@@ -169,7 +202,7 @@ class DetailPage(Adw.NavigationPage):
 class StoreWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.set_title("Store")
+        self.set_title("App Store")
         # Fits a 360x720 logical screen; still resizable on a desktop.
         self.set_default_size(360, 720)
 
@@ -206,7 +239,7 @@ class StoreWindow(Adw.ApplicationWindow):
         toolbar.add_top_bar(header)
         toolbar.set_content(content)
 
-        self.nav.push(Adw.NavigationPage(child=toolbar, title="Store"))
+        self.nav.push(Adw.NavigationPage(child=toolbar, title="App Store"))
 
         self.apps: list[App] = []
         self.refresh()
