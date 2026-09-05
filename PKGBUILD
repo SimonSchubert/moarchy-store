@@ -17,17 +17,26 @@ sha256sums=('SKIP')
 
 pkgver() {
   cd "$srcdir/$_pkgname"
-  git describe --long --tags 2>/dev/null | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g' ||
-    printf "0.1.0.r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  # Check git describe separately rather than relying on `... | sed || fallback`:
+  # with no tags yet, describe writes nothing and the pipeline's status comes
+  # from sed, which happily succeeds on empty input -- so the fallback never
+  # runs and makepkg dies with "pkgver is not allowed to be empty".
+  local desc
+  if desc=$(git describe --long --tags 2>/dev/null) && [[ -n $desc ]]; then
+    printf '%s' "$desc" | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+  else
+    printf '0.1.0.r%s.%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  fi
 }
 
 package() {
   cd "$srcdir/$_pkgname"
 
-  local site
-  site="$(python3 -c 'import site; print(site.getsitepackages()[0])')"
-  install -dm755 "$pkgdir$site/moarchy_store"
-  install -Dm644 moarchy_store/*.py -t "$pkgdir$site/moarchy_store/"
+  # Deliberately NOT site-packages. That path is Python-version-specific
+  # (/usr/lib/python3.13/site-packages), and this is an arch=any package: the
+  # version that built it would be baked in, so a Python minor bump would break
+  # every installed copy until rebuilt. A private dir on sys.path is immune.
+  install -Dm644 moarchy_store/*.py -t "$pkgdir/usr/lib/$_pkgname/moarchy_store/"
 
   install -Dm755 bin/moarchy-store "$pkgdir/usr/bin/moarchy-store"
 
