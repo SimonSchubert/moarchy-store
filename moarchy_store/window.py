@@ -131,13 +131,22 @@ class DetailPage(Adw.NavigationPage):
         page.add(group_intro)
 
         facts = Adw.PreferencesGroup(title="Details")
-        facts.add(self._row("Package", app.pkg))
+        if app.is_plugin:
+            facts.add(self._row("Plugin", app.plugin_id))
+            facts.add(self._row("Source", app.repo))
+        else:
+            facts.add(self._row("Package", app.pkg))
         if app.version:
             facts.add(self._row("Version", app.version))
         if app.installed and app.update_available:
             facts.add(self._row("Installed", app.installed_version))
         if app.size:
             facts.add(self._row("Download", app.size))
+        if app.is_plugin and app.installed and not app.enabled:
+            # Installed but not loaded is invisible from the outside: the app
+            # drawer entry is there and opens nothing. Say it rather than let
+            # someone conclude the plugin is broken.
+            facts.add(self._row("Loaded", "No — installed but not enabled"))
         if app.toolkit:
             facts.add(self._row("Toolkit", self._toolkit_label(app.toolkit)))
         facts.add(
@@ -147,6 +156,32 @@ class DetailPage(Adw.NavigationPage):
             )
         )
         page.add(facts)
+
+        if app.is_plugin:
+            # The store passes --yes to `omarchy plugin add`, which is where
+            # this warning would otherwise have been shown. Suppressing a
+            # prompt is only defensible if what the prompt said still gets
+            # said, and before the button rather than after it.
+            #
+            # A wrapping label rather than a _row: a row puts a long value in
+            # the subtitle, which caps at three lines and would ellipsise the
+            # one paragraph on this page that must be read in full.
+            trust = Adw.PreferencesGroup(title="Runs in your shell")
+            caution = Gtk.Label(
+                label=(
+                    "A plugin is unsandboxed QML loaded into omarchy-shell "
+                    "itself, not a sandboxed app in a window of its own. It "
+                    "asks for no password because it needs no privilege — it "
+                    "can already do anything you can."
+                )
+            )
+            caution.set_wrap(True)
+            caution.set_xalign(0)
+            caution.add_css_class("dim-label")
+            caution.set_margin_top(6)
+            caution.set_margin_bottom(6)
+            trust.add(caution)
+            page.add(trust)
 
         # Screenshots are fetched from GitHub and cached. The group only
         # appears once an image actually arrives, so an offline phone shows a
@@ -221,6 +256,7 @@ class DetailPage(Adw.NavigationPage):
             "libadwaita": "libadwaita — adapts to phone widths",
             "kirigami": "Kirigami — built for Plasma Mobile",
             # (both are long by design; _row moves them to the subtitle)
+            "quickshell": "Quickshell/QML — a plugin drawn by the shell itself",
             "tui": "Terminal app",
             "gtk": "GTK",
             "qt": "Qt",
@@ -242,18 +278,18 @@ class DetailPage(Adw.NavigationPage):
             self.button.add_css_class("suggested-action")
 
     def _on_clicked(self, _button) -> None:
-        if not installer.available():
-            self._say("pkexec or pacman is missing; cannot manage packages")
+        if not installer.available(self.app):
+            self._say(installer.unavailable_reason(self.app))
             return
 
         action = "remove" if self.app.installed else "install"
         self.button.set_sensitive(False)
         self.button.set_label("Removing…" if action == "remove" else "Installing…")
-        self._say(f"Working… ({self.app.pkg})")
+        self._say(f"Working… ({self.app.ident})")
 
         installer.run(
             action,
-            self.app.pkg,
+            self.app,
             on_line=lambda line: GLib.idle_add(self._say, line),
             on_done=lambda ok, err: GLib.idle_add(self._finish, ok, err, action),
         )
@@ -266,6 +302,7 @@ class DetailPage(Adw.NavigationPage):
     def _finish(self, ok: bool, err: str, action: str) -> bool:
         if ok:
             self.app.installed = action == "install"
+            self.app.enabled = True
             self._say("Installed." if action == "install" else "Removed.")
             self.refresh()
         else:
@@ -323,13 +360,14 @@ class StoreWindow(Adw.ApplicationWindow):
         # slow or dead network never delays first paint.
         GLib.timeout_add_seconds(1, self._check_remote_once)
 
-        # Debug aid: MOARCHY_STORE_DETAIL=<pkg> opens straight to that app's
-        # detail page. Verifying the detail layout otherwise means synthesising
-        # a pointer click, which a headless compositor has no device for.
+        # Debug aid: MOARCHY_STORE_DETAIL=<package or plugin id> opens straight
+        # to that app's detail page. Verifying the detail layout otherwise
+        # means synthesising a pointer click, which a headless compositor has
+        # no device for.
         wanted = os.environ.get("MOARCHY_STORE_DETAIL")
         if wanted:
             for app in self.apps:
-                if app.pkg == wanted:
+                if app.ident == wanted:
                     GLib.idle_add(self._open_detail, app)
                     break
 
@@ -385,7 +423,7 @@ class StoreWindow(Adw.ApplicationWindow):
             for a in self.apps
             if not needle
             or needle in a.name.lower()
-            or needle in a.pkg.lower()
+            or needle in a.ident.lower()
             or needle in a.summary.lower()
             or needle in a.category.lower()
         ]

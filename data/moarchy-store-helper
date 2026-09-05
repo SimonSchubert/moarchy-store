@@ -62,10 +62,19 @@ def _packages(path: Path) -> set[str]:
             data = tomllib.load(fh)
     except (OSError, ValueError, tomllib.TOMLDecodeError):
         return set()
+    # Only `source = "pacman"` entries, which is also every entry with no
+    # source field at all. The catalogue additionally lists Omarchy shell
+    # plugins, and those must never appear here: they install into the user's
+    # own config directory with no privilege at all, so they never reach this
+    # helper -- while a plugin id like "shell.settings" is a perfectly legal
+    # pacman package name, and would silently widen an allowlist whose only job
+    # is to stay narrow.
     return {
         entry["pkg"]
         for entry in data.get("app", [])
-        if isinstance(entry, dict) and isinstance(entry.get("pkg"), str)
+        if isinstance(entry, dict)
+        and entry.get("source", "pacman") == "pacman"
+        and isinstance(entry.get("pkg"), str)
     }
 
 

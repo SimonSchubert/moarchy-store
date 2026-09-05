@@ -8,11 +8,27 @@
 # packages named here, so adding an app is a deliberate, reviewable act. See
 # data/moarchy-store-helper.
 #
+# An entry is one of two things, and `source` says which:
+#
+#   source = "pacman"   (the default) an Arch package. Installed with privilege
+#                       through the helper, so it must be in this allowlist.
+#   source = "plugin"   an Omarchy shell plugin: a git repo of QML the shell
+#                       loads into its own process. Installed as the user with
+#                       `omarchy plugin add`, so it never reaches the helper.
+#
+# They share every other field, one set of categories, and one detail page, on
+# purpose. Someone looking for a notes app does not care which mechanism
+# delivers it.
+#
 # Fields:
-#   pkg       package name in the official repos (must exist for aarch64)
+#   source    "pacman" (default) or "plugin"
+#   pkg       pacman only: package name in the official repos (aarch64)
+#   id        plugin only: the id in the plugin's own manifest.json
+#   repo      plugin only: https git URL, cloned verbatim by `omarchy plugin add`
 #   name      display name
 #   category  grouping in the UI
-#   toolkit   libadwaita | kirigami | gtk | qt | tui -- why it adapts, or that it does not
+#   toolkit   libadwaita | kirigami | gtk | qt | tui | quickshell -- why it
+#             adapts, or that it does not
 #   summary   one line, written for someone deciding whether to install
 #   icon      freedesktop icon name, taken from the app's own .desktop file --
 #             not guessed. TUIs have no .desktop file, so they get a terminal icon.
@@ -27,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 3
+serial = 4
 
 # --- Reading ---------------------------------------------------------------
 
@@ -633,4 +649,66 @@ category = "Chat"
 toolkit = "kirigami"
 summary = "Mastodon client, Kirigami."
 icon = "org.kde.tokodon"
+tested = ""
+
+# --- Omarchy shell plugins -------------------------------------------------
+#
+# Swept from plugins.omarchy.org (2410 listed) rather than picked by taste, and
+# the filter is harsher than it looks:
+#
+#   1. 2087 of the 2410 are kind "bar widget", and mobileomarchy's bar hosts no
+#      widgets at all -- summonBarWidget() returns false by design, because
+#      upstream's widget host is ~1800 lines serving a pointer this device does
+#      not have. So 87% of the marketplace cannot draw anything here, however
+#      good it is. That is a bar limitation, not a judgement about the plugins.
+#   2. Of the 70 most-engaged non-bar-widget plugins, 54 fail mechanically:
+#      they `import Quickshell.Hyprland`, or call hyprctl for something beyond
+#      the two options mobileomarchy's shim answers (decoration:rounding and
+#      general:gaps_out). install/port-4x.sh translates the vendored shell, NOT
+#      third-party plugins, so those break here with no fallback.
+#   3. Of the 16 that pass, most are desktop-shaped for reasons no filter
+#      catches: cursor-style picks a pointer theme on a device with no pointer;
+#      quick-look and super-w-wait are keyboard gestures; theme-manager,
+#      themebook, shell.settings and super-apps each duplicate a plugin
+#      mobileomarchy already ships.
+#
+# What is left is below. All three are overlays -- a whole screen the shell
+# summons, which is the one plugin shape that suits a phone -- and none has
+# been run on hardware yet.
+#
+# Icons are generic freedesktop names, not app icons: a plugin ships no
+# packaged icon theme, so anything more specific would be a guess that renders
+# as a broken glyph.
+
+[[app]]
+source = "plugin"
+id = "io.github.andreivinca.note-note"
+repo = "https://github.com/andreivinca/omarchy-note-note.git"
+name = "Note Note"
+category = "Notes"
+toolkit = "quickshell"
+summary = "Markdown notebooks, always editable and autosaved. Python is stdlib-only and the sync providers stay dormant until you sign in."
+icon = "document-edit-symbolic"
+tested = ""
+
+[[app]]
+source = "plugin"
+id = "yordanbuilds.jot"
+repo = "https://github.com/yordanbuilds/jot.git"
+name = "Jot"
+category = "Notes"
+toolkit = "quickshell"
+summary = "Quick capture: one thought, appended to an inbox file. The smallest thing here and the one that suits a phone best."
+icon = "document-new-symbolic"
+tested = ""
+
+[[app]]
+source = "plugin"
+id = "io.github.idr4n.clipboard-plus"
+repo = "https://github.com/idr4n/omarchy-clipboard-plus.git"
+name = "Clipboard Plus"
+category = "Utilities"
+toolkit = "quickshell"
+summary = "Clipboard history you can browse and edit by touch. Reads Omarchy's own store, so it starts no watcher of its own."
+icon = "edit-paste-symbolic"
 tested = ""
