@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 5
+serial = 6
 
 # --- Reading ---------------------------------------------------------------
 
@@ -672,9 +672,26 @@ tested = ""
 #      themebook, shell.settings and super-apps each duplicate a plugin
 #      mobileomarchy already ships.
 #
-# What is left is below. All three are overlays -- a whole screen the shell
-# summons, which is the one plugin shape that suits a phone -- and none has
-# been run on hardware yet.
+#   4. And one more that only hardware finds. Jot passed every check above,
+#      installed cleanly, and drew a perfect full-width capture field at 360px
+#      -- and could not be typed into. It has no TextInput or TextField at all:
+#      it catches raw key events with Keys.onPressed and assembles the string
+#      itself. Nothing ever requests text input, so the on-screen keyboard has
+#      nothing to respond to and never rises. Beautiful, and unusable without a
+#      hardware keyboard. Removed, and the criterion added below.
+#
+# What is left is below. Both are overlays -- a whole screen the shell summons,
+# which is the one plugin shape that suits a phone -- and both have real text
+# fields (note-note has 36 TextEdit and 10 TextField; clipboard-plus has 3), so
+# the keyboard has something to rise for.
+#
+# Neither has been run on hardware, and there is one specific thing to look for
+# when someone does. Both sit on WlrLayer.Overlay, while moarchy-keyboard sits
+# on Top -- so an Overlay surface draws *over* the keyboard, and a full-screen
+# scrim will swallow the taps meant for it. mobileomarchy.drawer solves exactly
+# this by living on Top and reserving space for the keyboard instead (see the
+# comment at Drawer.qml:431). Whether an Overlay plugin can be typed into at
+# all is the open question these two entries carry.
 #
 # Icons are generic freedesktop names, not app icons: a plugin ships no packaged
 # icon theme, so anything more specific would be a guess. Checked against the
@@ -692,17 +709,6 @@ category = "Notes"
 toolkit = "quickshell"
 summary = "Markdown notebooks, always editable and autosaved. Python is stdlib-only and the sync providers stay dormant until you sign in."
 icon = "text-x-generic-symbolic"
-tested = ""
-
-[[app]]
-source = "plugin"
-id = "yordanbuilds.jot"
-repo = "https://github.com/yordanbuilds/jot.git"
-name = "Jot"
-category = "Notes"
-toolkit = "quickshell"
-summary = "Quick capture: one thought, appended to an inbox file. The smallest thing here and the one that suits a phone best."
-icon = "edit-symbolic"
 tested = ""
 
 [[app]]

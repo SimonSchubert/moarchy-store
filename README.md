@@ -116,12 +116,25 @@ tested   = ""
 `tested` is not decoration. An empty value renders as *"Not yet tested on a
 device"* — a suggestion. A device string is a claim someone can hold you to.
 
-For a plugin, two more things have to be true before it is worth proposing: its
-manifest `kinds` must include `overlay`, `panel` or `menu` (a bar widget has
-nowhere to draw, a bare service has nothing to open), and it must not import
-`Quickshell.Hyprland` or shell out to `hyprctl` for anything beyond
-`decoration:rounding` and `general:gaps_out`, which are the only two options
-mobileomarchy's shim answers.
+For a plugin, three more things have to be true before it is worth proposing:
+
+1. Its manifest `kinds` must include `overlay`, `panel` or `menu` — a bar widget
+   has nowhere to draw, a bare service has nothing to open.
+2. It must not import `Quickshell.Hyprland`, or shell out to `hyprctl` for
+   anything beyond `decoration:rounding` and `general:gaps_out`, the only two
+   options mobileomarchy's shim answers.
+3. **If it takes text, it must take it through a real `TextInput`, `TextField`
+   or `TextEdit`.** A plugin that catches raw keys with `Keys.onPressed` and
+   assembles the string itself never requests text input, so the on-screen
+   keyboard has nothing to respond to and never rises. That plugin is unusable
+   here no matter how well it draws — which is not a thing any static check
+   catches, and is why `tested` exists.
+
+There is a fourth thing worth checking on hardware, still open: every plugin
+here sits on `WlrLayer.Overlay`, while the keyboard sits on `Top`. An Overlay
+surface draws over the keyboard, and a full-screen scrim will swallow the taps
+meant for it. `mobileomarchy.drawer` avoids this by living on `Top` and
+reserving space for the keyboard instead.
 
 ## Requirements
 
