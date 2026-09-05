@@ -7,6 +7,8 @@ there is no keyboard.
 
 from __future__ import annotations
 
+import os
+
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -302,6 +304,16 @@ class StoreWindow(Adw.ApplicationWindow):
 
         self.apps: list[App] = []
         self.refresh()
+
+        # Debug aid: MOARCHY_STORE_DETAIL=<pkg> opens straight to that app's
+        # detail page. Verifying the detail layout otherwise means synthesising
+        # a pointer click, which a headless compositor has no device for.
+        wanted = os.environ.get("MOARCHY_STORE_DETAIL")
+        if wanted:
+            for app in self.apps:
+                if app.pkg == wanted:
+                    GLib.idle_add(self._open_detail, app)
+                    break
 
         # Do not let the search entry take focus at startup. squeekboard raises
         # itself whenever a text field is focused, so an autofocused search box
