@@ -58,14 +58,38 @@ class DetailPage(Adw.NavigationPage):
 
         page = Adw.PreferencesPage()
 
-        status = Adw.StatusPage(
-            title=app.name,
-            description=app.summary,
-            icon_name=app.icon or "application-x-executable",
-        )
-        status.set_vexpand(False)
+        # Deliberately not Adw.StatusPage. Its icon scales to the space it is
+        # given, so as soon as the content below overflows the screen the icon
+        # is the first thing squashed -- and set_vexpand(False) does not stop
+        # it. A Gtk.Image with an explicit pixel_size cannot be resized by its
+        # parent, which is exactly what a fixed app icon wants.
+        header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        header.set_margin_top(12)
+        header.set_margin_bottom(6)
+
+        icon = Gtk.Image.new_from_icon_name(app.icon or "application-x-executable")
+        icon.set_pixel_size(96)
+        icon.set_halign(Gtk.Align.CENTER)
+        icon.set_valign(Gtk.Align.CENTER)
+        icon.set_vexpand(False)
+        header.append(icon)
+
+        title = Gtk.Label(label=app.name)
+        title.add_css_class("title-1")
+        title.set_wrap(True)
+        title.set_justify(Gtk.Justification.CENTER)
+        header.append(title)
+
+        blurb = Gtk.Label(label=app.summary)
+        blurb.add_css_class("dim-label")
+        blurb.set_wrap(True)
+        blurb.set_justify(Gtk.Justification.CENTER)
+        blurb.set_margin_start(12)
+        blurb.set_margin_end(12)
+        header.append(blurb)
+
         group_intro = Adw.PreferencesGroup()
-        group_intro.add(status)
+        group_intro.add(header)
         page.add(group_intro)
 
         facts = Adw.PreferencesGroup(title="Details")
