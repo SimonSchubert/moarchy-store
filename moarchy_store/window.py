@@ -12,10 +12,26 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, GLib, Gtk  # noqa: E402
+from gi.repository import Adw, Gdk, GLib, Gtk  # noqa: E402
 
 from . import installer, media  # noqa: E402
 from .catalogue import App, by_category, enrich, load_apps  # noqa: E402
+
+
+def icon_name_for(app: App) -> str:
+    """The app's own icon if the theme actually has it, else a generic one.
+
+    Falling back only when the catalogue field is empty is not enough: an app
+    that is not installed yet has no icon on disk, because icons ship with the
+    package. GTK then renders "image-missing", a broken-image glyph, which
+    looks like a bug rather than "not installed yet".
+    """
+    display = Gdk.Display.get_default()
+    if display is not None and app.icon:
+        theme = Gtk.IconTheme.get_for_display(display)
+        if theme.has_icon(app.icon):
+            return app.icon
+    return "package-x-generic"
 
 
 class AppRow(Adw.ActionRow):
@@ -28,7 +44,7 @@ class AppRow(Adw.ActionRow):
         self.set_activatable(True)
         self.connect("activated", lambda *_: on_activate(app))
 
-        icon = Gtk.Image.new_from_icon_name(app.icon or "application-x-executable")
+        icon = Gtk.Image.new_from_icon_name(icon_name_for(app))
         icon.set_pixel_size(32)
         icon.set_margin_top(6)
         icon.set_margin_bottom(6)
@@ -67,7 +83,7 @@ class DetailPage(Adw.NavigationPage):
         header.set_margin_top(12)
         header.set_margin_bottom(6)
 
-        icon = Gtk.Image.new_from_icon_name(app.icon or "application-x-executable")
+        icon = Gtk.Image.new_from_icon_name(icon_name_for(app))
         icon.set_pixel_size(96)
         icon.set_halign(Gtk.Align.CENTER)
         icon.set_valign(Gtk.Align.CENTER)
