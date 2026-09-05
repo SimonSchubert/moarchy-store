@@ -2,6 +2,14 @@
 
 A curated store of Linux phone apps that **actually fit a small screen**.
 
+<p align="center">
+  <img src="docs/screenshots/store-list.png" width="45%" alt="The catalogue: apps grouped by category, each with a rounded icon tile, a one-line note on why it works on a phone, and a green tick on the tile corner where it is already installed">
+  <img src="docs/screenshots/store-detail.png" width="45%" alt="Foliate's page: a large icon, its summary, chips for category, toolkit and the device it was tested on, then Open and Remove side by side above the package details">
+</p>
+
+<p align="center"><em>Shot on a PinePhone at 360×720. The palette is not the
+app's own — it is read from the active Omarchy theme, here tokyo-night.</em></p>
+
 `pacman -Ss` already lists every package. What it cannot tell you is which of
 them survive 360×720 logical pixels and 2 GB of RAM. That judgement is the whole
 point of this app.
@@ -14,8 +22,10 @@ Mobile, postmarketOS, or any Arch-based phone.
 
 - Browse curated apps by category, with a note on *why* each one works
 - See installed state, version and download size, read live from the system
-- Install and remove, from the app, by touch
+- Install, open and remove, from the app, by touch
 - Marks which entries were verified on real hardware and which are suggestions
+- Takes its palette from the active Omarchy theme, so it matches the shell
+  around it rather than shipping a look of its own
 
 Apps are grouped by the toolkit that makes them adaptive — **libadwaita** (GNOME)
 and **Kirigami** (Plasma Mobile) are the two families designed for phone widths.
