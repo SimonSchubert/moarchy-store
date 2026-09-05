@@ -88,6 +88,15 @@ def app_tile(app: App, hero: bool = False) -> Gtk.Widget:
     tile.set_size_request(size, size)
     tile.set_halign(Gtk.Align.CENTER)
     tile.set_valign(Gtk.Align.CENTER)
+    # Stop here, explicitly. The icon expands so that halign CENTER has room to
+    # centre it inside the tile, but expand propagates *upward*: without this
+    # the row's whole prefix column inherited it, claimed whatever space the
+    # title did not want, and pushed the text right by however much the summary
+    # happened not to need. Rows with a short summary indented most, so the
+    # list read as ragged. An explicit False overrides the value a parent would
+    # otherwise compute from its children.
+    tile.set_hexpand(False)
+    tile.set_vexpand(False)
     tile.append(icon)
     return tile
 
