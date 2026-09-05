@@ -108,10 +108,11 @@ def catalogue_path() -> Path:
     """
     from . import remote
 
-    verified = remote.verified_catalogue()
+    shipped = shipped_path()
+    verified = remote.verified_catalogue(shipped)
     if verified is not None:
         return verified
-    return shipped_path()
+    return shipped
 
 
 def refresh_remote() -> bool:

@@ -105,6 +105,25 @@ def update(shipped: Path) -> bool:
     return True
 
 
-def verified_catalogue() -> Path | None:
-    """The cached catalogue, if it is present and still verifies."""
-    return CATALOGUE if verify() else None
+def verified_catalogue(shipped: Path) -> Path | None:
+    """The cached catalogue, if it verifies *and* is not older than `shipped`.
+
+    Verifying is not sufficient on its own. A signature never expires, so a
+    cache fetched before a package upgrade keeps verifying happily after one --
+    and would then be preferred over the newer catalogue the upgrade just
+    installed, hiding every entry added since. `update()` refuses that rollback
+    when fetching; this is the same rule applied when choosing, which is the
+    half that was missing: after an upgrade the app showed the old catalogue
+    for one launch, because the cache was only discarded as a side effect of
+    the next fetch.
+
+    The helper has always compared serials here, so this was never a hole in
+    the allowlist -- an entry the UI would not show could not be installed
+    either. It was the reverse: entries that were legitimately there stayed
+    invisible.
+    """
+    if not verify():
+        return None
+    if _serial(CATALOGUE) < _serial(shipped):
+        return None
+    return CATALOGUE
