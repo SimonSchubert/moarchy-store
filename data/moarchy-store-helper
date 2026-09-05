@@ -7,9 +7,16 @@ package -- including one with a setuid binary or an install hook -- which is a
 straightforward local privilege escalation.
 
 Instead the action points here, and this refuses to touch anything that is not
-named in the shipped catalogue. Adding an installable app therefore means
-editing a root-owned file, which is a reviewable act rather than a runtime
-decision.
+in an allowlist it has established for itself:
+
+  * the catalogue shipped with the package, which is root-owned; and
+  * a remotely published catalogue, but only if `gpgv` says it carries a good
+    signature from a key in the shipped keyring, and only if its serial is not
+    older than the shipped one.
+
+The remote catalogue lives in the calling user's cache and is therefore fully
+under their control. That is fine: tampering with it only breaks the signature.
+Nothing the unprivileged half says is taken on trust here -- it re-verifies.
 
 Usage:  moarchy-store-helper install|remove PKG
 """
@@ -17,12 +24,16 @@ Usage:  moarchy-store-helper install|remove PKG
 from __future__ import annotations
 
 import os
+import pwd
 import re
+import subprocess
 import sys
 import tomllib
 from pathlib import Path
 
-CATALOGUE = Path("/usr/share/moarchy-store/catalogue.toml")
+SHARE = Path("/usr/share/moarchy-store")
+CATALOGUE = SHARE / "catalogue.toml"
+KEYRING = SHARE / "catalogue-signing-key.gpg"
 
 # Arch package names: alphanumeric plus @ . _ + -, not starting with a dash.
 # Validated before the name is ever used, so a name like "-Sy" or "a b" cannot
@@ -35,25 +46,93 @@ def fail(msg: str, code: int = 1) -> None:
     raise SystemExit(code)
 
 
-def allowlist() -> set[str]:
-    if not CATALOGUE.is_file():
-        fail(f"catalogue missing at {CATALOGUE}")
+def _root_owned(path: Path) -> bool:
+    """A file only counts as trusted input if root owns it and nobody else can
+    write it -- otherwise the allowlist is whatever an attacker last wrote."""
+    try:
+        st = path.stat()
+    except OSError:
+        return False
+    return st.st_uid == 0 and not st.st_mode & 0o022
 
-    # If the catalogue is writable by anyone but root, the allowlist is
-    # meaningless -- an attacker would just add their package to it first.
-    st = CATALOGUE.stat()
-    if st.st_uid != 0:
-        fail(f"{CATALOGUE} is not owned by root; refusing")
-    if st.st_mode & 0o022:
-        fail(f"{CATALOGUE} is group- or world-writable; refusing")
 
-    with CATALOGUE.open("rb") as fh:
-        data = tomllib.load(fh)
+def _packages(path: Path) -> set[str]:
+    try:
+        with path.open("rb") as fh:
+            data = tomllib.load(fh)
+    except (OSError, ValueError, tomllib.TOMLDecodeError):
+        return set()
     return {
         entry["pkg"]
         for entry in data.get("app", [])
-        if isinstance(entry, dict) and "pkg" in entry
+        if isinstance(entry, dict) and isinstance(entry.get("pkg"), str)
     }
+
+
+def _serial(path: Path) -> int:
+    try:
+        with path.open("rb") as fh:
+            return int(tomllib.load(fh).get("serial", 0))
+    except (OSError, ValueError, tomllib.TOMLDecodeError):
+        return 0
+
+
+def _caller_cache() -> Path | None:
+    """Where the unprivileged half puts its downloads.
+
+    pkexec sets PKEXEC_UID to the calling user. Resolving the home directory
+    from the passwd database rather than $HOME matters: $HOME is inherited from
+    a caller we do not trust, and would let anyone point this at a file of
+    their choosing.
+    """
+    uid = os.environ.get("PKEXEC_UID")
+    if not uid or not uid.isdigit():
+        return None
+    try:
+        home = Path(pwd.getpwuid(int(uid)).pw_dir)
+    except (KeyError, ValueError):
+        return None
+    return home / ".cache" / "moarchy-store"
+
+
+def _remote_packages() -> set[str]:
+    """Packages from the published catalogue, if it verifies."""
+    cache = _caller_cache()
+    if cache is None or not KEYRING.is_file() or not _root_owned(KEYRING):
+        return set()
+
+    catalogue, signature = cache / "catalogue.toml", cache / "catalogue.toml.sig"
+    if not (catalogue.is_file() and signature.is_file()):
+        return set()
+
+    try:
+        verified = subprocess.run(
+            ["gpgv", "--keyring", str(KEYRING), str(signature), str(catalogue)],
+            capture_output=True,
+            timeout=30,
+            check=False,
+        ).returncode == 0
+    except (subprocess.SubprocessError, OSError):
+        return set()
+
+    if not verified:
+        return set()
+
+    # A signature never expires, so without this an older signed catalogue
+    # could be replayed to reinstate an entry that was deliberately removed.
+    if _serial(catalogue) < _serial(CATALOGUE):
+        return set()
+
+    return _packages(catalogue)
+
+
+def allowlist() -> set[str]:
+    if not CATALOGUE.is_file():
+        fail(f"catalogue missing at {CATALOGUE}")
+    if not _root_owned(CATALOGUE):
+        fail(f"{CATALOGUE} is not root-owned or is world-writable; refusing")
+
+    return _packages(CATALOGUE) | _remote_packages()
 
 
 def main() -> None:
@@ -67,8 +146,7 @@ def main() -> None:
     if not PKGNAME.match(pkg):
         fail(f"invalid package name {pkg!r}", 2)
 
-    allowed = allowlist()
-    if pkg not in allowed:
+    if pkg not in allowlist():
         fail(f"{pkg!r} is not in the moarchy-store catalogue; refusing")
 
     if action == "install":

@@ -24,6 +24,11 @@
 
 version = 1
 
+# Bumped on every publish. Clients refuse a remote catalogue whose serial is
+# lower than the one they already trust, so a replayed older catalogue cannot
+# quietly re-add something that was removed.
+serial = 1
+
 # --- Reading ---------------------------------------------------------------
 
 [[app]]

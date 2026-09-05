@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+# The signing key must never be committed. It lives in
+# ~/.config/moarchy-store/signing-key.asc -- see scripts/sign-catalogue.sh.
+signing-key.asc
+*.pkg.tar.*

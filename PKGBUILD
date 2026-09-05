@@ -8,7 +8,8 @@ arch=('any')
 url="https://github.com/SimonSchubert/moarchy-store"
 license=('MIT')
 # Pure Python, so arch=any. The GUI stack is all runtime, nothing is compiled.
-depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit' 'pacman')
+# gnupg provides gpgv, used to verify the published catalogue's signature.
+depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit' 'pacman' 'gnupg')
 makedepends=('git')
 provides=("$_pkgname")
 conflicts=("$_pkgname")
@@ -43,6 +44,12 @@ package() {
   # The catalogue doubles as the install allowlist, so it must land root-owned
   # and not group- or world-writable. The helper refuses to run otherwise.
   install -Dm644 catalogue.toml "$pkgdir/usr/share/$_pkgname/catalogue.toml"
+
+  # Trust root for remotely published catalogues. Must be root-owned and not
+  # world-writable, or the helper ignores it -- a keyring anyone can rewrite
+  # verifies nothing.
+  install -Dm644 data/catalogue-signing-key.gpg \
+    "$pkgdir/usr/share/$_pkgname/catalogue-signing-key.gpg"
 
   # Not in /usr/bin: this is only ever invoked through the polkit action, and
   # putting it on PATH invites someone to call it directly and be confused by

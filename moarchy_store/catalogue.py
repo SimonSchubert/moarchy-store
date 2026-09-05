@@ -53,9 +53,9 @@ class App:
         )
 
 
-def catalogue_path() -> Path:
-    """Prefer the installed catalogue; fall back to the source tree when
-    running from a checkout."""
+def shipped_path() -> Path:
+    """The catalogue installed by the package, or the one beside the source
+    tree when running from a checkout."""
     if SYSTEM_CATALOGUE.exists():
         return SYSTEM_CATALOGUE
     local = Path(__file__).resolve().parent.parent / "catalogue.toml"
@@ -64,6 +64,32 @@ def catalogue_path() -> Path:
     raise FileNotFoundError(
         f"No catalogue at {SYSTEM_CATALOGUE} and none beside the source tree"
     )
+
+
+def catalogue_path() -> Path:
+    """The catalogue to display: a verified remote one if we have it, else the
+    shipped one.
+
+    Only a signed catalogue is ever preferred. An unverified download is not a
+    degraded catalogue, it is an untrusted one, so it is discarded rather than
+    shown with a warning.
+    """
+    from . import remote
+
+    verified = remote.verified_catalogue()
+    if verified is not None:
+        return verified
+    return shipped_path()
+
+
+def refresh_remote() -> bool:
+    """Try to pull a newer signed catalogue. Safe to call on every launch."""
+    from . import remote
+
+    try:
+        return remote.update(shipped_path())
+    except Exception:
+        return False
 
 
 def load_apps() -> list[App]:

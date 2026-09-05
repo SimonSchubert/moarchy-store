@@ -17,6 +17,7 @@ gi.require_version("Adw", "1")
 from gi.repository import Adw, Gdk, GLib, Gtk  # noqa: E402
 
 from . import installer, media  # noqa: E402
+from . import catalogue  # noqa: E402
 from .catalogue import App, by_category, enrich, load_apps  # noqa: E402
 
 
@@ -291,7 +292,8 @@ class StoreWindow(Adw.ApplicationWindow):
         header = Adw.HeaderBar()
         refresh = Gtk.Button(icon_name="view-refresh-symbolic")
         refresh.set_tooltip_text("Refresh installed state")
-        refresh.connect("clicked", lambda *_: self.refresh())
+        # The refresh button also re-checks for a newly published catalogue.
+        refresh.connect("clicked", lambda *_: self.refresh(check_remote=True))
         header.pack_end(refresh)
 
         clamp = Adw.Clamp(maximum_size=640)
@@ -317,6 +319,9 @@ class StoreWindow(Adw.ApplicationWindow):
 
         self.apps: list[App] = []
         self.refresh()
+        # Check for a newly published catalogue after the window is up, so a
+        # slow or dead network never delays first paint.
+        GLib.timeout_add_seconds(1, self._check_remote_once)
 
         # Debug aid: MOARCHY_STORE_DETAIL=<pkg> opens straight to that app's
         # detail page. Verifying the detail layout otherwise means synthesising
@@ -335,11 +340,18 @@ class StoreWindow(Adw.ApplicationWindow):
         # when they actually want to type.
         GLib.idle_add(self._drop_focus)
 
+    def _check_remote_once(self) -> bool:
+        if catalogue.refresh_remote():
+            self.refresh()
+        return False  # one-shot
+
     def _drop_focus(self) -> bool:
         self.set_focus(None)
         return False
 
-    def refresh(self) -> None:
+    def refresh(self, check_remote: bool = False) -> None:
+        if check_remote:
+            catalogue.refresh_remote()
         try:
             self.apps = enrich(load_apps())
         except FileNotFoundError as exc:
