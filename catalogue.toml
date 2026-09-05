@@ -27,7 +27,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 1
+serial = 2
 
 # --- Reading ---------------------------------------------------------------
 
@@ -122,6 +122,33 @@ summary = "Calendar with local storage. No account required."
 icon = "calindori"
 screenshot = "calindori.png"
 tested = "pinephone-a64"
+
+[[app]]
+pkg = "gnome-calculator"
+name = "Calculator"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Calculator with unit conversion and a history tape."
+icon = "org.gnome.Calculator"
+tested = ""
+
+[[app]]
+pkg = "gnome-weather"
+name = "Weather"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Forecasts for saved locations. Adapts down to one column."
+icon = "org.gnome.Weather"
+tested = ""
+
+[[app]]
+pkg = "gnome-contacts"
+name = "Contacts"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Address book that syncs with online accounts, or stays local."
+icon = "org.gnome.Contacts"
+tested = ""
 
 # --- Files and text --------------------------------------------------------
 
