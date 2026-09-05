@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Store
+GenericName=App Store
+Comment=Curated Linux phone apps that actually fit a small screen
+Exec=moarchy-store
+Icon=system-software-install
+Terminal=false
+Categories=System;PackageManager;
+Keywords=app;store;install;package;phone;
+StartupNotify=true

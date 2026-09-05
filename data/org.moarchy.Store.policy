@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1.0/policyconfig.dtd">
+<policyconfig>
+  <vendor>moarchy-store</vendor>
+  <vendor_url>https://github.com/SimonSchubert/moarchy-store</vendor_url>
+
+  <!--
+    The action runs the helper, never pacman directly. The helper refuses any
+    package that is not in the root-owned catalogue, so authenticating here
+    grants "install one of these curated apps", not "install anything".
+
+    auth_admin_keep rather than auth_admin: on a phone, typing a password into
+    an auth dialog with an on-screen keyboard is painful enough that being
+    asked once per package would make the app unusable.
+  -->
+  <action id="org.moarchy.store.manage">
+    <description>Install or remove a moarchy-store app</description>
+    <message>Authentication is required to change installed apps</message>
+    <icon_name>system-software-install</icon_name>
+    <defaults>
+      <allow_any>auth_admin_keep</allow_any>
+      <allow_inactive>auth_admin_keep</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/moarchy-store/moarchy-store-helper</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+</policyconfig>

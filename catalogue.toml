@@ -1,0 +1,194 @@
+# moarchy-store catalogue
+#
+# A curated list of Linux phone apps that genuinely work on a small screen.
+# `pacman -Ss` already lists everything; the value here is the judgement about
+# what survives 360x720 logical pixels and 2 GB of RAM.
+#
+# This file is ALSO the install allowlist. The privileged helper will only touch
+# packages named here, so adding an app is a deliberate, reviewable act. See
+# data/moarchy-store-helper.
+#
+# Fields:
+#   pkg       package name in the official repos (must exist for aarch64)
+#   name      display name
+#   category  grouping in the UI
+#   toolkit   libadwaita | kirigami | gtk | qt | tui -- why it adapts, or that it does not
+#   summary   one line, written for someone deciding whether to install
+#   tested    device string the entry was verified on, or "" if unverified
+#
+# "tested" is not decoration. An entry with an empty tested field is a
+# suggestion; an entry with a device is a claim someone can hold us to.
+
+version = 1
+
+# --- Reading ---------------------------------------------------------------
+
+[[app]]
+pkg = "foliate"
+name = "Foliate"
+category = "Reading"
+toolkit = "libadwaita"
+summary = "E-book reader. One of the best things about having a Linux phone."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "papers"
+name = "Papers"
+category = "Reading"
+toolkit = "libadwaita"
+summary = "PDF viewer, GNOME's successor to Evince. Reflows to one page wide."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "loupe"
+name = "Loupe"
+category = "Reading"
+toolkit = "libadwaita"
+summary = "Image viewer with gesture zoom."
+tested = "pinephone-a64"
+
+# --- Utilities -------------------------------------------------------------
+
+[[app]]
+pkg = "gnome-clocks"
+name = "Clocks"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "World clocks, alarms, stopwatch, timer. Bottom tab bar, fully adaptive."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "kalk"
+name = "Kalk"
+category = "Utilities"
+toolkit = "kirigami"
+summary = "Calculator with unit and currency conversion. Built for touch."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "kclock"
+name = "KClock"
+category = "Utilities"
+toolkit = "kirigami"
+summary = "Clock, alarms and timers, Plasma Mobile style."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "kweather"
+name = "KWeather"
+category = "Utilities"
+toolkit = "kirigami"
+summary = "Weather forecasts. Light, and honest about being a phone app."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "keysmith"
+name = "Keysmith"
+category = "Utilities"
+toolkit = "kirigami"
+summary = "TOTP two-factor codes. Genuinely useful to have on the phone itself."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "calindori"
+name = "Calindori"
+category = "Utilities"
+toolkit = "kirigami"
+summary = "Calendar with local storage. No account required."
+tested = "pinephone-a64"
+
+# --- Files and text --------------------------------------------------------
+
+[[app]]
+pkg = "portfolio-file-manager"
+name = "Portfolio"
+category = "Files"
+toolkit = "libadwaita"
+summary = "File manager designed for touch from the start, not scaled down."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "index-fm"
+name = "Index"
+category = "Files"
+toolkit = "kirigami"
+summary = "Maui file manager. Runs fine as a plain Wayland client, no KDE session."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "gnome-text-editor"
+name = "Text Editor"
+category = "Files"
+toolkit = "libadwaita"
+summary = "Plain text editing that cooperates with the on-screen keyboard."
+tested = "pinephone-a64"
+
+# --- Terminal --------------------------------------------------------------
+
+[[app]]
+pkg = "qmlkonsole"
+name = "QML Konsole"
+category = "Terminal"
+toolkit = "kirigami"
+summary = "Terminal with touch-sized controls and a key toolbar."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "foot"
+name = "Foot"
+category = "Terminal"
+toolkit = "gtk"
+summary = "Fast, tiny Wayland terminal. The one the session uses by default."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "bottom"
+name = "Bottom (btm)"
+category = "Terminal"
+toolkit = "tui"
+summary = "System monitor that fits a tiled terminal at 47 columns, unlike btop."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "impala"
+name = "Impala"
+category = "Terminal"
+toolkit = "tui"
+summary = "Wi-Fi picker for the terminal. Faster than any GUI on this hardware."
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "bluetui"
+name = "bluetui"
+category = "Terminal"
+toolkit = "tui"
+summary = "Bluetooth pairing and connection from the terminal."
+tested = "pinephone-a64"
+
+# --- Web -------------------------------------------------------------------
+
+[[app]]
+pkg = "epiphany"
+name = "Web (Epiphany)"
+category = "Web"
+toolkit = "libadwaita"
+summary = "WebKit browser with a real mobile layout; URL bar at the bottom. Far lighter than Chromium."
+tested = "pinephone-a64"
+
+# --- Media -----------------------------------------------------------------
+
+[[app]]
+pkg = "amberol"
+name = "Amberol"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Local music player. Deliberately small in scope, which suits the device."
+tested = ""
+
+[[app]]
+pkg = "mpv"
+name = "mpv"
+category = "Media"
+toolkit = "gtk"
+summary = "Video player. Can offload decoding to the A64's cedrus hardware decoder."
+tested = ""

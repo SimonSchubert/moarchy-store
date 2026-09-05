@@ -1,0 +1,4 @@
+#!/usr/bin/python3
+from moarchy_store.app import main
+
+raise SystemExit(main())

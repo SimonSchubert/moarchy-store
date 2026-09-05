@@ -1,0 +1,289 @@
+"""The window. Built for 360x720 logical pixels first, not scaled down to it.
+
+Adw.NavigationView gives list -> detail push/pop with a back gesture, which is
+the only navigation model that works when the window is one column wide and
+there is no keyboard.
+"""
+
+from __future__ import annotations
+
+import gi
+
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
+
+from gi.repository import Adw, GLib, Gtk  # noqa: E402
+
+from . import installer  # noqa: E402
+from .catalogue import App, by_category, enrich, load_apps  # noqa: E402
+
+
+class AppRow(Adw.ActionRow):
+    def __init__(self, app: App, on_activate):
+        super().__init__()
+        self.app = app
+        self.set_title(GLib.markup_escape_text(app.name))
+        self.set_subtitle(GLib.markup_escape_text(app.summary))
+        self.set_subtitle_lines(2)
+        self.set_activatable(True)
+        self.connect("activated", lambda *_: on_activate(app))
+
+        if app.installed:
+            tick = Gtk.Image.new_from_icon_name("object-select-symbolic")
+            tick.add_css_class("success")
+            tick.set_tooltip_text("Installed")
+            self.add_suffix(tick)
+        elif not app.available:
+            warn = Gtk.Image.new_from_icon_name("dialog-warning-symbolic")
+            warn.set_tooltip_text("Not found in the repositories")
+            self.add_suffix(warn)
+
+        self.add_suffix(Gtk.Image.new_from_icon_name("go-next-symbolic"))
+
+
+class DetailPage(Adw.NavigationPage):
+    def __init__(self, app: App, refresh):
+        super().__init__(title=app.name)
+        self.app = app
+        self.refresh = refresh
+
+        toolbar = Adw.ToolbarView()
+        toolbar.add_top_bar(Adw.HeaderBar())
+
+        page = Adw.PreferencesPage()
+
+        status = Adw.StatusPage(
+            title=app.name,
+            description=app.summary,
+            icon_name="application-x-executable-symbolic",
+        )
+        status.set_vexpand(False)
+        group_intro = Adw.PreferencesGroup()
+        group_intro.add(status)
+        page.add(group_intro)
+
+        facts = Adw.PreferencesGroup(title="Details")
+        facts.add(self._row("Package", app.pkg))
+        if app.version:
+            facts.add(self._row("Version", app.version))
+        if app.installed and app.update_available:
+            facts.add(self._row("Installed", app.installed_version))
+        if app.size:
+            facts.add(self._row("Download", app.size))
+        if app.toolkit:
+            facts.add(self._row("Toolkit", self._toolkit_label(app.toolkit)))
+        facts.add(
+            self._row(
+                "Verified",
+                f"Tested on {app.tested}" if app.verified else "Not yet tested on a device",
+            )
+        )
+        page.add(facts)
+
+        actions = Adw.PreferencesGroup()
+        self.button = Gtk.Button()
+        self.button.set_halign(Gtk.Align.CENTER)
+        self.button.set_margin_top(12)
+        self._set_button_state()
+        self.button.connect("clicked", self._on_clicked)
+        actions.add(self.button)
+
+        self.status_label = Gtk.Label()
+        self.status_label.add_css_class("dim-label")
+        self.status_label.set_wrap(True)
+        self.status_label.set_margin_top(8)
+        self.status_label.set_visible(False)
+        actions.add(self.status_label)
+        page.add(actions)
+
+        toolbar.set_content(page)
+        self.set_child(toolbar)
+
+    @staticmethod
+    def _row(title: str, value: str) -> Adw.ActionRow:
+        row = Adw.ActionRow(title=title)
+        label = Gtk.Label(label=value)
+        label.add_css_class("dim-label")
+        label.set_selectable(True)
+        row.add_suffix(label)
+        return row
+
+    @staticmethod
+    def _toolkit_label(toolkit: str) -> str:
+        return {
+            "libadwaita": "libadwaita — adapts to phone widths",
+            "kirigami": "Kirigami — built for Plasma Mobile",
+            "tui": "Terminal app",
+            "gtk": "GTK",
+            "qt": "Qt",
+        }.get(toolkit, toolkit)
+
+    def _set_button_state(self) -> None:
+        self.button.set_sensitive(True)
+        for css in ("suggested-action", "destructive-action"):
+            self.button.remove_css_class(css)
+
+        if not self.app.available and not self.app.installed:
+            self.button.set_label("Not available")
+            self.button.set_sensitive(False)
+        elif self.app.installed:
+            self.button.set_label("Remove")
+            self.button.add_css_class("destructive-action")
+        else:
+            self.button.set_label("Install")
+            self.button.add_css_class("suggested-action")
+
+    def _on_clicked(self, _button) -> None:
+        if not installer.available():
+            self._say("pkexec or pacman is missing; cannot manage packages")
+            return
+
+        action = "remove" if self.app.installed else "install"
+        self.button.set_sensitive(False)
+        self.button.set_label("Removing…" if action == "remove" else "Installing…")
+        self._say(f"Working… ({self.app.pkg})")
+
+        installer.run(
+            action,
+            self.app.pkg,
+            on_line=lambda line: GLib.idle_add(self._say, line),
+            on_done=lambda ok, err: GLib.idle_add(self._finish, ok, err, action),
+        )
+
+    def _say(self, text: str) -> bool:
+        self.status_label.set_visible(True)
+        self.status_label.set_label(text)
+        return False
+
+    def _finish(self, ok: bool, err: str, action: str) -> bool:
+        if ok:
+            self.app.installed = action == "install"
+            self._say("Installed." if action == "install" else "Removed.")
+            self.refresh()
+        else:
+            self._say(err or "Failed.")
+        self._set_button_state()
+        return False
+
+
+class StoreWindow(Adw.ApplicationWindow):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.set_title("Store")
+        # Fits a 360x720 logical screen; still resizable on a desktop.
+        self.set_default_size(360, 720)
+
+        self.nav = Adw.NavigationView()
+        self.set_content(self.nav)
+
+        self.search = Gtk.SearchEntry(placeholder_text="Search apps")
+        self.search.connect("search-changed", lambda *_: self._populate())
+
+        self.list_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+
+        header = Adw.HeaderBar()
+        refresh = Gtk.Button(icon_name="view-refresh-symbolic")
+        refresh.set_tooltip_text("Refresh installed state")
+        refresh.connect("clicked", lambda *_: self.refresh())
+        header.pack_end(refresh)
+
+        clamp = Adw.Clamp(maximum_size=640)
+        clamp.set_child(self.list_box)
+        scroller = Gtk.ScrolledWindow(vexpand=True)
+        scroller.set_child(clamp)
+
+        content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        search_bar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        search_bar.set_margin_start(12)
+        search_bar.set_margin_end(12)
+        search_bar.set_margin_top(6)
+        search_bar.set_margin_bottom(6)
+        search_bar.append(self.search)
+        content.append(search_bar)
+        content.append(scroller)
+
+        toolbar = Adw.ToolbarView()
+        toolbar.add_top_bar(header)
+        toolbar.set_content(content)
+
+        self.nav.push(Adw.NavigationPage(child=toolbar, title="Store"))
+
+        self.apps: list[App] = []
+        self.refresh()
+
+        # Do not let the search entry take focus at startup. squeekboard raises
+        # itself whenever a text field is focused, so an autofocused search box
+        # means the keyboard covers half the catalogue before you have looked at
+        # it. Focus lands on the search entry when the user taps it, which is
+        # when they actually want to type.
+        GLib.idle_add(self._drop_focus)
+
+    def _drop_focus(self) -> bool:
+        self.set_focus(None)
+        return False
+
+    def refresh(self) -> None:
+        try:
+            self.apps = enrich(load_apps())
+        except FileNotFoundError as exc:
+            self.apps = []
+            self._show_error(str(exc))
+            return
+        self._populate()
+
+    def _show_error(self, message: str) -> None:
+        child = self.list_box.get_first_child()
+        while child:
+            self.list_box.remove(child)
+            child = self.list_box.get_first_child()
+        self.list_box.append(
+            Adw.StatusPage(
+                title="No catalogue",
+                description=message,
+                icon_name="dialog-warning-symbolic",
+            )
+        )
+
+    def _populate(self) -> None:
+        child = self.list_box.get_first_child()
+        while child:
+            self.list_box.remove(child)
+            child = self.list_box.get_first_child()
+
+        needle = self.search.get_text().strip().lower()
+        shown = [
+            a
+            for a in self.apps
+            if not needle
+            or needle in a.name.lower()
+            or needle in a.pkg.lower()
+            or needle in a.summary.lower()
+            or needle in a.category.lower()
+        ]
+
+        if not shown:
+            self.list_box.append(
+                Adw.StatusPage(
+                    title="Nothing matches",
+                    description=f"No app matches “{self.search.get_text()}”",
+                    icon_name="system-search-symbolic",
+                )
+            )
+            return
+
+        for category, apps in by_category(shown).items():
+            installed = sum(1 for a in apps if a.installed)
+            group = Adw.PreferencesGroup(
+                title=category,
+                description=f"{installed} of {len(apps)} installed",
+            )
+            group.set_margin_start(12)
+            group.set_margin_end(12)
+            group.set_margin_top(6)
+            group.set_margin_bottom(6)
+            for app in apps:
+                group.add(AppRow(app, self._open_detail))
+            self.list_box.append(group)
+
+    def _open_detail(self, app: App) -> None:
+        self.nav.push(DetailPage(app, self.refresh))
