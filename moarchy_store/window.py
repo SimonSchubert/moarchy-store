@@ -14,9 +14,9 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gdk, GLib, Gtk  # noqa: E402
+from gi.repository import Adw, Gdk, GLib, Gtk, Pango  # noqa: E402
 
-from . import installer, media  # noqa: E402
+from . import installer, launcher, media  # noqa: E402
 from . import catalogue  # noqa: E402
 from .catalogue import App, by_category, enrich, load_apps  # noqa: E402
 
@@ -56,6 +56,42 @@ def icon_name_for(app: App) -> str:
     return "application-x-executable-symbolic"
 
 
+def app_tile(app: App, hero: bool = False) -> Gtk.Widget:
+    """An icon in a rounded tile.
+
+    The catalogue's icons come from wherever each app's own .desktop file
+    points, so they are a mix of full-colour squares, circles, and thin
+    symbolic glyphs where nothing resolved. Loose on a row they read as
+    clutter; one container each and the list reads as a grid. See the .app-tile
+    comment in theme.py.
+    """
+    size = 104 if hero else 48
+    name = icon_name_for(app)
+    icon = Gtk.Image.new_from_icon_name(name)
+    icon.set_pixel_size(60 if hero else 30)
+    icon.set_halign(Gtk.Align.CENTER)
+    icon.set_valign(Gtk.Align.CENTER)
+    icon.set_hexpand(True)
+    icon.set_vexpand(True)
+    # Only a fallback glyph gets tinted; a real app icon keeps its own colours.
+    if name.endswith("-symbolic"):
+        icon.add_css_class("tile-symbolic")
+
+    tile = Gtk.Box()
+    tile.add_css_class("app-tile")
+    if hero:
+        tile.add_css_class("hero")
+    # Explicit, not merely a CSS minimum. Some themes ship an icon whose natural
+    # size is larger than the pixel size asked for, and the tile then grows to
+    # fit it -- which is why the first attempt had every row's tile starting at
+    # a different x. A fixed request is what makes the column a column.
+    tile.set_size_request(size, size)
+    tile.set_halign(Gtk.Align.CENTER)
+    tile.set_valign(Gtk.Align.CENTER)
+    tile.append(icon)
+    return tile
+
+
 class AppRow(Adw.ActionRow):
     def __init__(self, app: App, on_activate):
         super().__init__()
@@ -66,23 +102,46 @@ class AppRow(Adw.ActionRow):
         self.set_activatable(True)
         self.connect("activated", lambda *_: on_activate(app))
 
-        icon = Gtk.Image.new_from_icon_name(icon_name_for(app))
-        icon.set_pixel_size(32)
-        icon.set_margin_top(6)
-        icon.set_margin_bottom(6)
-        self.add_prefix(icon)
+        # Installed state rides on the tile as a corner badge rather than as a
+        # suffix. A suffix tick plus the chevron put two glyphs in the right
+        # margin of a 360px row, and the chevron said nothing the whole row
+        # being activatable did not already say.
+        prefix = Gtk.Overlay()
+        prefix.set_child(app_tile(app))
+        prefix.set_halign(Gtk.Align.START)
+        prefix.set_valign(Gtk.Align.CENTER)
+        prefix.set_margin_top(6)
+        prefix.set_margin_bottom(6)
+        prefix.set_margin_end(6)
 
+        badge_icon, tip = "", ""
         if app.installed:
-            tick = Gtk.Image.new_from_icon_name("object-select-symbolic")
-            tick.add_css_class("success")
-            tick.set_tooltip_text("Installed")
-            self.add_suffix(tick)
+            badge_icon, tip = "object-select-symbolic", "Installed"
         elif not app.available:
-            warn = Gtk.Image.new_from_icon_name("dialog-warning-symbolic")
-            warn.set_tooltip_text("Not found in the repositories")
-            self.add_suffix(warn)
+            badge_icon, tip = "dialog-warning-symbolic", "Not found in the repositories"
 
-        self.add_suffix(Gtk.Image.new_from_icon_name("go-next-symbolic"))
+        if badge_icon:
+            glyph = Gtk.Image.new_from_icon_name(badge_icon)
+            glyph.set_pixel_size(12)
+            # The disc is a Box around the image, not the image itself. CSS
+            # min-width on a GtkImage fights the pixel size it was given, and
+            # GTK says so -- twice per badge, per measure pass, which was 248
+            # warnings on every launch of a 62-installed catalogue.
+            badge = Gtk.Box()
+            badge.append(glyph)
+            badge.add_css_class("installed-badge")
+            if not app.installed:
+                badge.add_css_class("warning")
+            badge.set_halign(Gtk.Align.END)
+            badge.set_valign(Gtk.Align.END)
+            # Flush into the corner, with no negative margin to pull it
+            # outside. A negative margin makes the overlay request 16px for a
+            # child that insists on 18, and GTK warns on every measure pass --
+            # 248 lines per launch on a catalogue with 62 installed apps.
+            badge.set_tooltip_text(tip)
+            prefix.add_overlay(badge)
+
+        self.add_prefix(prefix)
 
 
 class DetailPage(Adw.NavigationPage):
@@ -101,34 +160,104 @@ class DetailPage(Adw.NavigationPage):
         # is the first thing squashed -- and set_vexpand(False) does not stop
         # it. A Gtk.Image with an explicit pixel_size cannot be resized by its
         # parent, which is exactly what a fixed app icon wants.
-        header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        header.set_margin_top(12)
-        header.set_margin_bottom(6)
-
-        icon = Gtk.Image.new_from_icon_name(icon_name_for(app))
-        icon.set_pixel_size(96)
-        icon.set_halign(Gtk.Align.CENTER)
-        icon.set_valign(Gtk.Align.CENTER)
-        icon.set_vexpand(False)
-        header.append(icon)
+        header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        header.set_margin_top(8)
+        header.set_margin_bottom(4)
+        header.append(app_tile(app, hero=True))
 
         title = Gtk.Label(label=app.name)
-        title.add_css_class("title-1")
+        title.add_css_class("app-title")
         title.set_wrap(True)
         title.set_justify(Gtk.Justification.CENTER)
         header.append(title)
 
         blurb = Gtk.Label(label=app.summary)
-        blurb.add_css_class("dim-label")
+        blurb.add_css_class("app-summary")
         blurb.set_wrap(True)
         blurb.set_justify(Gtk.Justification.CENTER)
-        blurb.set_margin_start(12)
-        blurb.set_margin_end(12)
+        blurb.set_margin_start(8)
+        blurb.set_margin_end(8)
         header.append(blurb)
+
+        # The three facts worth knowing at a glance, as chips rather than as
+        # three more rows in a list of rows. WrapBox because "libadwaita --
+        # adapts to phone widths" is a wide chip and 360px is not wide.
+        chips = Adw.WrapBox(child_spacing=6, line_spacing=6)
+        # `align` centres each *line* within the box. halign alone only centres
+        # the box, which leaves a wrapped second line hanging off to the left.
+        chips.set_align(0.5)
+        chips.set_margin_top(2)
+        for label, css in self._chips(app):
+            chips.append(self._chip(label, css))
+        header.append(chips)
 
         group_intro = Adw.PreferencesGroup()
         group_intro.add(header)
         page.add(group_intro)
+
+        if app.is_plugin:
+            # Above the button, and that ordering is the whole point. The store
+            # passes --yes to `omarchy plugin add`, which is where this warning
+            # would otherwise have appeared; suppressing a prompt is only
+            # defensible if what the prompt said still gets said, and gets said
+            # before the thing it is warning about.
+            #
+            # A wrapping label rather than a _row: a row puts a long value in
+            # the subtitle, which caps at three lines and would ellipsise the
+            # one paragraph on this page that has to be read in full.
+            trust = Adw.PreferencesGroup(title="Runs in your shell")
+            caution = Gtk.Label(
+                label=(
+                    "Unsandboxed QML loaded into omarchy-shell itself, not a "
+                    "sandboxed app in a window of its own. It asks for no "
+                    "password because it needs no privilege — it can already "
+                    "do anything you can."
+                )
+            )
+            caution.set_wrap(True)
+            caution.set_xalign(0)
+            caution.add_css_class("app-summary")
+            caution.set_margin_top(2)
+            caution.set_margin_bottom(2)
+            trust.add(caution)
+            page.add(trust)
+
+        # The action goes here, not after the Details list. On a 720px-tall
+        # screen the hero alone fills the first view, so a button below the
+        # facts is a button you have to go looking for -- and the facts are
+        # what you read *after* deciding, not before.
+        actions = Adw.PreferencesGroup()
+
+        # Open sits beside Remove rather than replacing it, and comes first:
+        # once something is installed, opening it is the thing you came back
+        # for, and removing it is the rarer, heavier action.
+        buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        buttons.set_homogeneous(True)
+        buttons.set_margin_top(14)
+        buttons.set_margin_start(4)
+        buttons.set_margin_end(4)
+
+        self.open_button = Gtk.Button(label="Open")
+        self.open_button.add_css_class("pill-button")
+        self.open_button.add_css_class("suggested-action")
+        self.open_button.connect("clicked", self._on_open)
+        buttons.append(self.open_button)
+
+        self.button = Gtk.Button()
+        self.button.add_css_class("pill-button")
+        self.button.connect("clicked", self._on_clicked)
+        buttons.append(self.button)
+
+        self._set_button_state()
+        actions.add(buttons)
+
+        self.status_label = Gtk.Label()
+        self.status_label.add_css_class("dim-label")
+        self.status_label.set_wrap(True)
+        self.status_label.set_margin_top(8)
+        self.status_label.set_visible(False)
+        actions.add(self.status_label)
+        page.add(actions)
 
         facts = Adw.PreferencesGroup(title="Details")
         if app.is_plugin:
@@ -149,39 +278,8 @@ class DetailPage(Adw.NavigationPage):
             facts.add(self._row("Loaded", "No — installed but not enabled"))
         if app.toolkit:
             facts.add(self._row("Toolkit", self._toolkit_label(app.toolkit)))
-        facts.add(
-            self._row(
-                "Verified",
-                f"Tested on {app.tested}" if app.verified else "Not yet tested on a device",
-            )
-        )
+        # No Verified row: the hero chip above already says it, in colour.
         page.add(facts)
-
-        if app.is_plugin:
-            # The store passes --yes to `omarchy plugin add`, which is where
-            # this warning would otherwise have been shown. Suppressing a
-            # prompt is only defensible if what the prompt said still gets
-            # said, and before the button rather than after it.
-            #
-            # A wrapping label rather than a _row: a row puts a long value in
-            # the subtitle, which caps at three lines and would ellipsise the
-            # one paragraph on this page that must be read in full.
-            trust = Adw.PreferencesGroup(title="Runs in your shell")
-            caution = Gtk.Label(
-                label=(
-                    "A plugin is unsandboxed QML loaded into omarchy-shell "
-                    "itself, not a sandboxed app in a window of its own. It "
-                    "asks for no password because it needs no privilege — it "
-                    "can already do anything you can."
-                )
-            )
-            caution.set_wrap(True)
-            caution.set_xalign(0)
-            caution.add_css_class("dim-label")
-            caution.set_margin_top(6)
-            caution.set_margin_bottom(6)
-            trust.add(caution)
-            page.add(trust)
 
         # Screenshots are fetched from GitHub and cached. The group only
         # appears once an image actually arrives, so an offline phone shows a
@@ -191,7 +289,7 @@ class DetailPage(Adw.NavigationPage):
         self.shot_picture.set_can_shrink(True)
         self.shot_picture.set_content_fit(Gtk.ContentFit.CONTAIN)
         self.shot_picture.set_size_request(-1, 420)
-        self.shot_picture.add_css_class("card")
+        self.shot_picture.add_css_class("shot-frame")
         self.shot_group.add(self.shot_picture)
         self.shot_group.set_visible(False)
         page.add(self.shot_group)
@@ -202,21 +300,6 @@ class DetailPage(Adw.NavigationPage):
                 lambda path: GLib.idle_add(self._show_screenshot, path),
             )
 
-        actions = Adw.PreferencesGroup()
-        self.button = Gtk.Button()
-        self.button.set_halign(Gtk.Align.CENTER)
-        self.button.set_margin_top(12)
-        self._set_button_state()
-        self.button.connect("clicked", self._on_clicked)
-        actions.add(self.button)
-
-        self.status_label = Gtk.Label()
-        self.status_label.add_css_class("dim-label")
-        self.status_label.set_wrap(True)
-        self.status_label.set_margin_top(8)
-        self.status_label.set_visible(False)
-        actions.add(self.status_label)
-        page.add(actions)
 
         toolbar.set_content(page)
         self.set_child(toolbar)
@@ -251,6 +334,42 @@ class DetailPage(Adw.NavigationPage):
         return row
 
     @staticmethod
+    def _chip(label: str, css: str) -> Gtk.Widget:
+        chip = Gtk.Label(label=label)
+        chip.add_css_class("meta-chip")
+        if css:
+            chip.add_css_class(css)
+        chip.set_ellipsize(Pango.EllipsizeMode.END)
+        chip.set_max_width_chars(30)
+        return chip
+
+    @staticmethod
+    def _chips(app: App) -> list[tuple[str, str]]:
+        """Category, what it is built with, and whether anyone has run it.
+
+        Deliberately short forms: the Details list below still spells each one
+        out, so a chip only has to be recognisable, not complete.
+        """
+        toolkit = {
+            "libadwaita": "libadwaita",
+            "kirigami": "Kirigami",
+            "quickshell": "Shell plugin",
+            "tui": "Terminal",
+            "gtk": "GTK",
+            "qt": "Qt",
+        }.get(app.toolkit, app.toolkit)
+
+        chips = [(app.category, "")]
+        if toolkit:
+            chips.append((toolkit, ""))
+        chips.append(
+            (f"Tested on {app.tested}", "verified")
+            if app.verified
+            else ("Not yet tested", "untested")
+        )
+        return chips
+
+    @staticmethod
     def _toolkit_label(toolkit: str) -> str:
         return {
             "libadwaita": "libadwaita — adapts to phone widths",
@@ -276,6 +395,17 @@ class DetailPage(Adw.NavigationPage):
         else:
             self.button.set_label("Install")
             self.button.add_css_class("suggested-action")
+
+        # Hidden rather than insensitive when there is nothing to open: a
+        # greyed-out Open on a terminal app invites a tap and explains nothing.
+        # With it hidden the box is one button wide, which homogeneous sizing
+        # turns back into a full-width pill on its own.
+        self.open_button.set_visible(launcher.can_open(self.app))
+
+    def _on_open(self, _button) -> None:
+        ok, message = launcher.open_app(self.app)
+        if not ok:
+            self._say(message)
 
     def _on_clicked(self, _button) -> None:
         if not installer.available(self.app):
@@ -442,10 +572,12 @@ class StoreWindow(Adw.ApplicationWindow):
 
         for category, apps in by_category(shown).items():
             installed = sum(1 for a in apps if a.installed)
-            group = Adw.PreferencesGroup(
-                title=category,
-                description=f"{installed} of {len(apps)} installed",
-            )
+            group = Adw.PreferencesGroup(title=category)
+            count = Gtk.Label(label=f"{installed}/{len(apps)}")
+            count.add_css_class("count-chip")
+            count.set_valign(Gtk.Align.CENTER)
+            count.set_tooltip_text(f"{installed} of {len(apps)} installed")
+            group.set_header_suffix(count)
             group.set_margin_start(12)
             group.set_margin_end(12)
             group.set_margin_top(6)
