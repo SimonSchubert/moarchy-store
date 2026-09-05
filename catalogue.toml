@@ -27,7 +27,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 2
+serial = 3
 
 # --- Reading ---------------------------------------------------------------
 
@@ -259,4 +259,378 @@ category = "Media"
 toolkit = "gtk"
 summary = "Video player. Can offload decoding to the A64's cedrus hardware decoder."
 icon = "mpv"
+tested = ""
+
+# --- Added from a sweep of every aarch64 package depending on libadwaita or
+# --- kirigami (the two toolkits that actually reflow to a phone). Metadata is
+# --- read from each package's own .desktop file; none of these have been run
+# --- on a device yet, which is what tested = "" says.
+
+[[app]]
+pkg = "plasma-dialer"
+name = "Dialer"
+category = "Phone"
+toolkit = "kirigami"
+summary = "Make and receive calls. The Plasma Mobile dialer, and the reason this is a phone."
+icon = "dialer"
+tested = ""
+
+[[app]]
+pkg = "spacebar"
+name = "Messages"
+category = "Phone"
+toolkit = "kirigami"
+summary = "SMS and MMS. Pairs with the dialer for the actual phone half of a phone."
+icon = "org.kde.spacebar"
+tested = ""
+
+[[app]]
+pkg = "qrca"
+name = "QR Scanner"
+category = "Utilities"
+toolkit = "kirigami"
+summary = "Scan QR codes with the camera. Needs a working camera."
+icon = "org.kde.qrca"
+tested = ""
+
+[[app]]
+pkg = "krecorder"
+name = "Recorder"
+category = "Media"
+toolkit = "kirigami"
+summary = "Voice memos, built for Plasma Mobile."
+icon = "org.kde.krecorder"
+tested = ""
+
+[[app]]
+pkg = "gnome-sound-recorder"
+name = "Sound Recorder"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Simple audio recording, GNOME's take."
+icon = "org.gnome.SoundRecorder"
+tested = ""
+
+[[app]]
+pkg = "snapshot"
+name = "Camera"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Take photos and video. Camera support on the A64 is not yet working."
+icon = "org.gnome.Snapshot"
+tested = ""
+
+[[app]]
+pkg = "decibels"
+name = "Decibels"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Plays one audio file at a time and nothing else. Suits a phone."
+icon = "org.gnome.Decibels"
+tested = ""
+
+[[app]]
+pkg = "livi"
+name = "Livi"
+category = "Media"
+toolkit = "libadwaita"
+summary = "GTK4 video player built for mobile, GStreamer backed."
+icon = "org.sigxcpu.Livi"
+tested = ""
+
+[[app]]
+pkg = "showtime"
+name = "Showtime"
+category = "Media"
+toolkit = "libadwaita"
+summary = "GNOME's video player, adaptive."
+icon = "org.gnome.Showtime"
+tested = ""
+
+[[app]]
+pkg = "elisa"
+name = "Elisa"
+category = "Media"
+toolkit = "kirigami"
+summary = "Music player with a library view that collapses to one column."
+icon = "elisa"
+tested = ""
+
+[[app]]
+pkg = "audiotube"
+name = "AudioTube"
+category = "Media"
+toolkit = "kirigami"
+summary = "YouTube Music client for Plasma Mobile."
+icon = "org.kde.audiotube"
+tested = ""
+
+[[app]]
+pkg = "plasmatube"
+name = "PlasmaTube"
+category = "Media"
+toolkit = "kirigami"
+summary = "YouTube client, Kirigami. Video decode will lean on cedrus."
+icon = "org.kde.plasmatube"
+tested = ""
+
+[[app]]
+pkg = "kasts"
+name = "Kasts"
+category = "Media"
+toolkit = "kirigami"
+summary = "Podcast player designed for phones."
+icon = "kasts"
+tested = ""
+
+[[app]]
+pkg = "gnome-podcasts"
+name = "Podcasts"
+category = "Media"
+toolkit = "libadwaita"
+summary = "GNOME's podcast player."
+icon = "org.gnome.Podcasts"
+tested = ""
+
+[[app]]
+pkg = "shortwave"
+name = "Shortwave"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Internet radio, thousands of stations."
+icon = "de.haeckerfelix.Shortwave"
+tested = ""
+
+[[app]]
+pkg = "arianna"
+name = "Arianna"
+category = "Reading"
+toolkit = "kirigami"
+summary = "EPub reader for mobile devices."
+icon = "org.kde.arianna"
+tested = ""
+
+[[app]]
+pkg = "alligator"
+name = "Alligator"
+category = "Reading"
+toolkit = "kirigami"
+summary = "Kirigami RSS reader, built for small screens."
+icon = "alligator"
+tested = ""
+
+[[app]]
+pkg = "telly-skout"
+name = "Telly Skout"
+category = "Reading"
+toolkit = "kirigami"
+summary = "Convergent TV guide."
+icon = "org.kde.telly-skout"
+tested = ""
+
+[[app]]
+pkg = "gnome-calendar"
+name = "Calendar"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Month and agenda views that reflow to phone width."
+icon = "org.gnome.Calendar"
+tested = ""
+
+[[app]]
+pkg = "errands"
+name = "Errands"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Todo lists, deliberately simple, syncs over CalDAV."
+icon = "io.github.mrvladus.List"
+tested = ""
+
+[[app]]
+pkg = "endeavour"
+name = "Endeavour"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Personal task manager, formerly GNOME Todo."
+icon = "org.gnome.Todo"
+tested = ""
+
+[[app]]
+pkg = "dialect"
+name = "Dialect"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Translation between languages, several backends."
+icon = "app.drey.Dialect"
+tested = ""
+
+[[app]]
+pkg = "secrets"
+name = "Secrets"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Password manager reading KeePass databases."
+icon = "org.gnome.World.Secrets"
+tested = ""
+
+[[app]]
+pkg = "authenticator"
+name = "Authenticator"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Two-factor codes, with backup and restore."
+icon = "com.belmoussaoui.Authenticator"
+tested = ""
+
+[[app]]
+pkg = "francis"
+name = "Francis"
+category = "Utilities"
+toolkit = "kirigami"
+summary = "Pomodoro timer."
+icon = "org.kde.francis"
+tested = ""
+
+[[app]]
+pkg = "chess-clock"
+name = "Chess Clock"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Time control for over-the-board games."
+icon = "eu.fortysixandtwo.chessclock"
+tested = ""
+
+[[app]]
+pkg = "curtail"
+name = "Curtail"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Compress images without leaving the phone."
+icon = "com.github.huluti.Curtail"
+tested = ""
+
+[[app]]
+pkg = "eyedropper"
+name = "Eyedropper"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Pick and convert colours."
+icon = "com.github.finefindus.eyedropper"
+tested = ""
+
+[[app]]
+pkg = "textpieces"
+name = "Text Pieces"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Scratchpad that runs transformations on text."
+icon = "io.gitlab.liferooter.TextPieces"
+tested = ""
+
+[[app]]
+pkg = "paper-clip"
+name = "Paper Clip"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Edit PDF metadata."
+icon = "io.github.diegoivan.pdf_metadata_editor"
+tested = ""
+
+[[app]]
+pkg = "junction"
+name = "Junction"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Choose which app opens a file or link."
+icon = "re.sonny.Junction"
+tested = ""
+
+[[app]]
+pkg = "tangram"
+name = "Tangram"
+category = "Web"
+toolkit = "libadwaita"
+summary = "Keeps pinned web apps in their own windows."
+icon = "re.sonny.Tangram"
+tested = ""
+
+[[app]]
+pkg = "ktrip"
+name = "KTrip"
+category = "Travel"
+toolkit = "kirigami"
+summary = "Public transport journeys, built for mobile."
+icon = "org.kde.ktrip"
+tested = ""
+
+[[app]]
+pkg = "itinerary"
+name = "Itinerary"
+category = "Travel"
+toolkit = "kirigami"
+summary = "Boarding passes and travel documents in one place."
+icon = "org.kde.itinerary"
+tested = ""
+
+[[app]]
+pkg = "gnome-maps"
+name = "Maps"
+category = "Travel"
+toolkit = "libadwaita"
+summary = "OpenStreetMap browsing and routing."
+icon = "org.gnome.Maps"
+tested = ""
+
+[[app]]
+pkg = "gnome-connections"
+name = "Connections"
+category = "Utilities"
+toolkit = "kirigami"
+summary = "Remote desktop client, VNC and RDP."
+icon = "org.gnome.Connections"
+tested = ""
+
+[[app]]
+pkg = "warp"
+name = "Warp"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Send files between devices with a short code."
+icon = "app.drey.Warp"
+tested = ""
+
+[[app]]
+pkg = "video-trimmer"
+name = "Video Trimmer"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Cut a fragment out of a video without re-encoding."
+icon = "org.gnome.gitlab.YaLTeR.VideoTrimmer"
+tested = ""
+
+[[app]]
+pkg = "kongress"
+name = "Kongress"
+category = "Travel"
+toolkit = "kirigami"
+summary = "Conference companion: schedules and maps."
+icon = "org.kde.kongress"
+tested = ""
+
+[[app]]
+pkg = "kaidan"
+name = "Kaidan"
+category = "Chat"
+toolkit = "kirigami"
+summary = "XMPP client that works on a phone."
+icon = "kaidan"
+tested = ""
+
+[[app]]
+pkg = "tokodon"
+name = "Tokodon"
+category = "Chat"
+toolkit = "kirigami"
+summary = "Mastodon client, Kirigami."
+icon = "org.kde.tokodon"
 tested = ""
