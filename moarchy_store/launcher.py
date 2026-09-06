@@ -12,6 +12,10 @@ there. The two kinds open differently, and neither is a guess:
             drawer entry the store wrote does, and the only thing that works:
             a plugin is not a process to spawn.
 
+The desktop entry is handed to the shell rather than started here, and that is
+the whole difference between Open feeling like a launch and feeling like a dead
+button. See _shell_launch below.
+
 A terminal app ships no desktop entry at all, so it gets the third path: the
 binary the package owns, run in the fullscreen terminal mobileomarchy provides
 for exactly this. That launcher is looked up rather than depended on -- on a
@@ -35,6 +39,10 @@ BIN_DIRS = ("/usr/bin/", "/usr/local/bin/")
 
 # mobileomarchy's fullscreen terminal, sized so a TUI actually renders at 360px.
 TUI_LAUNCHER = "mobileomarchy-launch-tui"
+
+# The phone shell's IPC client. Present on a mobileomarchy phone, absent on a
+# plain Arch one, which is what picks between the two package launch paths.
+SHELL_CLI = "omarchy-shell"
 
 
 def _pacman_files(pkg: str) -> list[str]:
@@ -141,9 +149,64 @@ def open_app(app: App) -> tuple[bool, str]:
             return False, f"could not open a terminal: {exc}"
         return True, ""
 
-    # Gio rather than a spawned gtk-launch: it is already here, it reads the
-    # entry's own Exec and startup notification, and the launched app does not
-    # end up a child of the store.
+    if _shell_launch(entry):
+        return True, ""
+    return _gio_launch(entry)
+
+
+def _shell_launch(entry: str) -> bool:
+    """Hand the entry to the phone shell, so the launch splash covers it.
+
+    Starting the app here works and looks broken. The shell puts the app's own
+    icon on the wallpaper from the tap until its window maps -- mobileomarchy's
+    docs/windows.md L1-L9 -- and it hangs that off AppLibrary.launch(). An app
+    the store starts itself never goes through there, so Open acknowledged
+    nothing: you tapped it and the store sat in front of you until the window
+    appeared and the workspace switched, which on a PinePhone is seconds. The
+    one moment someone least believes their tap registered is the one right
+    after an install finished.
+
+    So the launch goes down the drawer's path instead. `drawer launch` is the
+    same entry point a tap on the drawer's grid uses; the shell resolves the
+    icon, raises the splash and starts the app under app-graphical.slice rather
+    than as a child of this process, which is what the Gio call bought.
+
+    The id goes bare. AppLibrary keys its entries without the .desktop suffix,
+    and the suffixed form still launches -- it just matches no entry, and the
+    splash falls back to a generic outline instead of showing the icon of the
+    thing that was just installed.
+
+    Synchronous, because the answer decides whether Gio still has to run and a
+    launch that happens twice is worse than one that blocks. The round trip is
+    ~0.4s on a PinePhone, failure included: `omarchy-shell` answers "Target not
+    found" just as fast when the shell is down or the drawer is disabled.
+    """
+    env = plugins.environment()
+    if not shutil.which(SHELL_CLI, path=env.get("PATH")):
+        return False
+    try:
+        done = subprocess.run(
+            [SHELL_CLI, "drawer", "launch", entry.removesuffix(".desktop")],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (subprocess.SubprocessError, OSError):
+        return False
+    # "no-entry" is a success: the shell launched it anyway and raised the
+    # splash. Only a non-zero exit means nothing was started.
+    return done.returncode == 0
+
+
+def _gio_launch(entry: str) -> tuple[bool, str]:
+    """The fallback, for a machine with no shell to ask.
+
+    Gio rather than a spawned gtk-launch: it is already here, it reads the
+    entry's own Exec and startup notification, and the launched app does not
+    end up a child of the store.
+    """
     from gi.repository import Gio, GLib
 
     info = Gio.DesktopAppInfo.new(entry)
