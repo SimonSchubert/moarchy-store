@@ -146,6 +146,26 @@ surface draws over the keyboard, and a full-screen scrim will swallow the taps
 meant for it. `mobileomarchy.drawer` avoids this by living on `Top` and
 reserving space for the keyboard instead.
 
+## Style
+
+This store is one of three programs that draw the moarchy phone's UI, and it is
+the only one that is not Qt — the shell is quickshell/QML plugins, the keyboard
+is a standalone Qt app. They cannot share code, so what they share is one
+contract and one palette:
+
+- **[moarchy `docs/style.md`](https://github.com/SimonSchubert/moarchy/blob/main/docs/style.md)**
+  — the type roles, the six colour roles, the four radii and the 44px
+  touch-target floor. §H is the part that binds this repo, restated in
+  toolkit-neutral terms: 44 logical px applies to a `Gtk.Button` exactly as it
+  applies to a QML `MouseArea`, and 360 logical px is the width to design at
+  first rather than scale down to.
+- `moarchy_store/theme.py` is this repo's end of it. It reads the palette from
+  the theme `omarchy-theme-set` stages at
+  `~/.local/state/omarchy/current/theme/colors.toml` and injects it as a
+  stylesheet, and it degrades to stock libadwaita when that file is absent —
+  themed by its presence, never broken by its absence. The style doc cites it
+  as the behaviour for a new surface to copy.
+
 ## Requirements
 
 `python`, `python-gobject`, `gtk4`, `libadwaita`, `polkit`, `pacman` — all of
