@@ -17,9 +17,10 @@ the whole difference between Open feeling like a launch and feeling like a dead
 button. See _shell_launch below.
 
 A terminal app ships no desktop entry at all, so it gets the third path: the
-binary the package owns, run in the fullscreen terminal mobileomarchy provides
-for exactly this. That launcher is looked up rather than depended on -- on a
-plain Arch phone without it, Open simply does not appear for those entries.
+binary the package owns, run in the terminal moarchy provides for exactly this,
+sized for a 360px screen. That launcher is looked up rather than depended on --
+on a plain Arch phone without it, Open simply does not appear for those
+entries.
 
 Not everything installed can be opened, and the caller is expected to ask
 first. A plugin of kind "service" has nothing to summon, and a package may own
@@ -37,8 +38,30 @@ from .catalogue import App
 DESKTOP_DIRS = ("/usr/share/applications/", "/usr/local/share/applications/")
 BIN_DIRS = ("/usr/bin/", "/usr/local/bin/")
 
-# mobileomarchy's fullscreen terminal, sized so a TUI actually renders at 360px.
-TUI_LAUNCHER = "mobileomarchy-launch-tui"
+# moarchy's terminal, sized so a TUI actually renders at 360px -- foot at font
+# size 7, which is the ~60 columns btop refuses to draw below.
+#
+# This read `mobileomarchy-launch-tui` until now, a name the rename left behind
+# and that nothing on the image has answered to since. It failed in the worst
+# available way: `shutil.which` returned None, so `terminal_command` returned
+# "", so `can_open` said no and the button was *hidden*. Open did not break for
+# terminal apps, it silently stopped existing for them -- and the hiding is
+# deliberate elsewhere, for packages that genuinely own no single binary, so
+# nothing about the screen looked wrong.
+#
+# Absolute rather than a bare name, now that it is being fixed. The directory
+# reaches PATH only through /etc/profile.d/zz-moarchy.sh, so a name resolves
+# only for a process that inherited a login shell's environment. The store does
+# today -- drawer, sway, login shell -- but plugins.environment() exists
+# precisely because it cannot count on that, and what it repairs is
+# OMARCHY_PATH/bin, not this directory. A path needs no inheritance.
+#
+# The near-miss to avoid is /usr/bin/omarchy-launch-tui, which does exist and
+# is always on PATH. It is upstream's: xdg-terminal-exec at the default font
+# size, sized for a desktop. moarchy's own scripts shadow upstream's by PATH
+# order where the 19 shared names collide, but this is not one of them -- ours
+# is `moarchy-`, theirs is `omarchy-`, and both resolve.
+TUI_LAUNCHER = "/usr/lib/moarchy/bin/moarchy-launch-tui"
 
 # The phone shell's IPC client. Present on a mobileomarchy phone, absent on a
 # plain Arch one, which is what picks between the two package launch paths.
