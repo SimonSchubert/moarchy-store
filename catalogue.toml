@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 6
+serial = 7
 
 # --- Reading ---------------------------------------------------------------
 
@@ -276,6 +276,65 @@ toolkit = "gtk"
 summary = "Video player. Can offload decoding to the A64's cedrus hardware decoder."
 icon = "mpv"
 tested = ""
+
+# --- Chat ------------------------------------------------------------------
+#
+# The three libadwaita messengers, measured at a 360x674 panel on 2026-09-12 --
+# under Hyprland rather than Sway, which is where the two caveats below come
+# from. All three map a window at exactly that size and draw correctly in it.
+#
+# Kaidan and Tokodon are in the sweep below and stay there. Both are Kirigami:
+# on a GNOME-adjacent image they cost 26 MB and 108 MB of KDE Frameworks,
+# against 1.7, 1.9 and 16 MB of download for these three.
+#
+# Two caveats belong to the image rather than to the app, and both bite on the
+# first launch:
+#
+#   - Chatty's desktop entry is DBusActivatable and its D-Bus service names a
+#     systemd unit carrying `Requisite=gnome-session-initialized.target`.
+#     Outside a GNOME session that target does not exist, systemd refuses the
+#     unit, and the launch fails silently -- no window, no process, and
+#     gtk-launch still exits 0. A user entry with `DBusActivatable=false` fixes
+#     it: with one it launched 3 times out of 3, without one it failed 3 of 3.
+#   - Fractal wants org.freedesktop.secrets. Where no keyring is unlocked the
+#     gcr prompt maps *behind* Fractal's own window, so it sits on "Fetching
+#     Account Data..." with nothing to click. Once a keyring exists it reaches
+#     its login screen and launches from the drawer normally. Geary has the
+#     same dependency and the same problem.
+#
+# Dino aborted once, on its very first launch, in the OMEMO plugin's SQLite
+# init. Three later first-runs with its data directory wiped -- through the
+# drawer and directly -- all started fine. Recorded rather than blocking.
+
+[[app]]
+pkg = "chatty"
+name = "Chats"
+category = "Chat"
+toolkit = "libadwaita"
+summary = "SMS, MMS and Matrix in one thread list. Purism's, drawn for a 360px screen."
+icon = "sm.puri.Chatty"
+screenshot = "chatty.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "dino"
+name = "Dino"
+category = "Chat"
+toolkit = "libadwaita"
+summary = "XMPP with OMEMO encryption. GTK4 since 0.5, and it reflows to one column."
+icon = "im.dino.Dino"
+screenshot = "dino.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "fractal"
+name = "Fractal"
+category = "Chat"
+toolkit = "libadwaita"
+summary = "Matrix: spaces, device verification and calls. GNOME's own, adaptive by design."
+icon = "org.gnome.Fractal"
+screenshot = "fractal.png"
+tested = "omarchy-mobile-vm"
 
 # --- Added from a sweep of every aarch64 package depending on libadwaita or
 # --- kirigami (the two toolkits that actually reflow to a phone). Metadata is
