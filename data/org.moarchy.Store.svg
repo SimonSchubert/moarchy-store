@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Until now this app named `system-software-install` and left the picture
+       to whatever icon theme answered. On mobileomarchy that is Breeze, which
+       is installed largely to answer this one name, and what it drew was a
+       Breeze icon sitting in a row of Adwaita ones. Nothing was wrong with it
+       except that it belonged to a different family.
+
+       So the store carries its own now, built the way that drawer's other icons
+       are: an object on the surface rather than a glyph on a coloured tile,
+       depth from stacking the same rect three times with lips stepping down a
+       colour ramp, and a 2px white specular inset from the left edge.
+
+       A parcel, and in Adwaita's brown, because brown is the one hue nothing
+       else in that drawer uses. At 42px hue is what separates icons, not
+       outline: this shares a rounded rectangle with Notes and with Contacts,
+       and the colour is what tells them apart before the glyph does. It also
+       happens to be what the app is, Categories saying PackageManager.
+
+       The arrow stays white and pointing down, which is what Breeze drew here
+       for as long as anyone has been tapping it.
+
+       Drawn additively, plain rects and one path, because the shell that
+       rasterises it goes through Qt SVG, which is SVG Tiny and has no masks. -->
+  <rect x="18" y="30" width="92" height="88" rx="8" fill="#63452c"/>
+  <rect x="18" y="30" width="92" height="84" rx="8" fill="#865e3c"/>
+  <rect x="18" y="30" width="92" height="82" rx="8" fill="#b5835a"/>
+  <rect x="18" y="30" width="92" height="20" rx="8" fill="#865e3c"/>
+  <rect x="20" y="34" width="2" height="74" fill="#ffffff" opacity="0.187"/>
+  <rect x="57" y="56" width="14" height="26" rx="7" fill="#ffffff"/>
+  <path d="M46 76 L82 76 L64 104 Z" fill="#ffffff"/>
+</svg>

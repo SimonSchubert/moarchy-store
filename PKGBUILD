@@ -62,6 +62,13 @@ package() {
   install -Dm644 data/org.moarchy.Store.desktop \
     "$pkgdir/usr/share/applications/org.moarchy.Store.desktop"
 
+  # The entry names org.moarchy.Store rather than the themed
+  # `system-software-install` it used to, so the picture has to ship with it.
+  # hicolor is the fallback every theme inherits, so this answers whatever the
+  # user's theme is set to.
+  install -Dm644 data/org.moarchy.Store.svg \
+    "$pkgdir/usr/share/icons/hicolor/scalable/apps/org.moarchy.Store.svg"
+
   # Screenshots are NOT packaged: 2.7MB of PNGs against a ~40KB package, for
   # something most people never scroll to. They are fetched from the repo on
   # demand and cached under ~/.cache/moarchy-store.
