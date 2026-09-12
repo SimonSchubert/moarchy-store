@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 16
+serial = 17
 
 # --- Reading ---------------------------------------------------------------
 
@@ -1152,6 +1152,26 @@ toolkit = "libadwaita"
 summary = "Phone calls over the modem or SIP. The only dialer left in the repos."
 icon = "org.gnome.Calls"
 tested = ""
+
+[[app]]
+pkg = "blurble"
+name = "Blurble"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Word guessing, one screen and a Play button. 190KB."
+icon = "io.github.lordenvi.Blurble"
+screenshot = "blurble-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "audio-sharing"
+name = "Audio Sharing"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Stream this phone's audio to anything on the network. A QR code and a URL."
+icon = "de.haeckerfelix.AudioSharing"
+screenshot = "audio-sharing-dark.png"
+tested = "omarchy-mobile-vm"
 
 # --- Omarchy shell plugins -------------------------------------------------
 #

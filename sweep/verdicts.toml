@@ -1318,3 +1318,48 @@ date = 2026-09-12
 outcome = "listed"
 adaptive = "fits"
 reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 2.63 MB."
+
+[blurble]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Word guessing in 190 KB, one screen and a Play button. Games is a young category and this suits it."
+
+[audio-sharing]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Streams the phone's audio over RTSP and shows a QR code for it. 760 KB, and the whole interface is the QR code -- drawn for exactly this screen."
+
+[drawing]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "clipped"
+reason   = "Asks for 606x170 and Hyprland floats it: a GTK3 paint app wanting a desktop canvas and a toolbar wider than the screen."
+
+[eog]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "tight"
+reason   = """
+Maps 360x674 and spends most of it on a Properties side panel -- Size, Type,
+Aperture, ISO, Metering -- with the title truncated to "Eye o...". Loupe is
+listed, adaptive, and has gesture zoom.
+"""
+
+[cartridges]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "fits"
+reason = "Fits and is themed, and it is a launcher for a Steam and emulator library that a phone does not have. Worth revisiting if Games grows."
+
+[gnome-firmware]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "unknown"
+reason = "Maps and draws an empty window, the VM exposing no updatable firmware. Fits, but nothing was on screen to judge."
+
+[crow-translate]
+date = 2026-09-12
+outcome = "rejected"
+reason = "Not in the aarch64 repos. Dialect covers translation, is libadwaita, and is measured."
