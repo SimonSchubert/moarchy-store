@@ -888,3 +888,95 @@ outside a GNOME session. Backup is a real gap and this is the best-regarded
 answer, so it is worth a user .desktop with DBusActivatable=false -- the fix
 serial 7 found for Chatty -- rather than a rejection.
 """
+
+# --- The repo AppStream queue, 2026-09-12 ----------------------------------
+#
+# scripts/sweep-discover.py ranks by what upstream declares about itself, and
+# the top band -- display_length 360 and control touch, both stated -- is where
+# these came from. Costs are from the one-pass sweep-cost.sh run.
+
+[deja-dup]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Scheduled encrypted backups, 8 packages and 10.59 MB. Backup was a gap, and pika-backup -- the app usually named for it -- never maps a window here."
+
+[clapgrep]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Searches inside files rather than only their names, 1.01 MB. The form fits the column with room to spare."
+
+[fretboard]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Guitar chords as a diagram you tap through. 460 KB, and the interaction is touch-native rather than ported."
+
+[metronome]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "One large tempo, a tap button, a play button. 420 KB. Exactly the shape a phone app should be."
+
+[binary]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Binary, decimal, hex and octal conversion in 40 KB."
+
+[refine]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "fits"
+reason   = """
+Rejected on the app's own evidence, which is the cleanest rejection in the
+sweep. Its first screen reads: "Unsupported Environment -- Refine is only
+intended to run on the GNOME desktop environment. Some settings may not work as
+intended and could lead to undesirable behavior." It fits 360 and it is not for
+this machine, and it says so before anything else.
+"""
+
+[clapper]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "fits"
+reason   = """
+Fits, and does not follow the theme -- it carries its own dark chrome, so the
+diff reads 0.062, just above the noise floor. Celluloid is the same job in the
+same toolkit for 0.25 MB against 7.58 MB, and it does follow the theme.
+"""
+
+[resources]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "fits"
+reason = "A richer system monitor than Usage -- memory and processor per app -- and 1.55 MB against 0.33 MB. Listing both would be listing one twice; worth swapping if Usage disappoints on hardware."
+
+[citations]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "fits"
+reason = "BibTeX manager, 2.18 MB, fits cleanly. Deferred for the same reason as Hieroglyphic: no audience here yet."
+
+[letterpress]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "fits"
+reason = "Turns an image into ASCII art, 1.73 MB, fits. Kept in the notebook because it is charming, not because anyone needs it."
+
+[forge-sparks]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "fits"
+reason = "Notifications from GitHub, GitLab and friends, 60 KB. A developer's app on a device that is not where you review code."
+
+[apostrophe]
+date = 2026-09-12
+outcome = "deferred"
+reason = "Rated well and declares 360 with touch, but it is not in the aarch64 repos -- the AppStream catalogue this project reads is Arch's x86_64 one, and the two do not match exactly."
+
+[morphosis]
+date = 2026-09-12
+outcome = "deferred"
+reason = "Same as apostrophe: present in the x86_64 AppStream data, absent from the ARM repos."

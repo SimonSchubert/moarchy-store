@@ -96,9 +96,16 @@ note "installing"
 # this in launcher.py by preferring the entry whose name matches the app's own
 # icon; the same rule works here, with the AppStream id standing in for it.
 DESKTOPS=$("$SSH" "pacman -Ql $PKG | grep -o '/usr/share/applications/.*\.desktop$'" || true)
-DESKTOP=$(printf '%s\n' "$DESKTOPS" | grep -iE "/(${PKG}|org\..*\.${PKG}|.*\.${PKG})\.desktop$" | head -1)
+# `|| true` on both, and it is load-bearing: with `set -o pipefail` a grep that
+# matches nothing fails the whole pipeline, and `set -e` then aborts the script
+# silently, mid-measurement. deja-dup found this -- it ships
+# org.gnome.DejaDup.desktop, which no pattern built from "deja-dup" matches.
+squashed=$(printf '%s' "$PKG" | tr -d '-')
+DESKTOP=$(printf '%s\n' "$DESKTOPS" \
+  | grep -iE "/([^/]*\.)?(${PKG}|${squashed})\.desktop$" | head -1 || true)
+# Failing that, the shortest name: helpers are longer than the app they help.
 [ -n "$DESKTOP" ] || DESKTOP=$(printf '%s\n' "$DESKTOPS" \
-  | awk '{print length($0)"\t"$0}' | sort -n | cut -f2- | head -1)
+  | awk 'NF{print length($0)"\t"$0}' | sort -n | cut -f2- | head -1 || true)
 if [ "$(printf '%s\n' "$DESKTOPS" | grep -c .)" -gt 1 ]; then
   note "$PKG ships $(printf '%s\n' "$DESKTOPS" | grep -c .) desktop entries; using $(basename "$DESKTOP")"
 fi

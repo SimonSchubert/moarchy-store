@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 13
+serial = 14
 
 # --- Reading ---------------------------------------------------------------
 
@@ -1101,6 +1101,56 @@ toolkit = "libadwaita"
 summary = "GNOME's file manager, two columns of big folder tiles at 360px."
 icon = "org.gnome.Nautilus"
 screenshot = "nautilus-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "deja-dup"
+name = "Backups"
+category = "System"
+toolkit = "libadwaita"
+summary = "Scheduled encrypted backups to a drive or a remote. Nothing else here backs up."
+icon = "org.gnome.DejaDup"
+screenshot = "deja-dup-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "clapgrep"
+name = "Clapgrep"
+category = "System"
+toolkit = "libadwaita"
+summary = "Search inside files, not just their names. Regex optional, 1MB."
+icon = "de.swsnr.clapgrep"
+screenshot = "clapgrep-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "fretboard"
+name = "Fretboard"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Guitar chords as a diagram you can tap through. 460KB."
+icon = "dev.bragefuglseth.Fretboard"
+screenshot = "fretboard-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "metronome"
+name = "Metronome"
+category = "Media"
+toolkit = "libadwaita"
+summary = "One big tempo, a tap button and a play button. 420KB."
+icon = "com.adrienplazas.Metronome"
+screenshot = "metronome-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "binary"
+name = "Binary"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Convert between binary, decimal, hex and octal. 40KB."
+icon = "io.github.fizzyizzy05.binary"
+screenshot = "binary-dark.png"
 tested = "omarchy-mobile-vm"
 
 # --- Omarchy shell plugins -------------------------------------------------
