@@ -45,6 +45,12 @@ package() {
   # and not group- or world-writable. The helper refuses to run otherwise.
   install -Dm644 catalogue.toml "$pkgdir/usr/share/$_pkgname/catalogue.toml"
 
+  # Beside it, and deliberately NOT part of the allowlist: descriptions,
+  # features and sweep verdicts, which the helper never reads. Same mode for
+  # the same reason -- nothing in here can cause an install, but it is what the
+  # detail page tells the user, and that should not be user-writable either.
+  install -Dm644 metadata.toml "$pkgdir/usr/share/$_pkgname/metadata.toml"
+
   # Trust root for remotely published catalogues. Must be root-owned and not
   # world-writable, or the helper ignores it -- a keyring anyone can rewrite
   # verifies nothing.

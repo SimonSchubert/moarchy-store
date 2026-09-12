@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 7
+serial = 8
 
 # --- Reading ---------------------------------------------------------------
 
@@ -146,7 +146,8 @@ category = "Utilities"
 toolkit = "libadwaita"
 summary = "Calculator with unit conversion and a history tape."
 icon = "org.gnome.Calculator"
-tested = ""
+screenshot = "gnome-calculator-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "gnome-weather"
@@ -660,7 +661,7 @@ tested = ""
 pkg = "gnome-connections"
 name = "Connections"
 category = "Utilities"
-toolkit = "kirigami"
+toolkit = "gtk"
 summary = "Remote desktop client, VNC and RDP."
 icon = "org.gnome.Connections"
 tested = ""

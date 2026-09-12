@@ -50,6 +50,23 @@ class App:
     screenshot: str = ""
     tested: str = ""
 
+    # From metadata.toml, not from the catalogue, and every one optional. An
+    # app with no metadata entry renders exactly as it did before that file
+    # existed -- see _load_metadata.
+    subtitle: str = ""
+    description: str = ""
+    subcategory: str = ""
+    homepage: str = ""
+    features: tuple[str, ...] = ()
+    released: str = ""
+    releases_1y: int = 0
+    cost_pkgs: int = 0
+    cost_mb: float = 0.0
+    adaptive: str = ""
+    themed: str = ""
+    measured: str = ""
+    shots: tuple[str, ...] = ()
+
     # Filled in from the system, not from the catalogue.
     installed: bool = False
     version: str = ""
@@ -75,6 +92,19 @@ class App:
         """True when someone actually ran this on a device and said so."""
         return bool(self.tested)
 
+    def shot_for(self, mode: str) -> str:
+        """The screenshot to show under a light or dark theme.
+
+        Falls back along a chain rather than showing nothing: the matching
+        shot, then whatever other shot exists, then the single screenshot the
+        catalogue named before there were pairs.
+        """
+        for want in (f"-{mode}.", "-dark.", "-light."):
+            for shot in self.shots:
+                if want in shot:
+                    return shot
+        return self.shots[0] if self.shots else self.screenshot
+
     @property
     def update_available(self) -> bool:
         return (
@@ -96,6 +126,18 @@ def shipped_path() -> Path:
     raise FileNotFoundError(
         f"No catalogue at {SYSTEM_CATALOGUE} and none beside the source tree"
     )
+
+
+def metadata_path() -> Path | None:
+    """The metadata file beside the *shipped* catalogue, or None.
+
+    Deliberately not beside catalogue_path(): that may be a verified remote
+    catalogue in the user's cache, and nothing ships a metadata file there. A
+    remote catalogue that adds apps simply leaves them without metadata, which
+    every field below already tolerates.
+    """
+    beside = shipped_path().parent / "metadata.toml"
+    return beside if beside.exists() else None
 
 
 def catalogue_path() -> Path:
@@ -159,6 +201,62 @@ def _app_from(entry: dict) -> App:
     return App(source=source, plugin_id=plugin_id, repo=repo, **common)
 
 
+_TEXT = ("subtitle", "description", "subcategory", "homepage",
+         "released", "adaptive", "themed", "measured")
+_LIST = ("features", "shots")
+
+
+def _apply_metadata(app: App, entry: dict) -> None:
+    """Merge one metadata table onto an app, field by field.
+
+    Every field is optional and every type is checked, because this file is
+    written by a sweep rather than by hand and a wrong type here should cost
+    one row rather than the page.
+    """
+    for key in _TEXT:
+        value = entry.get(key)
+        if value is not None:
+            # A TOML date is a date, not a string; str() is right for both.
+            setattr(app, key, str(value))
+    for key in _LIST:
+        value = entry.get(key)
+        if isinstance(value, list):
+            setattr(app, key, tuple(str(v) for v in value))
+    for key in ("releases_1y", "cost_pkgs"):
+        value = entry.get(key)
+        if isinstance(value, int):
+            setattr(app, key, value)
+    value = entry.get("cost_mb")
+    if isinstance(value, (int, float)):
+        app.cost_mb = float(value)
+
+
+def _load_metadata(apps: list[App]) -> None:
+    """Annotate apps from metadata.toml, if there is one.
+
+    Absent, unreadable or malformed is not an error: this file carries display
+    detail, never the allowlist, so the store is expected to work without it.
+    """
+    path = metadata_path()
+    if path is None:
+        return
+    try:
+        with path.open("rb") as fh:
+            data = tomllib.load(fh)
+    except (OSError, ValueError, tomllib.TOMLDecodeError) as exc:
+        print(f"moarchy-store: ignoring metadata.toml: {exc}")
+        return
+
+    for app in apps:
+        entry = data.get(app.ident)
+        if not isinstance(entry, dict):
+            continue
+        try:
+            _apply_metadata(app, entry)
+        except (ValueError, TypeError) as exc:
+            print(f"moarchy-store: skipping metadata for {app.ident}: {exc}")
+
+
 def load_apps() -> list[App]:
     with catalogue_path().open("rb") as fh:
         data = tomllib.load(fh)
@@ -170,6 +268,7 @@ def load_apps() -> list[App]:
         except (KeyError, ValueError, TypeError) as exc:
             # One malformed entry should not blank the whole store.
             print(f"moarchy-store: skipping catalogue entry: {exc}")
+    _load_metadata(apps)
     return apps
 
 

@@ -87,6 +87,25 @@ def load(path: Path = COLORS) -> Palette | None:
     )
 
 
+def mode(path: Path = COLORS) -> str:
+    """"light", "dark", or "" when no theme is staged.
+
+    Separate from load() on purpose. load() returns None for a palette too
+    incomplete to theme with, but such a theme still has a mode, and the
+    screenshot to show depends on the mode alone. "" is the honest answer when
+    there is no theme file at all -- the caller then asks libadwaita, which is
+    what is actually drawing the window in that case.
+    """
+    try:
+        with path.open("rb") as fh:
+            data = tomllib.load(fh)
+    except (OSError, ValueError, tomllib.TOMLDecodeError):
+        return ""
+    if not isinstance(data, dict) or "mode" not in data:
+        return ""
+    return "light" if str(data["mode"]).lower() == "light" else "dark"
+
+
 def palette_css(p: Palette) -> str:
     """Point libadwaita's named colours at the theme.
 

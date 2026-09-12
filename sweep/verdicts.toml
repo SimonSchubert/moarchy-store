@@ -1,0 +1,165 @@
+# Every app this project has ever examined, and what came of it.
+#
+# catalogue.toml says what we ship. This says what we looked at -- which is a
+# bigger list, and the more useful one to a future sweep, because the expensive
+# part of adding an app is discovering it does not work. Without this file that
+# discovery lives only in a commit message, and the next sweep pays for it
+# again.
+#
+# The project already worked this way by hand: commit 13bf411 lists what the
+# 340-package sweep deliberately skipped, and the comment block at the foot of
+# catalogue.toml records the 2410 -> 2 plugin sweep in prose. This generalises
+# both so scripts/sweep-discover.sh can skip what has already been judged.
+#
+# outcome:
+#   listed     it is in catalogue.toml
+#   rejected   examined and not shipped. `reason` is then required.
+#   deferred   worth another look when something changes -- `reason` says what.
+#
+# A rejection is not permanent. It is a record of what was true on a date, and
+# `date` is there so a three-year-old "no" can be re-asked.
+
+# --- Measured at 360px in the VM, 2026-09-12 (catalogue serial 7) -----------
+#
+# The three libadwaita messengers, run at a 360x674 panel. All three map a
+# window at exactly that size and draw correctly in it. What the run turned up
+# was not about layout at all.
+
+[chatty]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+reason   = """
+Never launches from the drawer as shipped. Its entry is DBusActivatable, its
+D-Bus service names a systemd unit carrying Requisite=gnome-session-initialized
+.target, and outside a GNOME session that target does not exist -- so systemd
+refuses the unit and the launch fails silently: no window, no process, and
+gtk-launch still exiting 0. A user entry with DBusActivatable=false fixes it,
+3 launches out of 3 with one and 0 out of 3 without. This belongs to the image
+rather than to the app.
+"""
+
+[fractal]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+reason   = """
+Hangs where no keyring is unlocked: it wants org.freedesktop.secrets and the
+gcr prompt maps behind Fractal's own window, so it sits on "Fetching Account
+Data..." with nothing to click. Given a keyring it reaches its login screen and
+launches from the drawer normally. Geary has the same dependency and will have
+the same problem.
+"""
+
+[dino]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+reason   = """
+Aborted once, on its first launch ever, in the OMEMO plugin's SQLite init.
+Three later first-runs with its data directory wiped, through the drawer and
+directly, all started fine. Recorded rather than diagnosed.
+"""
+
+# --- The repo sweep, 2026 (catalogue serial 3) ------------------------------
+#
+# Every aarch64 package depending on libadwaita or kirigami: 340 packages,
+# filtered to 72 genuine phone-targeting apps, of which 41 were added. These
+# are the ones deliberately passed over, and why. Fractal was reconsidered and
+# listed at serial 7 -- which is the point of `date`.
+
+[geary]
+date = 2026-08-01
+outcome = "rejected"
+reason = "Desktop-shaped three-pane mail client. Also wants an unlocked keyring, the same way Fractal does."
+
+[marknote]
+date = 2026-08-01
+outcome = "rejected"
+reason = "Duplicates Note Note and the notes entries already listed."
+
+[impression]
+date = 2026-08-01
+outcome = "rejected"
+reason = "Writes bootable USB drives. Nothing to do on a phone."
+
+[angelfish]
+date = 2026-08-01
+outcome = "rejected"
+reason = "Duplicates Epiphany, which is already listed and lighter on a GNOME-adjacent image."
+
+[health]
+date = 2026-08-01
+outcome = "deferred"
+reason = "Wants sensors the A64 does not expose. Worth re-asking on hardware that has them."
+
+[komikku]
+date = 2026-08-01
+outcome = "deferred"
+reason = "Comic reader, plausibly fine at 360px. Passed over for weight, not for fit -- worth measuring."
+
+[newsflash]
+date = 2026-08-01
+outcome = "rejected"
+reason = "Desktop-shaped feed reader. Alligator covers the category and is Kirigami-adaptive."
+
+[neochat]
+date = 2026-08-01
+outcome = "deferred"
+reason = "Matrix, and Kirigami, so it should fit -- but it costs the KDE Frameworks stack on a GNOME image, as Kaidan does. Fractal covers Matrix for 1 package."
+
+[okular]
+date = 2026-08-01
+outcome = "rejected"
+reason = "Desktop document viewer. Papers covers PDF at phone width."
+
+[koko]
+date = 2026-08-01
+outcome = "rejected"
+reason = "Duplicates Loupe, which is already listed."
+
+# --- The Omarchy plugin sweep -----------------------------------------------
+#
+# 2410 plugins listed on plugins.omarchy.org, 2 listed here. The full reasoning
+# is at the foot of catalogue.toml; only the per-plugin verdicts are repeated.
+
+[io_github_yordanbuilds_jot]
+date    = 2026-09-01
+outcome = "rejected"
+reason  = """
+Passed every static check, installed cleanly and drew a perfect full-width
+capture field at 360px -- and could not be typed into. It has no TextInput or
+TextField at all: it catches raw key events with Keys.onPressed and assembles
+the string itself, so nothing ever requests text input and the on-screen
+keyboard never rises. Unusable without a hardware keyboard, and not a thing any
+static check catches. This is why `tested` exists.
+"""
+
+# --- Measured with scripts/sweep-measure.sh, 2026-09-12 ---------------------
+#
+# The first two run through the script rather than by hand. Both were looked at
+# afterwards, which is what separates these from a probe.
+
+[foliate]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+reason   = """
+Already listed and tested on hardware; re-measured to calibrate the script
+against a known-good app. 1 package, 3.15 MB, maps at exactly 360x674, and the
+theme diff is emphatic (RMSE 0.80) rather than marginal. The shot is the empty
+"No Books Yet" state, because a fresh install has no library -- worth replacing
+with a shot of it actually reading something.
+"""
+
+[gnome-calculator]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+reason   = """
+Already listed, previously tested = "". Measured now: 1 package, 1.91 MB, maps
+at 360x674, follows the theme (RMSE 0.66). The keypad is the whole lower half
+at comfortably over 44px a key, and nothing is clipped. A good calibration case
+because, unlike Foliate, its first run shows the real UI rather than an empty
+state.
+"""

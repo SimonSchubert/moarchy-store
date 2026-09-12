@@ -10,6 +10,18 @@
 # The private key lives at ~/.config/moarchy-store/signing-key.asc, deliberately
 # outside the repo. Whoever holds it can add apps to the allowlist on every
 # installation, so treat it like a release key: back it up, never commit it.
+#
+# metadata.toml is deliberately NOT signed, and that is not an oversight.
+# A signature is worth having where it decides something. This one would not:
+# metadata.toml is never fetched over the network (remote.py asks for the
+# catalogue and nothing else), it ships root-owned in the same directory as
+# catalogue.toml, and anyone who can rewrite it there can rewrite the signed
+# catalogue beside it. So the signature would guard nothing while implying it
+# guarded something, which is worse than no signature at all.
+#
+# The day metadata.toml is published remotely, the right answer is a
+# metadata_sha256 field inside this signed file rather than a second detached
+# signature -- one key, one serial, and the two files cannot drift apart.
 
 set -euo pipefail
 

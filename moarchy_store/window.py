@@ -16,7 +16,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gdk, GLib, Gtk, Pango  # noqa: E402
 
-from . import installer, launcher, media  # noqa: E402
+from . import installer, launcher, media, theme  # noqa: E402
 from . import catalogue  # noqa: E402
 from .catalogue import App, by_category, enrich, load_apps  # noqa: E402
 
@@ -204,6 +204,21 @@ class DetailPage(Adw.NavigationPage):
         group_intro.add(header)
         page.add(group_intro)
 
+        # What it actually supports -- the protocols a chat app speaks, the
+        # formats a reader opens. Above the button, because it is the last
+        # thing you check before deciding, and one flat list of chips rather
+        # than a row per namespace: at 360px a row costs a whole line to say
+        # one word.
+        if app.features:
+            supports = Adw.PreferencesGroup(title="Supports")
+            tags = Adw.WrapBox(child_spacing=6, line_spacing=6)
+            tags.set_margin_top(4)
+            tags.set_margin_bottom(4)
+            for feature in app.features:
+                tags.append(self._chip(feature, ""))
+            supports.add(tags)
+            page.add(supports)
+
         if app.is_plugin:
             # Above the button, and that ordering is the whole point. The store
             # passes --yes to `omarchy plugin add`, which is where this warning
@@ -268,6 +283,25 @@ class DetailPage(Adw.NavigationPage):
         actions.add(self.status_label)
         page.add(actions)
 
+        # After the button, like the facts: prose is what you read once you
+        # have decided, or when the summary above did not settle it. The
+        # subtitle rides as the group description -- it is what the app calls
+        # itself, where `summary` is what we think of it, and stacking both
+        # under the hero would put two one-liners in a row.
+        if app.description or app.subtitle:
+            about = Adw.PreferencesGroup(title="About")
+            if app.subtitle:
+                about.set_description(app.subtitle)
+            if app.description:
+                blurb = Gtk.Label(label=app.description)
+                blurb.set_wrap(True)
+                blurb.set_xalign(0)
+                blurb.add_css_class("app-summary")
+                blurb.set_margin_top(2)
+                blurb.set_margin_bottom(2)
+                about.add(blurb)
+            page.add(about)
+
         facts = Adw.PreferencesGroup(title="Details")
         if app.is_plugin:
             facts.add(self._row("Plugin", app.plugin_id))
@@ -285,37 +319,84 @@ class DetailPage(Adw.NavigationPage):
             # drawer entry is there and opens nothing. Say it rather than let
             # someone conclude the plugin is broken.
             facts.add(self._row("Loaded", "No — installed but not enabled"))
+        if app.cost_pkgs:
+            # Distinct from Download above, which is this package alone. What
+            # you actually pay is the dependency stack it drags onto a
+            # GNOME-adjacent image, and that is the number the serial-7 commit
+            # reasoned about by hand: Fractal adds nothing, Kaidan adds 44.
+            facts.add(self._row("With dependencies", self._cost_label(app)))
         if app.toolkit:
             facts.add(self._row("Toolkit", self._toolkit_label(app.toolkit)))
+        if app.released:
+            facts.add(self._row("Last release", app.released))
+        if app.homepage:
+            facts.add(self._row("Homepage", app.homepage))
         # No Verified row: the hero chip above already says it, in colour.
         page.add(facts)
 
         # Screenshots are fetched from GitHub and cached. The group only
         # appears once an image actually arrives, so an offline phone shows a
         # clean page rather than a broken-image placeholder.
-        self.shot_group = Adw.PreferencesGroup(title="Screenshot")
-        self.shot_picture = Gtk.Picture()
-        self.shot_picture.set_can_shrink(True)
-        self.shot_picture.set_content_fit(Gtk.ContentFit.CONTAIN)
-        self.shot_picture.set_size_request(-1, 420)
-        self.shot_picture.add_css_class("shot-frame")
-        self.shot_group.add(self.shot_picture)
+        shots = self._shot_order(app)
+        self.shot_group = Adw.PreferencesGroup(
+            title="Screenshot" if len(shots) < 2 else "Screenshots"
+        )
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.shot_carousel = Adw.Carousel()
+        self.shot_carousel.set_allow_long_swipes(False)
+
+        # Every page is built now and filled by index as fetches land. They
+        # complete out of order, so appending on arrival would shuffle light
+        # and dark around between runs.
+        self.shot_pictures = []
+        for _ in shots:
+            picture = Gtk.Picture()
+            picture.set_can_shrink(True)
+            picture.set_content_fit(Gtk.ContentFit.CONTAIN)
+            picture.set_size_request(-1, 420)
+            picture.add_css_class("shot-frame")
+            self.shot_carousel.append(picture)
+            self.shot_pictures.append(picture)
+        box.append(self.shot_carousel)
+
+        # Dots only when there is somewhere to swipe to.
+        if len(shots) > 1:
+            box.append(Adw.CarouselIndicatorDots(carousel=self.shot_carousel))
+
+        self.shot_group.add(box)
         self.shot_group.set_visible(False)
         page.add(self.shot_group)
 
-        if app.screenshot:
+        for index, name in enumerate(shots):
             media.fetch(
-                app.screenshot,
-                lambda path: GLib.idle_add(self._show_screenshot, path),
+                name,
+                lambda path, i=index: GLib.idle_add(self._show_screenshot, i, path),
             )
 
 
         toolbar.set_content(page)
         self.set_child(toolbar)
 
-    def _show_screenshot(self, path) -> bool:
+    @staticmethod
+    def _shot_order(app: App) -> list[str]:
+        """The screenshots to show, the one matching the running theme first.
+
+        So the page opens on the app as it will actually look, and the other
+        mode is one swipe away rather than behind a control. With no staged
+        Omarchy theme there is no colors.toml to ask, so libadwaita -- which is
+        drawing this window in that case -- is asked instead.
+        """
+        mode = theme.mode()
+        if not mode:
+            mode = "dark" if Adw.StyleManager.get_default().get_dark() else "light"
+        if not app.shots:
+            return [app.screenshot] if app.screenshot else []
+        first = app.shot_for(mode)
+        return [first] + [s for s in app.shots if s != first]
+
+    def _show_screenshot(self, index: int, path) -> bool:
         try:
-            self.shot_picture.set_filename(str(path))
+            self.shot_pictures[index].set_filename(str(path))
             self.shot_group.set_visible(True)
         except Exception:
             pass  # a corrupt cache entry is not worth breaking the page over
@@ -368,7 +449,8 @@ class DetailPage(Adw.NavigationPage):
             "qt": "Qt",
         }.get(app.toolkit, app.toolkit)
 
-        chips = [(app.category, "")]
+        category = f"{app.category} · {app.subcategory}" if app.subcategory else app.category
+        chips = [(category, "")]
         if toolkit:
             chips.append((toolkit, ""))
         chips.append(
@@ -377,6 +459,14 @@ class DetailPage(Adw.NavigationPage):
             else ("Not yet tested", "untested")
         )
         return chips
+
+    @staticmethod
+    def _cost_label(app: App) -> str:
+        packages = "1 package" if app.cost_pkgs == 1 else f"{app.cost_pkgs} packages"
+        if not app.cost_mb:
+            return packages
+        # %g so 3.15 stays 3.15 and 26.0 reads as 26.
+        return f"{packages}, {app.cost_mb:g} MB"
 
     @staticmethod
     def _toolkit_label(toolkit: str) -> str:
@@ -567,6 +657,12 @@ class StoreWindow(Adw.ApplicationWindow):
             or needle in a.ident.lower()
             or needle in a.summary.lower()
             or needle in a.category.lower()
+            or needle in a.subcategory.lower()
+            or needle in a.subtitle.lower()
+            # Typing "matrix" and finding Fractal is the point of recording
+            # protocols at all. Description is deliberately not searched: it is
+            # a paragraph, and matching inside one returns everything.
+            or any(needle in f.lower() for f in a.features)
         ]
 
         if not shown:
