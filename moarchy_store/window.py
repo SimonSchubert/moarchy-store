@@ -8,6 +8,7 @@ there is no keyboard.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import gi
 
@@ -56,7 +57,17 @@ def icon_name_for(app: App) -> str:
     return "application-x-executable-symbolic"
 
 
-def app_tile(app: App, hero: bool = False) -> Gtk.Widget:
+# The three tile sizes, with the icon each one holds and the class that gives
+# it a radius in proportion. A fourth would need a fourth radius in theme.py,
+# so they are spelled out here rather than computed from a ratio.
+TILE_SIZES = {
+    48: (30, ""),        # a list row
+    56: (34, "large"),   # an Editor's Choice card
+    104: (60, "hero"),   # the detail page
+}
+
+
+def app_tile(app: App, size: int = 48) -> Gtk.Widget:
     """An icon in a rounded tile.
 
     The catalogue's icons come from wherever each app's own .desktop file
@@ -65,10 +76,10 @@ def app_tile(app: App, hero: bool = False) -> Gtk.Widget:
     clutter; one container each and the list reads as a grid. See the .app-tile
     comment in theme.py.
     """
-    size = 104 if hero else 48
+    pixels, radius_class = TILE_SIZES[size]
     name = icon_name_for(app)
     icon = Gtk.Image.new_from_icon_name(name)
-    icon.set_pixel_size(60 if hero else 30)
+    icon.set_pixel_size(pixels)
     icon.set_halign(Gtk.Align.CENTER)
     icon.set_valign(Gtk.Align.CENTER)
     icon.set_hexpand(True)
@@ -79,8 +90,8 @@ def app_tile(app: App, hero: bool = False) -> Gtk.Widget:
 
     tile = Gtk.Box()
     tile.add_css_class("app-tile")
-    if hero:
-        tile.add_css_class("hero")
+    if radius_class:
+        tile.add_css_class(radius_class)
     # Explicit, not merely a CSS minimum. Some themes ship an icon whose natural
     # size is larger than the pixel size asked for, and the tile then grows to
     # fit it -- which is why the first attempt had every row's tile starting at
@@ -99,6 +110,244 @@ def app_tile(app: App, hero: bool = False) -> Gtk.Widget:
     tile.set_vexpand(False)
     tile.append(icon)
     return tile
+
+
+# One chain per category, tried in order. The obvious name is not always the
+# one a given theme has -- "phone-symbolic" is Adwaita's, "call-start-symbolic"
+# the older freedesktop name -- so each category names alternatives and every
+# chain ends at a generic glyph rather than at a broken image. Same trap as
+# icon_name_for, one level up.
+CATEGORY_ICONS = {
+    "Chat": ("chat-symbolic", "chat-message-new-symbolic",
+             "user-available-symbolic"),
+    "Files": ("folder-symbolic", "system-file-manager-symbolic"),
+    "Games": ("applications-games-symbolic", "input-gaming-symbolic"),
+    "Media": ("applications-multimedia-symbolic", "multimedia-player-symbolic",
+              "audio-x-generic-symbolic"),
+    "Notes": ("text-editor-symbolic", "accessories-text-editor-symbolic",
+              "document-edit-symbolic"),
+    "Phone": ("phone-symbolic", "call-start-symbolic", "phone-old-symbolic"),
+    "Reading": ("book-open-symbolic", "user-bookmarks-symbolic",
+                "x-office-document-symbolic"),
+    "Security": ("security-high-symbolic", "channel-secure-symbolic",
+                 "dialog-password-symbolic"),
+    "System": ("applications-system-symbolic", "computer-symbolic",
+               "preferences-system-symbolic"),
+    "Terminal": ("utilities-terminal-symbolic", "terminal-symbolic"),
+    "Time": ("alarm-symbolic", "preferences-system-time-symbolic",
+             "document-open-recent-symbolic"),
+    "Travel": ("mark-location-symbolic", "find-location-symbolic",
+               "emoji-travel-symbolic"),
+    "Utilities": ("applications-utilities-symbolic", "preferences-other-symbolic",
+                  "emblem-system-symbolic"),
+    "Web": ("web-browser-symbolic", "internet-web-browser-symbolic",
+            "globe-symbolic"),
+}
+
+# What "All apps" gets, and what a category this table has never heard of gets.
+# A new category in the catalogue should look unremarkable here, not broken.
+GENERIC_ICONS = ("view-app-grid-symbolic", "view-grid-symbolic",
+                 "applications-other-symbolic", "view-list-symbolic")
+
+_FALLBACK_THEME: Gtk.IconTheme | None = None
+
+
+def _fallback_theme() -> Gtk.IconTheme:
+    """Adwaita, read off the disk, whatever the device thinks its theme is.
+
+    This image sets gtk-icon-theme-name to a theme it does not ship, and GTK
+    does not quietly substitute Adwaita when that happens -- it falls back to
+    the 164 glyphs compiled into GTK itself. Not one of them is a speech
+    bubble, a book or a game controller, so a grid of categories drawn from
+    them is fourteen copies of the same generic square, which is what the first
+    attempt at this screen actually looked like.
+
+    Adwaita's 646 symbolic icons are on disk regardless, so they are asked
+    second. An icon theme of our own, consulted for our own glyphs only: the
+    alternative is setting gtk-icon-theme-name for the process, which would
+    quietly overrule the user's choice for every icon in the app rather than
+    for the fourteen we drew this screen around.
+    """
+    global _FALLBACK_THEME
+    if _FALLBACK_THEME is None:
+        icons = Gtk.IconTheme()
+        icons.set_search_path([
+            str(Path.home() / ".local" / "share" / "icons"),
+            "/usr/local/share/icons",
+            "/usr/share/icons",
+        ])
+        icons.set_theme_name("Adwaita")
+        _FALLBACK_THEME = icons
+    return _FALLBACK_THEME
+
+
+def _scale_factor(display: Gdk.Display) -> int:
+    """What a paintable has to be rendered at to be sharp. A GtkIconPaintable
+    is rasterised once, at lookup, so asking for 24 on a 2x screen gets a 24px
+    texture stretched to 48 -- a blurry icon beside crisp text."""
+    monitors = display.get_monitors()
+    monitor = monitors.get_item(0) if monitors.get_n_items() else None
+    return monitor.get_scale_factor() if monitor else 1
+
+
+def category_image(category: str | None, pixels: int) -> Gtk.Image:
+    """The glyph for a category, from the live theme if it has one."""
+    image = Gtk.Image()
+    image.set_pixel_size(pixels)
+    image.add_css_class("category-icon")
+
+    specific = CATEGORY_ICONS.get(category or "", ())
+    display = Gdk.Display.get_default()
+    if display is None:
+        image.set_from_icon_name((specific or GENERIC_ICONS)[0])
+        return image
+
+    live = Gtk.IconTheme.get_for_display(display)
+    fallback = _fallback_theme()
+
+    # The generic glyph is the last resort for *this category*, not for this
+    # lookup: asked in one flat chain it wins immediately, because a grid
+    # square is one of the few things every theme has -- which is how the first
+    # version of this screen ended up fourteen identical squares with the
+    # right icons sitting on disk unread.
+    for names in (specific, GENERIC_ICONS):
+        for candidate in names:
+            if live.has_icon(candidate):
+                image.set_from_icon_name(candidate)
+                return image
+        for candidate in names:
+            if fallback.has_icon(candidate):
+                image.set_from_paintable(
+                    fallback.lookup_icon(
+                        candidate, None, pixels, _scale_factor(display),
+                        Gtk.TextDirection.NONE,
+                        Gtk.IconLookupFlags.FORCE_SYMBOLIC,
+                    )
+                )
+                return image
+
+    image.set_from_icon_name(GENERIC_ICONS[0])
+    return image
+
+
+def category_tile(title: str, apps: list[App], on_click) -> Gtk.Widget:
+    """One cell of the front page's grid: what the category is, and how much of
+    it you already have.
+
+    A button rather than a row, because the whole cell is the target. At 360px
+    the grid is three across, which leaves about 106px -- enough for a glyph, a
+    word and a count, and not enough for anything else, so the name ellipsises
+    rather than wrapping a category into two lines of ragged text.
+    """
+    installed = sum(1 for a in apps if a.installed)
+
+    icon = category_image(title, 24)
+
+    name = Gtk.Label(label=title)
+    name.add_css_class("category-name")
+    name.set_ellipsize(Pango.EllipsizeMode.END)
+    name.set_max_width_chars(12)
+
+    # The fraction only once there is a numerator. On a phone that has just
+    # been flashed every tile would otherwise read "0/23", fourteen times, and
+    # a column of zeroes says nothing the bare count does not.
+    count = Gtk.Label(label=f"{installed}/{len(apps)}" if installed else str(len(apps)))
+    count.add_css_class("category-count")
+
+    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+    box.set_valign(Gtk.Align.CENTER)
+    box.append(icon)
+    box.append(name)
+    box.append(count)
+
+    tile = Gtk.Button()
+    tile.add_css_class("category-tile")
+    tile.set_child(box)
+    # The number the FlowBox counts with: three of these plus spacing do not
+    # fit a 360px screen four times, and do fit a 640px one.
+    tile.set_size_request(96, -1)
+    tile.set_tooltip_text(f"{installed} of {len(apps)} installed")
+    tile.connect("clicked", lambda *_: on_click())
+    return tile
+
+
+def pick_card(app: App, on_activate) -> Gtk.Widget:
+    """One app on the Editor's Choice shelf.
+
+    A card in a column rather than a tile in a strip that scrolls sideways.
+    The strip was the first attempt and it looks better in a screenshot: one
+    card and a slice of the next, which is what every phone store does. It
+    also puts nine of the ten picks behind a horizontal swipe inside a
+    vertically scrolling page, and this is a device whose only pointer is a
+    thumb. A column costs nothing to discover.
+
+    Wide, because the summary is the whole reason the app is on the shelf: a
+    strip of bare icons would be the one surface in this store that says
+    "good" without saying why.
+    """
+    name = Gtk.Label(label=app.name, xalign=0)
+    name.add_css_class("pick-name")
+    name.set_ellipsize(Pango.EllipsizeMode.END)
+
+    summary = Gtk.Label(label=app.summary, xalign=0)
+    summary.add_css_class("app-summary")
+    summary.add_css_class("pick-summary")
+    summary.set_wrap(True)
+    summary.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
+    # A wrapping label asks for its whole text on one line as its natural
+    # width, and the page's scroller would rather grow sideways than wrap it.
+    # This caps what it may ask for; the allocation it actually gets is wider,
+    # and the text wraps into that. Two lines then ellipsise, as in AppRow.
+    summary.set_max_width_chars(26)
+    summary.set_lines(2)
+    summary.set_ellipsize(Pango.EllipsizeMode.END)
+
+    text = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+    text.set_valign(Gtk.Align.CENTER)
+    text.set_hexpand(True)
+    text.append(name)
+    text.append(summary)
+
+    row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+    row.append(app_tile(app, size=56))
+    row.append(text)
+
+    card = Gtk.Button()
+    card.add_css_class("pick-card")
+    card.set_child(row)
+    card.connect("clicked", lambda *_: on_activate(app))
+    return card
+
+
+def empty(box: Gtk.Box) -> None:
+    """Remove every child. GTK4 has no remove_all on Gtk.Box."""
+    child = box.get_first_child()
+    while child:
+        box.remove(child)
+        child = box.get_first_child()
+
+
+def app_group(title: str, apps: list[App], on_activate) -> Adw.PreferencesGroup:
+    """A card of rows, with the installed count in the corner.
+
+    The count used to live in the group description, which cost a line of
+    vertical space per category to say what a chip says in the corner.
+    """
+    group = Adw.PreferencesGroup(title=title)
+    if title:
+        installed = sum(1 for a in apps if a.installed)
+        count = Gtk.Label(label=f"{installed}/{len(apps)}")
+        count.add_css_class("count-chip")
+        count.set_valign(Gtk.Align.CENTER)
+        count.set_tooltip_text(f"{installed} of {len(apps)} installed")
+        group.set_header_suffix(count)
+    group.set_margin_start(12)
+    group.set_margin_end(12)
+    group.set_margin_top(6)
+    group.set_margin_bottom(6)
+    for app in apps:
+        group.add(AppRow(app, on_activate))
+    return group
 
 
 class AppRow(Adw.ActionRow):
@@ -172,7 +421,7 @@ class DetailPage(Adw.NavigationPage):
         header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         header.set_margin_top(8)
         header.set_margin_bottom(4)
-        header.append(app_tile(app, hero=True))
+        header.append(app_tile(app, size=104))
 
         title = Gtk.Label(label=app.name)
         title.add_css_class("app-title")
@@ -557,6 +806,62 @@ class DetailPage(Adw.NavigationPage):
         return False
 
 
+class CategoryPage(Adw.NavigationPage):
+    """Every app in one category, or the whole catalogue when category is None.
+
+    A page of its own rather than a filter on the front page: at 360px,
+    browsing is choosing a shelf and then reading it, and the back gesture is
+    already how everything else in this window is left.
+    """
+
+    def __init__(self, category: str | None, window: "StoreWindow"):
+        super().__init__(title=category or "All apps")
+        self.category = category
+        self.window = window
+
+        # A WindowTitle rather than the page title alone, so the count that
+        # used to be a chip on the front page has somewhere to go. It is the
+        # one fact about a category that changes while you are looking at it.
+        self.window_title = Adw.WindowTitle(title=self.get_title(), subtitle="")
+        header = Adw.HeaderBar()
+        header.set_title_widget(self.window_title)
+
+        self.list_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        clamp = Adw.Clamp(maximum_size=640)
+        clamp.set_child(self.list_box)
+        scroller = Gtk.ScrolledWindow(vexpand=True)
+        scroller.set_child(clamp)
+
+        toolbar = Adw.ToolbarView()
+        toolbar.add_top_bar(header)
+        toolbar.set_content(scroller)
+        self.set_child(toolbar)
+
+        self.reload()
+
+    def reload(self) -> None:
+        """Rebuild from the window's current list of apps.
+
+        Called again after an install finishes, because this page is still on
+        the stack underneath the detail page that did it -- popping back to a
+        row with no tick on it would be the store lying about the one thing it
+        reads off the system.
+        """
+        empty(self.list_box)
+        apps = self.window.apps_in(self.category)
+        installed = sum(1 for a in apps if a.installed)
+        self.window_title.set_subtitle(f"{installed} of {len(apps)} installed")
+
+        if self.category is None:
+            for category, group in by_category(apps).items():
+                self.list_box.append(app_group(category, group, self.window.open_detail))
+        else:
+            # No group title: the header bar already says which category this
+            # is, and repeating it immediately below costs a line of a screen
+            # that has 720 of them.
+            self.list_box.append(app_group("", apps, self.window.open_detail))
+
+
 class StoreWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -600,6 +905,11 @@ class StoreWindow(Adw.ApplicationWindow):
 
         self.nav.push(Adw.NavigationPage(child=toolbar, title="App Store"))
 
+        # The category page currently on the stack, if any, so an install done
+        # from underneath it can put the tick on its row too.
+        self.category_page: CategoryPage | None = None
+        self.nav.connect("popped", self._on_popped)
+
         self.apps: list[App] = []
         self.refresh()
         # Check for a newly published catalogue after the window is up, so a
@@ -614,8 +924,14 @@ class StoreWindow(Adw.ApplicationWindow):
         if wanted:
             for app in self.apps:
                 if app.ident == wanted:
-                    GLib.idle_add(self._open_detail, app)
+                    GLib.idle_add(self.open_detail, app)
                     break
+
+        # MOARCHY_STORE_CATEGORY=<name> does the same for a category page, and
+        # the empty string opens All apps.
+        wanted = os.environ.get("MOARCHY_STORE_CATEGORY")
+        if wanted is not None:
+            GLib.idle_add(self._open_category, wanted or None)
 
         # Do not let the search entry take focus at startup. squeekboard raises
         # itself whenever a text field is focused, so an autofocused search box
@@ -623,6 +939,10 @@ class StoreWindow(Adw.ApplicationWindow):
         # it. Focus lands on the search entry when the user taps it, which is
         # when they actually want to type.
         GLib.idle_add(self._drop_focus)
+
+    def _on_popped(self, _nav, page) -> None:
+        if page is self.category_page:
+            self.category_page = None
 
     def _check_remote_once(self) -> bool:
         if catalogue.refresh_remote():
@@ -643,12 +963,11 @@ class StoreWindow(Adw.ApplicationWindow):
             self._show_error(str(exc))
             return
         self._populate()
+        if self.category_page is not None:
+            self.category_page.reload()
 
     def _show_error(self, message: str) -> None:
-        child = self.list_box.get_first_child()
-        while child:
-            self.list_box.remove(child)
-            child = self.list_box.get_first_child()
+        empty(self.list_box)
         self.list_box.append(
             Adw.StatusPage(
                 title="No catalogue",
@@ -658,17 +977,17 @@ class StoreWindow(Adw.ApplicationWindow):
         )
 
     def _populate(self) -> None:
-        child = self.list_box.get_first_child()
-        while child:
-            self.list_box.remove(child)
-            child = self.list_box.get_first_child()
+        empty(self.list_box)
 
         needle = self.search.get_text().strip().lower()
+        if not needle:
+            self._browse()
+            return
+
         shown = [
             a
             for a in self.apps
-            if not needle
-            or needle in a.name.lower()
+            if needle in a.name.lower()
             or needle in a.ident.lower()
             or needle in a.summary.lower()
             or needle in a.category.lower()
@@ -691,20 +1010,86 @@ class StoreWindow(Adw.ApplicationWindow):
             return
 
         for category, apps in by_category(shown).items():
-            installed = sum(1 for a in apps if a.installed)
-            group = Adw.PreferencesGroup(title=category)
-            count = Gtk.Label(label=f"{installed}/{len(apps)}")
-            count.add_css_class("count-chip")
-            count.set_valign(Gtk.Align.CENTER)
-            count.set_tooltip_text(f"{installed} of {len(apps)} installed")
-            group.set_header_suffix(count)
-            group.set_margin_start(12)
-            group.set_margin_end(12)
-            group.set_margin_top(6)
-            group.set_margin_bottom(6)
-            for app in apps:
-                group.add(AppRow(app, self._open_detail))
-            self.list_box.append(group)
+            self.list_box.append(app_group(category, apps, self.open_detail))
 
-    def _open_detail(self, app: App) -> None:
+    def _browse(self) -> None:
+        """The front page with nothing typed: what there is, then what to
+        start with.
+
+        A grid rather than the catalogue itself. 109 rows in one column is a
+        list you scroll past rather than read, and it opened on Chat every
+        time because C sorts early -- so the first screen now says what the
+        store has and how much of it you already carry, and the shelf under it
+        answers the question someone arriving actually has, which is not
+        "which category" but "what should I install".
+        """
+        grid = Gtk.FlowBox()
+        grid.set_selection_mode(Gtk.SelectionMode.NONE)
+        grid.set_homogeneous(True)
+        # Three across on a phone, four on a desktop window. Both ends are set:
+        # left alone a FlowBox fits as many as it can, which at 360px means
+        # four cramped tiles the moment a category name is short enough to
+        # ellipsise away to nothing.
+        grid.set_min_children_per_line(3)
+        grid.set_max_children_per_line(4)
+        grid.set_row_spacing(8)
+        grid.set_column_spacing(8)
+
+        # First, and not a category: the old flat list, for when you want to
+        # read the whole thing rather than go looking for something.
+        grid.append(
+            category_tile("All apps", self.apps, lambda: self._open_category(None))
+        )
+        for category, apps in by_category(self.apps).items():
+            grid.append(
+                category_tile(
+                    category, apps, lambda c=category: self._open_category(c)
+                )
+            )
+
+        categories = Adw.PreferencesGroup(title="Categories")
+        categories.set_margin_start(12)
+        categories.set_margin_end(12)
+        categories.set_margin_top(6)
+        categories.add(grid)
+        self.list_box.append(categories)
+
+        picks = [a for a in self.apps if a.featured]
+        if not picks:
+            return
+
+        shelf = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        for app in picks:
+            shelf.append(pick_card(app, self.open_detail))
+
+        choice = Adw.PreferencesGroup(title="Editor's Choice")
+        # Every word of this is a claim the catalogue can be checked against --
+        # see the featured comment in catalogue.toml, and the check in
+        # scripts/lint-catalogue.py that holds the shelf to it.
+        choice.set_description(
+            "Start here. Each one was measured at 360px, follows your theme, "
+            "and costs a few megabytes."
+        )
+        choice.set_margin_start(12)
+        choice.set_margin_end(12)
+        choice.set_margin_top(12)
+        choice.set_margin_bottom(12)
+        choice.add(shelf)
+        self.list_box.append(choice)
+
+    def apps_in(self, category: str | None) -> list[App]:
+        """One category's apps by name, or the whole catalogue as it was
+        loaded -- by_category sorts each group itself."""
+        if category is None:
+            return list(self.apps)
+        return sorted(
+            (a for a in self.apps if a.category == category),
+            key=lambda a: a.name.lower(),
+        )
+
+    def _open_category(self, category: str | None) -> None:
+        self.category_page = CategoryPage(category, self)
+        self.nav.push(self.category_page)
+
+    def open_detail(self, app: App) -> None:
         self.nav.push(DetailPage(app, self.refresh))

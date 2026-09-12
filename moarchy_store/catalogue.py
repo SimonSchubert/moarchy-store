@@ -50,6 +50,13 @@ class App:
     screenshot: str = ""
     tested: str = ""
 
+    # A hand-picked shelf on the front page, and the only field here that is
+    # an opinion rather than a description. It rides in the catalogue with
+    # `tested` rather than in metadata.toml because it is the same kind of
+    # claim -- ours, revisable, and worth republishing without a package
+    # update, which is the one thing metadata.toml cannot do.
+    featured: bool = False
+
     # From metadata.toml, not from the catalogue, and every one optional. An
     # app with no metadata entry renders exactly as it did before that file
     # existed -- see _load_metadata.
@@ -186,6 +193,7 @@ def _app_from(entry: dict) -> App:
         icon=entry.get("icon", ""),
         screenshot=entry.get("screenshot", ""),
         tested=entry.get("tested", ""),
+        featured=bool(entry.get("featured", False)),
     )
 
     if source == "pacman":

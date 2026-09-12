@@ -3,12 +3,14 @@
 A curated store of Linux phone apps that **actually fit a small screen**.
 
 <p align="center">
-  <img src="docs/screenshots/store-list.png" width="45%" alt="The catalogue: apps grouped by category, each with a rounded icon tile, a one-line note on why it works on a phone, and a green tick on the tile corner where it is already installed">
-  <img src="docs/screenshots/store-detail.png" width="45%" alt="Foliate's page: a large icon, its summary, chips for category, toolkit and the device it was tested on, then Open and Remove side by side above the package details">
+  <img src="docs/screenshots/store-home.png" width="31%" alt="The front page: a three-across grid of category tiles, each an accent glyph over its name and how many of its apps are installed, with Editor's Choice beginning below it">
+  <img src="docs/screenshots/store-category.png" width="31%" alt="The Chat category: a back arrow, the title with 4 of 9 installed underneath, then one row per app with a rounded icon tile, a one-line note on why it works on a phone, and a green tick where it is already installed">
+  <img src="docs/screenshots/store-detail.png" width="31%" alt="Foliate's page: a large icon, its summary, chips for category, toolkit and the device it was tested on, then Open and Remove side by side above the package details">
 </p>
 
-<p align="center"><em>Shot on a PinePhone at 360×720. The palette is not the
-app's own — it is read from the active Omarchy theme, here tokyo-night.</em></p>
+<p align="center"><em>Shot in the omarchy-mobile VM at 360×720. The palette is
+not the app's own — it is read from the active Omarchy theme, here
+tokyo-night.</em></p>
 
 `pacman -Ss` already lists every package. What it cannot tell you is which of
 them survive 360×720 logical pixels and 2 GB of RAM. That judgement is the whole
@@ -21,6 +23,8 @@ Mobile, postmarketOS, or any Arch-based phone.
 ## What it does
 
 - Browse curated apps by category, with a note on *why* each one works
+- Opens on the categories rather than on the catalogue, and on ten picks worth
+  starting with
 - See installed state, version and download size, read live from the system
 - Install, open and remove, from the app, by touch
 - Marks which entries were verified on real hardware and which are suggestions
@@ -31,6 +35,26 @@ Mobile, postmarketOS, or any Arch-based phone.
   every Kirigami and Qt app, because it ships a GTK template and no Qt one
 - Takes its palette from the active Omarchy theme, so it matches the shell
   around it rather than shipping a look of its own
+
+## Editor's Choice
+
+<p align="center">
+  <img src="docs/screenshots/store-picks.png" width="45%" alt="The Editor's Choice section: a heading, a line saying each pick was measured at 360px and follows your theme, then a card per app with its icon, name and one-line summary">
+</p>
+
+The front page is a grid of categories and, underneath it, about ten apps
+marked `featured = true` in the catalogue. It is the store saying *start here*,
+so the bar is higher than being listed: measured as `fits` at 360×674, `themed
+= "yes"`, run on a device, and cheap enough that installing it is not a
+decision. One app per job — two music players on that shelf would mean neither
+was the answer.
+
+`scripts/lint-catalogue.py` enforces the measurable half of that and refuses a
+pick that was never measured, because the sentence under the heading is a claim
+made to everybody who opens the app. The rest is judgement, and judgement is
+what a PR is for.
+
+## Grouped by what you came for
 
 Apps are grouped by what you came looking for — Chat, Reading, Time, Security,
 Games — not by what they are built with. What they are built with still decides
@@ -119,6 +143,7 @@ category = "Reading"
 toolkit  = "libadwaita"   # libadwaita | kirigami | gtk | qt | tui
 summary  = "E-book reader. One of the best things about having a Linux phone."
 tested   = "pinephone-a64"   # or "" if you have not run it on a device
+featured = true              # optional: put it on the front page's shelf
 ```
 
 Keep `summary` under 80 characters. The list row gives it two lines and then

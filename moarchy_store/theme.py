@@ -154,6 +154,10 @@ WIDGETS = """
   border-radius: 13px;
 }
 
+.app-tile.large {
+  border-radius: 15px;
+}
+
 .app-tile.hero {
   border-radius: 26px;
 }
@@ -227,9 +231,67 @@ WIDGETS = """
   background-color: @card_bg_color;
 }
 
-.section-heading {
+/* The category grid, and the Editor's Choice cards beside it. Both are
+ * buttons, so all three of background, border and box-shadow have to be said:
+ * Adwaita gives a button a border drawn as a shadow, and setting only the
+ * colour leaves a hairline outline around every tile.
+ *
+ * Off the foreground rather than @card_bg_color, which is what a card
+ * elsewhere in this app uses. A theme is free to set lighter_background to the
+ * background -- osaka-jade does, and several others do -- and a list survives
+ * that because its rows still have separators, where a grid of invisible tiles
+ * is just floating text. A fraction of currentColor is visible on every theme
+ * by construction, which is the same reason .app-tile is drawn that way. */
+.category-tile,
+.pick-card {
+  background: alpha(currentColor, 0.07);
+  background-image: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 18px;
+}
+
+.category-tile:hover,
+.pick-card:hover {
+  background: alpha(currentColor, 0.12);
+}
+
+.category-tile:active,
+.pick-card:active {
+  background: alpha(currentColor, 0.18);
+}
+
+.category-tile {
+  padding: 14px 4px;
+}
+
+/* Tinted, unlike an app's own icon: these are our glyphs for our categories,
+ * not something an upstream chose, so they can be the one place the theme's
+ * accent shows up in quantity. */
+.category-icon {
+  color: @accent_color;
+}
+
+.category-name {
   font-weight: bold;
-  font-size: 0.95em;
+  font-size: 0.92em;
+}
+
+.category-count {
+  font-size: 0.75em;
+  color: @moarchy_dim;
+}
+
+.pick-card {
+  padding: 12px;
+}
+
+.pick-name {
+  font-weight: bold;
+}
+
+.pick-summary {
+  font-size: 0.85em;
 }
 """
 

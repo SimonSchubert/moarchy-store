@@ -263,6 +263,43 @@ def main() -> int:
             if not (shots_dir / shot).exists():
                 err(f"{entry.get('name')}: screenshot {shot} is not in screenshots/")
 
+    # --- the Editor's Choice shelf ----------------------------------------
+    # The front page tells everyone who opens the store that each pick was
+    # measured at 360px, follows their theme, and costs a few megabytes. That
+    # sentence lives in window.py, so what it asserts has to be checkable
+    # here -- otherwise the one screen nobody can avoid is the one making a
+    # claim nobody verified.
+    featured = []
+    for entry in entries:
+        flag = entry.get("featured")
+        if flag is None:
+            continue
+        if not isinstance(flag, bool):
+            err(f"{entry.get('name')}: featured = {flag!r} is not a boolean")
+        elif flag:
+            featured.append(entry)
+
+    for entry in featured:
+        ident = entry.get("pkg") or entry.get("id", "")
+        name = entry.get("name", ident)
+        measurements = meta.get(ident, {})
+        if not entry.get("tested"):
+            err(f"{name}: featured without a tested device")
+        adaptive = measurements.get("adaptive", "")
+        if adaptive != "fits":
+            err(f"{name}: featured, but adaptive = {adaptive!r} -- the shelf "
+                "says every pick was measured at 360px")
+        themed = measurements.get("themed", "")
+        if themed != "yes":
+            err(f"{name}: featured, but themed = {themed!r} -- the shelf says "
+                "every pick follows your theme")
+
+    if not featured:
+        warn("nothing is featured, so the front page has no Editor's Choice shelf")
+    elif len(featured) > 12:
+        warn(f"{len(featured)} apps are featured; the shelf is meant to be about "
+             "ten, and one that lists everything recommends nothing")
+
     # --- sweep/verdicts.toml ----------------------------------------------
     # The notebook and the catalogue have to agree about what shipped, or the
     # notebook stops being usable as a reason to skip re-testing something.
@@ -313,7 +350,8 @@ def main() -> int:
         print(f"ERROR: {line}")
 
     print(f"\n{len(entries)} apps, {len([m for m in meta.values() if isinstance(m, dict)])} "
-          f"with metadata, {len(list(shots_dir.glob('*.png')))} screenshots "
+          f"with metadata, {len(featured)} featured, "
+          f"{len(list(shots_dir.glob('*.png')))} screenshots "
           f"({total / 1024 / 1024:.1f} MB)")
     print(f"catalogue.toml {size:,} bytes, {(size / REMOTE_MAX) * 100:.1f}% of the "
           f"remote cap ({REMOTE_MAX - size:,} bytes of headroom)")

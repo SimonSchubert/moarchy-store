@@ -34,16 +34,24 @@
 #             not guessed. TUIs have no .desktop file, so they get a terminal icon.
 #   screenshot  file in screenshots/, served from GitHub at runtime
 #   tested    device string the entry was verified on, or "" if unverified
+#   featured  true to put the entry on the front page's Editor's Choice shelf
 #
 # "tested" is not decoration. An entry with an empty tested field is a
 # suggestion; an entry with a device is a claim someone can hold us to.
+#
+# "featured" is the front page saying "start here", so the bar is higher than
+# being listed: measured at 360px as `fits`, `themed = "yes"`, tested on a
+# device, and cheap enough that installing it is not a decision. Keep the shelf
+# around ten, and keep it one app per job -- two music players on it would mean
+# neither was the answer. scripts/lint-catalogue.py enforces the measurable
+# half; the rest is judgement.
 
 version = 1
 
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 19
+serial = 20
 
 # --- Reading ---------------------------------------------------------------
 
@@ -56,6 +64,7 @@ summary = "E-book reader. One of the best things about having a Linux phone."
 icon = "com.github.johnfactotum.Foliate"
 screenshot = "foliate.png"
 tested = "pinephone-a64"
+featured = true
 
 [[app]]
 pkg = "papers"
@@ -158,6 +167,7 @@ summary = "Forecasts for saved locations. Adapts down to one column."
 icon = "org.gnome.Weather"
 screenshot = "gnome-weather-dark.png"
 tested = "omarchy-mobile-vm"
+featured = true
 
 [[app]]
 pkg = "gnome-contacts"
@@ -261,6 +271,7 @@ summary = "Local music player. Deliberately small in scope, which suits the devi
 icon = "io.bassi.Amberol"
 screenshot = "amberol-dark.png"
 tested = "omarchy-mobile-vm"
+featured = true
 
 [[app]]
 pkg = "mpv"
@@ -441,6 +452,7 @@ summary = "GNOME's podcast player."
 icon = "org.gnome.Podcasts"
 screenshot = "gnome-podcasts-dark.png"
 tested = "omarchy-mobile-vm"
+featured = true
 
 [[app]]
 pkg = "shortwave"
@@ -491,6 +503,7 @@ summary = "Month and agenda views that reflow to phone width."
 icon = "org.gnome.Calendar"
 screenshot = "gnome-calendar-dark.png"
 tested = "omarchy-mobile-vm"
+featured = true
 
 [[app]]
 pkg = "errands"
@@ -541,6 +554,7 @@ summary = "Two-factor codes, with backup and restore."
 icon = "com.belmoussaoui.Authenticator"
 screenshot = "authenticator-dark.png"
 tested = "omarchy-mobile-vm"
+featured = true
 
 [[app]]
 pkg = "francis"
@@ -651,6 +665,7 @@ summary = "OpenStreetMap browsing and routing."
 icon = "org.gnome.Maps"
 screenshot = "gnome-maps-dark.png"
 tested = "omarchy-mobile-vm"
+featured = true
 
 [[app]]
 pkg = "warp"
@@ -793,6 +808,7 @@ summary = "Mastodon and the fediverse, for 1.6MB where Tokodon costs 108MB."
 icon = "dev.geopjr.Tuba"
 screenshot = "tuba-dark.png"
 tested = "omarchy-mobile-vm"
+featured = true
 
 [[app]]
 pkg = "iotas"
@@ -803,6 +819,7 @@ summary = "Notes that sync with Nextcloud, or stay on the phone. 1.3MB."
 icon = "org.gnome.World.Iotas"
 screenshot = "iotas-dark.png"
 tested = "omarchy-mobile-vm"
+featured = true
 
 [[app]]
 pkg = "decoder"
@@ -1093,6 +1110,7 @@ summary = "GNOME's file manager, two columns of big folder tiles at 360px."
 icon = "org.gnome.Nautilus"
 screenshot = "nautilus-dark.png"
 tested = "omarchy-mobile-vm"
+featured = true
 
 [[app]]
 pkg = "deja-dup"
