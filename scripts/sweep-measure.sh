@@ -120,6 +120,29 @@ CLASS=$("$SSH" "grep -m1 '^StartupWMClass=' $DESKTOP | cut -d= -f2" || true)
 note "desktop id $ID, window class $CLASS"
 
 # --- helpers ----------------------------------------------------------------
+screen_clear() {
+  # grim photographs the composited screen, not a window. The drawer and the
+  # recents switcher are layer-shell overlays drawn above every tiled window,
+  # and `hyprctl clients` does not list layer surfaces -- so a shot taken with
+  # the drawer open is a picture of the drawer while every window check passes.
+  #
+  # That is not hypothetical. Four apps were "measured" through an app drawer
+  # somebody had left open with a half-typed search in it, and the drawer under
+  # two themes diffs to 0.82, which reads as a perfectly themed app. Two of the
+  # four were Kirigami, which cannot follow the theme at all.
+  #
+  # omarchy-shell needs OMARCHY_PATH, and without it fails quietly -- which is
+  # how the first attempt to close the drawer appeared to work and did not.
+  "$SSH" "$E omarchy-shell drawer close; omarchy-shell recents close" >/dev/null 2>&1 || true
+  local state
+  state=$("$SSH" "$E omarchy-shell drawer state" 2>/dev/null | tr -d '[:space:]')
+  if [ -n "$state" ] && [ "$state" != closed ]; then
+    fail "the drawer is $state and will be in the picture"
+    return 1
+  fi
+  return 0
+}
+
 osk_down() {
   # Must be [0,26,0,0] or [0,26,0,20]. Anything larger at the bottom is the
   # keyboard, and a shot taken now is a picture of a 360x474 window.
@@ -162,14 +185,38 @@ launch_and_wait() {
     after=$("$SSH" "$E hyprctl -j clients | jq -r '.[].address'" 2>/dev/null | sort | tr '\n' ' ')
     for addr in $after; do
       case " $before " in
-        *" $addr "*) ;;
-        *) WINDOW=$addr
-           # Correct CLASS from what actually mapped, so close_it and the
-           # geometry read afterwards talk about the right window.
-           CLASS=$("$SSH" "$E hyprctl -j clients | jq -r --arg a '$addr' \
-             '.[]|select(.address==\$a)|.class'" 2>/dev/null || echo "$CLASS")
-           return 0 ;;
+        *" $addr "*) continue ;;
       esac
+
+      # A new window is not necessarily OUR window.
+      #
+      # The shell's own surfaces come and go: open the app drawer, or leave it
+      # open from another session, and it appears here as a new client. The
+      # first version of this took any new address, so launching kalk
+      # photographed the drawer with somebody's half-typed search in it -- and
+      # the drawer under two themes diffs to 0.82, which reads as a perfectly
+      # themed app. Four Kirigami apps "measured" as following the theme, which
+      # is impossible, before anyone looked at a picture.
+      local cls cmd
+      cls=$("$SSH" "$E hyprctl -j clients | jq -r --arg a '$addr' \
+        '.[]|select(.address==\$a)|.class'" 2>/dev/null || true)
+      case "$cls" in
+        org.quickshell|org.moarchy.Store|""|null) continue ;;
+      esac
+      # And confirm it is the thing we launched rather than a coincidence:
+      # either the class looks like the desktop id, or the process behind the
+      # window was started from this package.
+      cmd=$("$SSH" "$E hyprctl -j clients | jq -r --arg a '$addr' \
+        '.[]|select(.address==\$a)|.pid' | xargs -r -I{} cat /proc/{}/cmdline 2>/dev/null | tr '\\0' ' '" 2>/dev/null || true)
+      local stem=${ID##*.}
+      case "$(printf '%s %s' "$cls" "$cmd" | tr 'A-Z' 'a-z')" in
+        *"$(printf '%s' "$stem" | tr 'A-Z' 'a-z')"*|*"$(printf '%s' "$PKG" | tr 'A-Z' 'a-z')"*) ;;
+        *) note "ignoring a new window that is not $PKG: $cls"; continue ;;
+      esac
+
+      WINDOW=$addr
+      CLASS=$cls
+      return 0
     done
   done
   return 1
@@ -234,6 +281,7 @@ shoot() {  # shoot <theme> <outfile>
   # it, wait for the window to grow back, and only then shoot.
   local geom=""
   for _ in 1 2 3; do
+    screen_clear || true
     osk_down || true
     sleep 1
     geom=$(window_geometry)
@@ -242,6 +290,7 @@ shoot() {  # shoot <theme> <outfile>
   done
   SHOT_GEOM=$geom
 
+  screen_clear || return 1
   sleep 2   # let it finish its first paint
   "$VM/scripts/vm-screenshot.sh" "$2" >/dev/null
 }
