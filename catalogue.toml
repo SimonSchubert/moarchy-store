@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 15
+serial = 16
 
 # --- Reading ---------------------------------------------------------------
 
@@ -156,7 +156,8 @@ category = "Utilities"
 toolkit = "libadwaita"
 summary = "Forecasts for saved locations. Adapts down to one column."
 icon = "org.gnome.Weather"
-tested = ""
+screenshot = "gnome-weather-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "gnome-contacts"
@@ -165,7 +166,8 @@ category = "Phone"
 toolkit = "libadwaita"
 summary = "Address book that syncs with online accounts, or stays local."
 icon = "org.gnome.Contacts"
-tested = ""
+screenshot = "gnome-contacts-dark.png"
+tested = "omarchy-mobile-vm"
 
 # --- Files and text --------------------------------------------------------
 
@@ -257,7 +259,8 @@ category = "Media"
 toolkit = "libadwaita"
 summary = "Local music player. Deliberately small in scope, which suits the device."
 icon = "io.bassi.Amberol"
-tested = ""
+screenshot = "amberol-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "mpv"
@@ -348,7 +351,8 @@ category = "Media"
 toolkit = "kirigami"
 summary = "Voice memos, built for Plasma Mobile."
 icon = "org.kde.krecorder"
-tested = ""
+screenshot = "krecorder-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "gnome-sound-recorder"
@@ -357,7 +361,8 @@ category = "Media"
 toolkit = "libadwaita"
 summary = "Simple audio recording, GNOME's take."
 icon = "org.gnome.SoundRecorder"
-tested = ""
+screenshot = "gnome-sound-recorder-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "snapshot"
@@ -375,7 +380,8 @@ category = "Media"
 toolkit = "libadwaita"
 summary = "Plays one audio file at a time and nothing else. Suits a phone."
 icon = "org.gnome.Decibels"
-tested = ""
+screenshot = "decibels-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "showtime"
@@ -384,7 +390,8 @@ category = "Media"
 toolkit = "libadwaita"
 summary = "GNOME's video player, adaptive."
 icon = "org.gnome.Showtime"
-tested = ""
+screenshot = "showtime-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "elisa"
@@ -393,7 +400,8 @@ category = "Media"
 toolkit = "kirigami"
 summary = "Music player with a library view that collapses to one column."
 icon = "elisa"
-tested = ""
+screenshot = "elisa-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "audiotube"
@@ -411,7 +419,8 @@ category = "Media"
 toolkit = "kirigami"
 summary = "YouTube client, Kirigami. Video decode will lean on cedrus."
 icon = "org.kde.plasmatube"
-tested = ""
+screenshot = "plasmatube-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "kasts"
@@ -420,7 +429,8 @@ category = "Media"
 toolkit = "kirigami"
 summary = "Podcast player designed for phones."
 icon = "kasts"
-tested = ""
+screenshot = "kasts-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "gnome-podcasts"
@@ -429,7 +439,8 @@ category = "Media"
 toolkit = "libadwaita"
 summary = "GNOME's podcast player."
 icon = "org.gnome.Podcasts"
-tested = ""
+screenshot = "gnome-podcasts-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "shortwave"
@@ -438,7 +449,8 @@ category = "Media"
 toolkit = "libadwaita"
 summary = "Internet radio, thousands of stations."
 icon = "de.haeckerfelix.Shortwave"
-tested = ""
+screenshot = "shortwave-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "arianna"
@@ -447,7 +459,8 @@ category = "Reading"
 toolkit = "kirigami"
 summary = "EPub reader for mobile devices."
 icon = "org.kde.arianna"
-tested = ""
+screenshot = "arianna-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "alligator"
@@ -456,7 +469,8 @@ category = "Reading"
 toolkit = "kirigami"
 summary = "Kirigami RSS reader, built for small screens."
 icon = "alligator"
-tested = ""
+screenshot = "alligator-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "telly-skout"
@@ -465,7 +479,8 @@ category = "Reading"
 toolkit = "kirigami"
 summary = "Convergent TV guide."
 icon = "org.kde.telly-skout"
-tested = ""
+screenshot = "telly-skout-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "gnome-calendar"
@@ -474,7 +489,8 @@ category = "Time"
 toolkit = "libadwaita"
 summary = "Month and agenda views that reflow to phone width."
 icon = "org.gnome.Calendar"
-tested = ""
+screenshot = "gnome-calendar-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "errands"
@@ -483,7 +499,8 @@ category = "Time"
 toolkit = "libadwaita"
 summary = "Todo lists, deliberately simple, syncs over CalDAV."
 icon = "io.github.mrvladus.List"
-tested = ""
+screenshot = "errands-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "endeavour"
@@ -492,7 +509,8 @@ category = "Time"
 toolkit = "libadwaita"
 summary = "Personal task manager, formerly GNOME Todo."
 icon = "org.gnome.Todo"
-tested = ""
+screenshot = "endeavour-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "dialect"
@@ -501,7 +519,8 @@ category = "Utilities"
 toolkit = "libadwaita"
 summary = "Translation between languages, several backends."
 icon = "app.drey.Dialect"
-tested = ""
+screenshot = "dialect-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "secrets"
@@ -510,7 +529,8 @@ category = "Security"
 toolkit = "libadwaita"
 summary = "Password manager reading KeePass databases."
 icon = "org.gnome.World.Secrets"
-tested = ""
+screenshot = "secrets-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "authenticator"
@@ -519,7 +539,8 @@ category = "Security"
 toolkit = "libadwaita"
 summary = "Two-factor codes, with backup and restore."
 icon = "com.belmoussaoui.Authenticator"
-tested = ""
+screenshot = "authenticator-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "francis"
@@ -528,7 +549,8 @@ category = "Time"
 toolkit = "kirigami"
 summary = "Pomodoro timer."
 icon = "org.kde.francis"
-tested = ""
+screenshot = "francis-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "chess-clock"
@@ -537,7 +559,8 @@ category = "Time"
 toolkit = "libadwaita"
 summary = "Time control for over-the-board games."
 icon = "eu.fortysixandtwo.chessclock"
-tested = ""
+screenshot = "chess-clock-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "curtail"
@@ -546,7 +569,8 @@ category = "Utilities"
 toolkit = "libadwaita"
 summary = "Compress images without leaving the phone."
 icon = "com.github.huluti.Curtail"
-tested = ""
+screenshot = "curtail-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "eyedropper"
@@ -555,7 +579,8 @@ category = "Utilities"
 toolkit = "libadwaita"
 summary = "Pick and convert colours."
 icon = "com.github.finefindus.eyedropper"
-tested = ""
+screenshot = "eyedropper-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "textpieces"
@@ -564,7 +589,8 @@ category = "Utilities"
 toolkit = "libadwaita"
 summary = "Scratchpad that runs transformations on text."
 icon = "io.gitlab.liferooter.TextPieces"
-tested = ""
+screenshot = "textpieces-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "paper-clip"
@@ -573,7 +599,8 @@ category = "Utilities"
 toolkit = "libadwaita"
 summary = "Edit PDF metadata."
 icon = "io.github.diegoivan.pdf_metadata_editor"
-tested = ""
+screenshot = "paper-clip-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "junction"
@@ -582,7 +609,8 @@ category = "Utilities"
 toolkit = "libadwaita"
 summary = "Choose which app opens a file or link."
 icon = "re.sonny.Junction"
-tested = ""
+screenshot = "junction-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "tangram"
@@ -591,7 +619,8 @@ category = "Web"
 toolkit = "libadwaita"
 summary = "Keeps pinned web apps in their own windows."
 icon = "re.sonny.Tangram"
-tested = ""
+screenshot = "tangram-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "ktrip"
@@ -600,7 +629,8 @@ category = "Travel"
 toolkit = "kirigami"
 summary = "Public transport journeys, built for mobile."
 icon = "org.kde.ktrip"
-tested = ""
+screenshot = "ktrip-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "itinerary"
@@ -609,7 +639,8 @@ category = "Travel"
 toolkit = "kirigami"
 summary = "Boarding passes and travel documents in one place."
 icon = "org.kde.itinerary"
-tested = ""
+screenshot = "itinerary-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "gnome-maps"
@@ -618,16 +649,8 @@ category = "Travel"
 toolkit = "libadwaita"
 summary = "OpenStreetMap browsing and routing."
 icon = "org.gnome.Maps"
-tested = ""
-
-[[app]]
-pkg = "gnome-connections"
-name = "Connections"
-category = "System"
-toolkit = "gtk"
-summary = "Remote desktop client, VNC and RDP."
-icon = "org.gnome.Connections"
-tested = ""
+screenshot = "gnome-maps-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "warp"
@@ -636,7 +659,8 @@ category = "System"
 toolkit = "libadwaita"
 summary = "Send files between devices with a short code."
 icon = "app.drey.Warp"
-tested = ""
+screenshot = "warp-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "video-trimmer"
@@ -645,7 +669,8 @@ category = "Media"
 toolkit = "libadwaita"
 summary = "Cut a fragment out of a video without re-encoding."
 icon = "org.gnome.gitlab.YaLTeR.VideoTrimmer"
-tested = ""
+screenshot = "video-trimmer-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "kongress"
@@ -654,7 +679,8 @@ category = "Travel"
 toolkit = "kirigami"
 summary = "Conference companion: schedules and maps."
 icon = "org.kde.kongress"
-tested = ""
+screenshot = "kongress-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "kaidan"
@@ -663,7 +689,8 @@ category = "Chat"
 toolkit = "kirigami"
 summary = "XMPP client that works on a phone."
 icon = "kaidan"
-tested = ""
+screenshot = "kaidan-dark.png"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "tokodon"
@@ -672,7 +699,8 @@ category = "Chat"
 toolkit = "kirigami"
 summary = "Mastodon client, Kirigami."
 icon = "org.kde.tokodon"
-tested = ""
+screenshot = "tokodon-dark.png"
+tested = "omarchy-mobile-vm"
 
 # --- Found by surveying the AUR ---------------------------------------------
 #

@@ -1024,3 +1024,297 @@ Nautilus and Index. If it returns to the repos it should come straight back.
 date = 2026-09-12
 outcome = "rejected"
 reason = "No aarch64 build. Celluloid, Showtime and mpv all cover video, and the first two follow the theme."
+
+# ===========================================================================
+# The back catalogue, measured at last, 2026-09-12
+#
+# 45 entries were still tested = "" -- suggestions rather than claims, some of
+# them since serial 3. Growing the catalogue while that stayed true would have
+# been building on sand, so every one of them was run at 360x674 and looked at.
+#
+# 37 are promoted to tested = "omarchy-mobile-vm" with a screenshot. What the
+# batch confirms is the toolkit split, now across the whole catalogue rather
+# than a sample: every libadwaita app reads 0.65-0.87 on the theme diff and
+# every Kirigami one reads 0.0418, the noise floor, to four decimal places.
+# The two exceptions are recorded below.
+#
+# Six could not be measured, and none of them is a defect in the app:
+#   mpv         a player with nothing to play maps no window
+#   qrca        needs a camera the VM has not got
+#   snapshot    the same; it maps a permission dialog at 362x314 and stops
+#   audiotube   no window within 60s
+#   gnome-calls needs a modem, and is DBusActivatable besides
+# They keep tested = "", which is what that field is for.
+# ===========================================================================
+
+[gnome-connections]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "clipped"
+reason   = """
+Asks for 710x600 and gets it: Hyprland floats it, because the size it wants is
+wider than the screen it is on. Nothing about a remote desktop client is
+adaptive here, and its onboarding runs off the right edge.
+
+It was also mislabelled `toolkit = "kirigami"` from the serial-3 sweep and is
+GTK, fixed at serial 8. Two wrong facts about one entry that nobody had run.
+"""
+
+[elisa]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "tight"
+themed   = "partial"
+reason   = """
+Maps 360x674 and is usable, but it keeps a desktop shape: a vertical icon rail
+down the left with the content squeezed beside it, and a scan progress bar that
+lands under the keyboard pill. 60 packages and 17.93 MB.
+
+The theme diff reads 0.69, which for a Kirigami app should be impossible -- the
+image ships no Qt template. Its chrome does pick up a dark palette; what the
+number is mostly measuring is album art and a progress bar that differ between
+two runs. Recorded as partial by eye rather than yes by arithmetic.
+"""
+
+[kasts]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "tight"
+reason   = "Fits and works, with the same left icon rail as Elisa eating width that a 360px column cannot spare. 46 packages for 10.97 MB."
+
+[ktrip]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+themed   = "partial"
+reason   = "Fits, and its first screen is a dense provider list with a visible scrollbar. Reads 0.187, between the two bands, so partial by eye: some chrome follows, the list does not."
+
+[gnome-calendar]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "A seven-column month grid with week numbers at 360px is as tight as that can be drawn, and it is legible. 0.51 MB."
+
+[snapshot]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "unknown"
+reason = "Maps a 362x314 camera-permission dialog and stops, the VM having no camera. Stays listed and stays tested = \"\": unverifiable here, not broken."
+
+[qrca]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "unknown"
+reason = "No window within 60s, and it wants a camera. Same as snapshot: a suggestion until someone runs it on hardware."
+
+[mpv]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "unknown"
+reason = "Maps no window when launched with no file, which is what mpv is. Not a thing this harness can measure; it stays a suggestion."
+
+[audiotube]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "unknown"
+reason = "No window within 60s, and 39 packages for 96.25 MB. PlasmaTube covers YouTube at the same price and does map. Worth re-running before the next publish."
+
+# --- The rest of the back catalogue, one line each ---------------------------
+
+[alligator]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; cannot follow the theme, being Kirigami. 14 packages, 6.76 MB."
+
+[amberol]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 1.84 MB."
+
+[arianna]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; cannot follow the theme, being Kirigami. 35 packages, 95.1 MB."
+
+[authenticator]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 2.98 MB."
+
+[chess-clock]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 0.06 MB."
+
+[curtail]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 7 packages, 1.0 MB."
+
+[decibels]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 0.09 MB."
+
+[dialect]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 6 packages, 1.08 MB."
+
+[endeavour]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 2 packages, 0.47 MB."
+
+[errands]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 13 packages, 3.64 MB."
+
+[eyedropper]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 1.01 MB."
+
+[francis]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; cannot follow the theme, being Kirigami. 12 packages, 6.27 MB."
+
+[gnome-contacts]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 0.4 MB."
+
+[gnome-maps]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 1.28 MB."
+
+[gnome-podcasts]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 3.03 MB."
+
+[gnome-sound-recorder]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 0.1 MB."
+
+[gnome-weather]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 0.15 MB."
+
+[itinerary]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; cannot follow the theme, being Kirigami. 47 packages, 23.15 MB."
+
+[junction]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 0.02 MB."
+
+[kaidan]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; cannot follow the theme, being Kirigami. 30 packages, 15.8 MB."
+
+[kongress]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; cannot follow the theme, being Kirigami. 24 packages, 12.05 MB."
+
+[krecorder]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; cannot follow the theme, being Kirigami. 21 packages, 11.17 MB."
+
+[paper-clip]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 0.07 MB."
+
+[plasmatube]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; cannot follow the theme, being Kirigami. 39 packages, 96.18 MB."
+
+[secrets]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 19 packages, 7.55 MB."
+
+[shortwave]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 2.96 MB."
+
+[showtime]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 0.14 MB."
+
+[tangram]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 0.05 MB."
+
+[telly-skout]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; cannot follow the theme, being Kirigami. 12 packages, 6.38 MB."
+
+[textpieces]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 1.33 MB."
+
+[tokodon]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; cannot follow the theme, being Kirigami. 43 packages, 97.62 MB."
+
+[video-trimmer]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 0.36 MB."
+
+[warp]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ran at 360x674 and drew correctly; follows the theme. 1 packages, 2.63 MB."
