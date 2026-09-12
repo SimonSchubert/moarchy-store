@@ -17,7 +17,10 @@ Run it from the repo root. Exits non-zero on an error, zero on warnings.
 
 from __future__ import annotations
 
+import argparse
+import os
 import re
+import subprocess
 import sys
 import tomllib
 from pathlib import Path
@@ -82,7 +85,41 @@ def warn(msg: str) -> None:
     warnings.append(msg)
 
 
+def check_repos(packages: set[str]) -> None:
+    """Ask the guest whether every catalogued package still exists.
+
+    Not a style check. plasma-dialer, spacebar and livi sat in the catalogue
+    long after Arch Linux ARM stopped building them for aarch64, so three rows
+    offered an Install button that could not work -- and two of them were the
+    dialer and the SMS app, which commit 13bf411 added saying a phone store
+    without calls and SMS was missing the point.
+
+    Needs the VM, so it is behind a flag rather than run every time.
+    """
+    vm = Path(os.environ.get("MOARCHY_VM", Path.home() / "Projects" / "omarchy-mobile"))
+    ssh = vm / "scripts" / "vm-ssh.sh"
+    if not ssh.exists():
+        warn(f"--check-repos needs the VM at {vm}; skipped")
+        return
+    names = " ".join(sorted(packages))
+    try:
+        out = subprocess.run(
+            [str(ssh), f"for p in {names}; do pacman -Si $p >/dev/null 2>&1 || echo $p; done"],
+            capture_output=True, text=True, timeout=300)
+    except Exception as exc:
+        warn(f"--check-repos could not reach the VM: {exc}")
+        return
+    for missing in out.stdout.split():
+        err(f"{missing} is in the catalogue and not in the repos -- its Install "
+            "button cannot work")
+
+
 def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--check-repos", action="store_true",
+                    help="ask the VM whether every package still exists (slow)")
+    args = ap.parse_args()
+
     cat_path = ROOT / "catalogue.toml"
     with cat_path.open("rb") as fh:
         cat = tomllib.load(fh)
@@ -231,6 +268,9 @@ def main() -> int:
             warn(f"screenshots/{path.name} is {path.stat().st_size // 1024} KB")
     if total > SHOTS_TOTAL_WARN:
         warn(f"screenshots/ is {total / 1024 / 1024:.1f} MB")
+
+    if args.check_repos:
+        check_repos(packages)
 
     # --- report ------------------------------------------------------------
     for line in warnings:

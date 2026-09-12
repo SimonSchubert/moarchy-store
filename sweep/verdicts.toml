@@ -464,14 +464,17 @@ cannot do the thing is not ready to list.
 
 [gnome-calls]
 date     = 2026-09-12
-outcome  = "deferred"
-adaptive = "no-window"
+outcome  = "listed"
+adaptive = "unknown"
 reason   = """
-Never maps a window, even at 60s and even watching for any new window rather
-than a matching class. Its entry is DBusActivatable, which is the Chatty
-pattern, and it also wants ModemManager and a modem the VM has not got. Genuinely
-untestable here rather than broken, and the more interesting of the two dialers
-on a GNOME-adjacent image -- plasma-dialer is listed and is Kirigami.
+Listed as a suggestion -- tested = "" -- rather than a measured entry, and only
+because the repos left no alternative. It never maps a window here: its entry is
+DBusActivatable, the Chatty pattern, and it wants ModemManager and a modem the
+VM has not got. Untestable in a VM rather than broken.
+
+It is in because plasma-dialer went out. Arch Linux ARM no longer builds it for
+aarch64, and a phone store with no dialer at all is worse than one offering the
+only dialer that exists with an honest "not yet tested on a device" chip.
 """
 
 [songrec]
@@ -980,3 +983,44 @@ reason = "Rated well and declares 360 with touch, but it is not in the aarch64 r
 date = 2026-09-12
 outcome = "deferred"
 reason = "Same as apostrophe: present in the x86_64 AppStream data, absent from the ARM repos."
+
+# --- Gone from the repos, 2026-09-12 ---------------------------------------
+#
+# Found by `lint-catalogue.py --check-repos`, which asks the guest whether every
+# catalogued package still exists. It did not exist before today, and these four
+# had been sitting in the catalogue offering an Install button that could not
+# work -- which is the exact failure _app_from's docstring names: "an entry the
+# store cannot act on is worse than an absent one, because it renders as a
+# working row with a button that fails".
+#
+# Not a removal from Arch, but from Arch Linux ARM: these are not built for
+# aarch64 any more. Checked after a fresh `pacman -Sy`, so it is not a stale
+# mirror.
+
+[plasma-dialer]
+date = 2026-09-12
+outcome = "rejected"
+reason = """
+No aarch64 build. Added at serial 3 with the note that "a store for a phone
+that did not list calls and SMS was missing the point", which is still true --
+so gnome-calls takes its place, as a suggestion rather than a claim.
+"""
+
+[spacebar]
+date = 2026-09-12
+outcome = "rejected"
+reason = "No aarch64 build. Chatty already covers SMS and MMS, is libadwaita, and is tested, so the category keeps its answer."
+
+[portfolio-file-manager]
+date = 2026-09-12
+outcome = "rejected"
+reason = """
+No aarch64 build. The painful one: it carried tested = "pinephone-a64" and a
+screenshot from real hardware, so it worked here once. Files is covered by
+Nautilus and Index. If it returns to the repos it should come straight back.
+"""
+
+[livi]
+date = 2026-09-12
+outcome = "rejected"
+reason = "No aarch64 build. Celluloid, Showtime and mpv all cover video, and the first two follow the theme."

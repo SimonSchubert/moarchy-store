@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 14
+serial = 15
 
 # --- Reading ---------------------------------------------------------------
 
@@ -168,16 +168,6 @@ icon = "org.gnome.Contacts"
 tested = ""
 
 # --- Files and text --------------------------------------------------------
-
-[[app]]
-pkg = "portfolio-file-manager"
-name = "Portfolio"
-category = "Files"
-toolkit = "libadwaita"
-summary = "File manager designed for touch from the start, not scaled down."
-icon = "dev.tchx84.Portfolio"
-screenshot = "portfolio-file-manager.png"
-tested = "pinephone-a64"
 
 [[app]]
 pkg = "index-fm"
@@ -343,24 +333,6 @@ tested = "omarchy-mobile-vm"
 # --- on a device yet, which is what tested = "" says.
 
 [[app]]
-pkg = "plasma-dialer"
-name = "Dialer"
-category = "Phone"
-toolkit = "kirigami"
-summary = "Make and receive calls. The Plasma Mobile dialer, and the reason this is a phone."
-icon = "dialer"
-tested = ""
-
-[[app]]
-pkg = "spacebar"
-name = "Messages"
-category = "Phone"
-toolkit = "kirigami"
-summary = "SMS and MMS. Pairs with the dialer for the actual phone half of a phone."
-icon = "org.kde.spacebar"
-tested = ""
-
-[[app]]
 pkg = "qrca"
 name = "QR Scanner"
 category = "Utilities"
@@ -403,15 +375,6 @@ category = "Media"
 toolkit = "libadwaita"
 summary = "Plays one audio file at a time and nothing else. Suits a phone."
 icon = "org.gnome.Decibels"
-tested = ""
-
-[[app]]
-pkg = "livi"
-name = "Livi"
-category = "Media"
-toolkit = "libadwaita"
-summary = "GTK4 video player built for mobile, GStreamer backed."
-icon = "org.sigxcpu.Livi"
 tested = ""
 
 [[app]]
@@ -1152,6 +1115,15 @@ summary = "Convert between binary, decimal, hex and octal. 40KB."
 icon = "io.github.fizzyizzy05.binary"
 screenshot = "binary-dark.png"
 tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "gnome-calls"
+name = "Calls"
+category = "Phone"
+toolkit = "libadwaita"
+summary = "Phone calls over the modem or SIP. The only dialer left in the repos."
+icon = "org.gnome.Calls"
+tested = ""
 
 # --- Omarchy shell plugins -------------------------------------------------
 #
