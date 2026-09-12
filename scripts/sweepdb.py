@@ -82,6 +82,53 @@ def deferred_due(days: int = DEFERRED_DAYS) -> list[tuple[str, str, str]]:
     return sorted(out, key=lambda r: r[1], reverse=True)
 
 
+def needs_measure() -> list[tuple[str, str, str]]:
+    """Catalogued apps that have never been through sweep-measure.sh.
+
+    The test is the absence of `measured`, which only that script writes. An
+    entry can carry `tested` and a screenshot and still be here: the first 16
+    screenshots were taken on a PinePhone by hand, before there was a harness,
+    so those entries have a picture and a device string and none of the fields
+    the harness produces -- no themed, no adaptive, no install cost. They are
+    therefore invisible to everything the store learned to show.
+
+    Returns (ident, tested, screenshot), worst first: no picture at all before
+    an old picture, since an entry with neither is the emptier page.
+    """
+    import tomllib
+    with (ROOT / "catalogue.toml").open("rb") as fh:
+        cat = tomllib.load(fh)
+    meta_path = ROOT / "metadata.toml"
+    meta = {}
+    if meta_path.exists():
+        with meta_path.open("rb") as fh:
+            meta = {k: v for k, v in tomllib.load(fh).items() if isinstance(v, dict)}
+    out = []
+    for a in cat.get("app", []):
+        ident = a.get("pkg") or a.get("id")
+        if not ident or meta.get(ident, {}).get("measured"):
+            continue
+        out.append((ident, a.get("tested", ""), a.get("screenshot", "")))
+    return sorted(out, key=lambda r: (bool(r[2]), r[0]))
+
+
+def legacy_shots() -> list[str]:
+    """Screenshots named before the dark/light pair existed.
+
+    `<pkg>.png` rather than `<pkg>-dark.png`. Worth knowing separately from
+    needs_measure(), because one of them -- a PinePhone capture -- is better
+    evidence than anything the VM can produce, and should not simply be
+    replaced.
+    """
+    import tomllib
+    with (ROOT / "catalogue.toml").open("rb") as fh:
+        cat = tomllib.load(fh)
+    return sorted(a["screenshot"] for a in cat.get("app", [])
+                  if a.get("screenshot")
+                  and "-dark" not in a["screenshot"]
+                  and "-light" not in a["screenshot"])
+
+
 def cache_age_days(path: Path) -> float | None:
     """How old a cached file or directory is, or None if it is not there."""
     if not path.exists():

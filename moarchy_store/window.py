@@ -638,7 +638,16 @@ class DetailPage(Adw.NavigationPage):
         if not app.shots:
             return [app.screenshot] if app.screenshot else []
         first = app.shot_for(mode)
-        return [first] + [s for s in app.shots if s != first]
+        order = [first] + [s for s in app.shots if s != first]
+        # A screenshot named in catalogue.toml but absent from `shots` predates
+        # the pairs, and for the first sixteen entries that means it was taken
+        # on a PinePhone. That is stronger evidence than anything the VM makes,
+        # so it goes on the end rather than being dropped -- the theme-matched
+        # shot still leads, because that is the one that answers "what will
+        # this look like on my phone".
+        if app.screenshot and app.screenshot not in order:
+            order.append(app.screenshot)
+        return order
 
     def _show_screenshot(self, index: int, path) -> bool:
         try:

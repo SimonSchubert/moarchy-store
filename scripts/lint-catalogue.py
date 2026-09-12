@@ -25,6 +25,9 @@ import sys
 import tomllib
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import sweepdb  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 
 # remote.py:31. Not a style rule: a published catalogue past this is fetched
@@ -342,6 +345,18 @@ def main() -> int:
 
     if args.check_repos:
         check_repos(packages)
+
+    stale = sweepdb.needs_measure()
+    if stale:
+        without = [i for i, _, shot in stale if not shot]
+        legacy = [i for i, _, shot in stale if shot]
+        if legacy:
+            warn(f"{len(legacy)} apps have a screenshot from before the harness and "
+                 f"no themed/adaptive/cost (e.g. {', '.join(legacy[:3])}) -- "
+                 "./scripts/sweep-measure.sh each, keeping the old picture")
+        if without:
+            warn(f"{len(without)} apps have never been measured and have no screenshot "
+                 f"(e.g. {', '.join(without[:3])})")
 
     # --- report ------------------------------------------------------------
     for line in warnings:

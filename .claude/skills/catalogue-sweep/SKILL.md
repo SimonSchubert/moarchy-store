@@ -89,6 +89,42 @@ past.
 If a run finds nothing, check the age lines before concluding the repos are
 quiet.
 
+## Re-measuring what is already listed
+
+A sweep adds apps. This is the other half: entries already in the catalogue
+that predate the harness and are therefore missing everything it produces.
+
+```bash
+python3 scripts/lint-catalogue.py        # says how many, and names three
+```
+
+The test is the absence of `measured`, which only `sweep-measure.sh` writes. An
+entry can have `tested = "pinephone-a64"` and a screenshot and still be on the
+list: the first sixteen shots were taken on a phone by hand, before any of this
+existed, so those entries carry a picture and a device string and no `themed`,
+no `adaptive`, no install cost. They are invisible to every chip and row the
+store learned to show — they look finished and are not.
+
+Two groups, and they want different things:
+
+- **14 with an old-style `<pkg>.png`.** Re-run `sweep-measure.sh` to get the
+  fields and a dark/light pair. **Do not delete the old picture.** For the
+  PinePhone ones it is the best evidence this project has, and better than
+  anything the VM can produce. Leave `screenshot` pointing at it: the detail
+  page shows the theme-matched VM shot first and keeps the hardware one at the
+  end of the carousel, so nothing is lost.
+- **12 with no screenshot at all.** Four are TUIs, which have no window to
+  photograph and are honestly served by the terminal icon. Two are plugins. The
+  rest — mpv, qrca, snapshot, audiotube, gnome-calls — could not be measured for
+  reasons recorded in `sweep/verdicts.toml`, mostly a camera or a modem the VM
+  has not got.
+
+So the re-measure batch is the first group, and it is the same loop as any
+other batch: cost the whole set in one pass, measure each, read both shots,
+write the fields. The only difference is that `catalogue.toml` already has the
+entry, so only `metadata.toml` gains anything, and `tested` keeps whatever it
+says — a VM run does not overwrite a hardware claim.
+
 ## The loop
 
 One batch is 8–15 apps and ends in one commit. Do not start a second batch
