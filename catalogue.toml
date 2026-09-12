@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 9
+serial = 10
 
 # --- Reading ---------------------------------------------------------------
 
@@ -754,6 +754,283 @@ toolkit = "kirigami"
 summary = "What is eating the disk, as a sunburst you can tap into. Useful when 16GB is all there is."
 icon = "org.kde.filelight"
 screenshot = "filelight-dark.png"
+tested = "omarchy-mobile-vm"
+
+# --- From LinuxPhoneApps.org, measured here ---------------------------------
+#
+# linuxphoneapps.org rates apps for mobile compatibility, and 193 of the ones it
+# rates 4 or 5 are packaged in Arch. scripts/sweep-lpa.py joins its app ids to
+# package names through the repo AppStream catalogue; sweep-measure.sh then ran
+# each of these at 360x674 on 2026-09-12 and the screenshots are those runs.
+#
+# Their rating is not evidence for this device -- 5 there means it fits some
+# phone, usually Phosh or Plasma Mobile, neither of which is what this runs.
+# KleverNotes is rated 5 and clips at 360 here. So every entry below was looked
+# at rather than imported.
+#
+# What the batch shows, over and over, is the cost of staying in one toolkit
+# family: Tuba is Mastodon for 1.6MB where Tokodon is 108MB, Railway is a
+# journey planner for one package, and File Shredder is 40KB. All of it is
+# libadwaita on a GNOME-adjacent image, so almost nothing new is downloaded.
+
+[[app]]
+pkg = "railway"
+name = "Railway"
+category = "Travel"
+toolkit = "libadwaita"
+summary = "Public transport journeys: from, to, and when. One package, and the form is already the right shape for a thumb."
+icon = "de.schmidhuberj.DieBahn"
+screenshot = "railway-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "polari"
+name = "Polari"
+category = "Chat"
+toolkit = "libadwaita"
+summary = "IRC, with the networks listed for you. The only IRC client here, and it costs 2MB."
+icon = "org.gnome.Polari"
+screenshot = "polari-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "tuba"
+name = "Tuba"
+category = "Chat"
+toolkit = "libadwaita"
+summary = "Mastodon and the rest of the fediverse. 1.6MB against Tokodon's 108MB, because it wants the stack you already have."
+icon = "dev.geopjr.Tuba"
+screenshot = "tuba-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "iotas"
+name = "Iotas"
+category = "Notes"
+toolkit = "libadwaita"
+summary = "Notes that sync with Nextcloud, or stay on the phone. The first notes app here that is not a shell plugin."
+icon = "org.gnome.World.Iotas"
+screenshot = "iotas-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "decoder"
+name = "Decoder"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Scan a QR code, or make one. Bottom tab bar, drawn for a phone."
+icon = "com.belmoussaoui.Decoder"
+screenshot = "decoder-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "wike"
+name = "Wike"
+category = "Reading"
+toolkit = "libadwaita"
+summary = "Wikipedia without a browser. 180KB, and it reads well in one column."
+icon = "com.github.hugolabe.Wike"
+screenshot = "wike-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "gfeeds"
+name = "Feeds"
+category = "Reading"
+toolkit = "libadwaita"
+summary = "RSS and Atom in a single column. The libadwaita answer to Alligator."
+icon = "org.gabmus.gfeeds"
+screenshot = "gfeeds-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "read-it-later"
+name = "Read It Later"
+category = "Reading"
+toolkit = "libadwaita"
+summary = "Your Wallabag queue, offline, for the train."
+icon = "com.belmoussaoui.ReadItLater"
+screenshot = "read-it-later-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "celluloid"
+name = "Celluloid"
+category = "Media"
+toolkit = "libadwaita"
+summary = "mpv with a libadwaita front end, so it follows your theme where mpv does not."
+icon = "io.github.celluloid_player.Celluloid"
+screenshot = "celluloid-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "lollypop"
+name = "Lollypop"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Music player that browses by album art. Made for touch before it was made for anything else."
+icon = "org.gnome.Lollypop"
+screenshot = "lollypop-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "mousai"
+name = "Mousai"
+category = "Media"
+toolkit = "libadwaita"
+summary = "What song is this? Listens through the microphone and tells you."
+icon = "io.github.seadve.Mousai"
+screenshot = "mousai-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "delfin"
+name = "Delfin"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Watch a Jellyfin library from the sofa or the bus."
+icon = "cafe.avery.Delfin"
+screenshot = "delfin-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "blanket"
+name = "Blanket"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Rain, waves, birds, a train. Ambient sound in a two-column grid of big targets."
+icon = "com.rafaelmardojai.Blanket"
+screenshot = "blanket-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "file-roller"
+name = "File Roller"
+category = "Files"
+toolkit = "libadwaita"
+summary = "Open and make archives. 700KB, and the only thing here that unpacks a zip."
+icon = "org.gnome.FileRoller"
+screenshot = "file-roller-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "fragments"
+name = "Fragments"
+category = "Files"
+toolkit = "libadwaita"
+summary = "BitTorrent, designed for a phone rather than shrunk onto one."
+icon = "de.haeckerfelix.Fragments"
+screenshot = "fragments-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "valuta"
+name = "Valuta"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Currency conversion at the day's ECB rate. Two big fields and a swap button."
+icon = "io.github.idevecore.Valuta"
+screenshot = "valuta-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "switcheroo"
+name = "Switcheroo"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Convert and resize images. Has an Open button, so it works without a mouse to drag with."
+icon = "io.gitlab.adhami3310.Converter"
+screenshot = "switcheroo-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "obfuscate"
+name = "Obfuscate"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Censor a screenshot before you send it. Drag-and-drop on the desktop, Open here."
+icon = "com.belmoussaoui.Obfuscate"
+screenshot = "obfuscate-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "solanum"
+name = "Solanum"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "A pomodoro timer that is one big number and one button."
+icon = "org.gnome.Solanum"
+screenshot = "solanum-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "raider"
+name = "File Shredder"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Overwrite a file so it cannot be recovered. 40KB."
+icon = "com.github.ADBeveridge.Raider"
+screenshot = "raider-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "key-rack"
+name = "Key Rack"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Read and edit what the keyring is holding."
+icon = "app.drey.KeyRack"
+screenshot = "key-rack-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "collision"
+name = "Collision"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Check a download's hash against the one you were given."
+icon = "dev.geopjr.Collision"
+screenshot = "collision-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "eartag"
+name = "Ear Tag"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Fix the tags on music files without opening a library manager."
+icon = "app.drey.EarTag"
+screenshot = "eartag-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "gnome-console"
+name = "Console"
+category = "Terminal"
+toolkit = "libadwaita"
+summary = "A terminal that themes with everything else. Foot is lighter; this one matches."
+icon = "org.gnome.Console"
+screenshot = "gnome-console-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "gnome-2048"
+name = "2048"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Slide tiles together. Swipe input, which is the whole reason it belongs on a phone."
+icon = "org.gnome.TwentyFortyEight"
+screenshot = "gnome-2048-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "gnome-sudoku"
+name = "Sudoku"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Sudoku with a difficulty picker built from big rows. Tap a cell, tap a number."
+icon = "org.gnome.Sudoku"
+screenshot = "gnome-sudoku-dark.png"
 tested = "omarchy-mobile-vm"
 
 # --- Omarchy shell plugins -------------------------------------------------

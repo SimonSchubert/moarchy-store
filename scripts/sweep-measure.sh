@@ -117,20 +117,45 @@ osk_down() {
 }
 
 launch_and_wait() {
-  # 60s, not 30. Two apps in the first AUR batch were recorded as "no-window"
-  # and then turned up on screen minutes later, still running after the script
-  # had given up and uninstalled them: plasma-camera and haruna are simply slow
-  # to start on this hardware. A timeout is a statement about patience, so the
-  # verdict it produces says "no window within 60s", never "does not launch".
-  "$SSH" "$E setsid -f gtk-launch $ID >/tmp/sweep-$PKG.log 2>&1; \
-    for i in \$(seq 1 60); do sleep 1; \
-      hyprctl -j clients | jq -e --arg c '$CLASS' 'any(.initialClass==\$c or .class==\$c)' >/dev/null && exit 0; \
-    done; exit 1" >/dev/null 2>&1
+  # Count the windows first, then launch, then wait for the count to rise.
+  #
+  # Matching on a class guessed from the desktop id is not good enough, and the
+  # failures look identical to an app that never started: railway's entry is
+  # de.schmidhuberj.DieBahn, Collision maps as dev.geopjr.Collision, songrec as
+  # re.fossplant.songrec. Each was recorded "no-window" while its window sat on
+  # screen. "Did a new window appear" needs no guess.
+  #
+  # 60s, not 30: plasma-camera and haruna both turned up minutes after the
+  # script had given up and uninstalled them. A timeout is a statement about
+  # patience, so the verdict says "no window within 60s", never "does not
+  # launch".
+  local before after
+  before=$("$SSH" "$E hyprctl -j clients | jq -r '.[].address'" 2>/dev/null | sort | tr '\n' ' ')
+  "$SSH" "$E setsid -f gtk-launch $ID >/tmp/sweep-$PKG.log 2>&1" >/dev/null 2>&1
+
+  local i
+  for i in $(seq 1 60); do
+    sleep 1
+    after=$("$SSH" "$E hyprctl -j clients | jq -r '.[].address'" 2>/dev/null | sort | tr '\n' ' ')
+    for addr in $after; do
+      case " $before " in
+        *" $addr "*) ;;
+        *) WINDOW=$addr
+           # Correct CLASS from what actually mapped, so close_it and the
+           # geometry read afterwards talk about the right window.
+           CLASS=$("$SSH" "$E hyprctl -j clients | jq -r --arg a '$addr' \
+             '.[]|select(.address==\$a)|.class'" 2>/dev/null || echo "$CLASS")
+           return 0 ;;
+      esac
+    done
+  done
+  return 1
 }
 
 window_geometry() {
-  "$SSH" "$E hyprctl -j clients | jq -c --arg c '$CLASS' \
-    '[.[]|select(.initialClass==\$c or .class==\$c)][0]|{at,size}'" 2>/dev/null || echo null
+  [ -n "${WINDOW:-}" ] || { echo null; return; }
+  "$SSH" "$E hyprctl -j clients | jq -c --arg a '$WINDOW' \
+    '[.[]|select(.address==\$a)][0]|{at,size}'" 2>/dev/null || echo null
 }
 
 close_it() {

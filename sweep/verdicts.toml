@@ -415,3 +415,248 @@ reason = "AUR only, GTK3, untouched since 2024-02, and it needs a magnetometer t
 date = 2026-09-12
 outcome = "rejected"
 reason = "AUR only, orphaned, last touched 2023-02. A YouTube client built for the Librem 5 that nobody maintains."
+
+# ===========================================================================
+# LinuxPhoneApps.org, cross-referenced and measured, 2026-09-12
+#
+# linuxphoneapps.org is the closest thing to an authority on which Linux
+# applications work on a phone, and unlike the other two sources it publishes
+# the judgement rather than only the list: every entry carries a
+# mobile_compatibility rating where 5 means "fits the screen and works fine
+# with touch input", plus the distributions that package it. 795 apps, 672 of
+# them rated 5, 219 packaged in Arch.
+#
+# scripts/sweep-lpa.py joins its app ids to package names through the repo
+# AppStream catalogue and drops what is already judged here, which left 103.
+# Twenty-six of those are now listed.
+#
+# Their rating is not evidence for this device. 5 there means it fits some
+# phone at some width on some image, usually Phosh or Plasma Mobile, and this
+# runs neither. KleverNotes is rated 5 there and clips at 360x674 here. Every
+# entry below was looked at.
+#
+# Costs are from scripts/sweep-cost.sh in one pass, against an image with 840
+# packages installed.
+# ===========================================================================
+
+# --- Measured and not listed -----------------------------------------------
+
+[quadrapassel]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "fits"
+reason   = """
+Draws perfectly: the well fills the column at 360x674, the tiles are crisp, and
+it follows the theme. And it is played with the arrow keys, with no touch
+controls at all, on a device whose keyboard is a picture of a keyboard that
+covers the bottom third of the screen when it rises.
+
+This is the Jot finding again, in a different toolkit. An app that renders
+beautifully and cannot be operated is worse in a store than one that looks
+wrong, because nothing about the screenshot warns you.
+"""
+
+[gnome-chess]
+date     = 2026-09-12
+outcome  = "deferred"
+adaptive = "fits"
+reason   = """
+The board fits the column and the pieces are tappable. But a fresh install says
+"No chess engine is installed", and the store cannot fix that -- an engine is a
+separate package that is not a dependency. An entry whose first run tells you it
+cannot do the thing is not ready to list.
+"""
+
+[gnome-calls]
+date     = 2026-09-12
+outcome  = "deferred"
+adaptive = "no-window"
+reason   = """
+Never maps a window, even at 60s and even watching for any new window rather
+than a matching class. Its entry is DBusActivatable, which is the Chatty
+pattern, and it also wants ModemManager and a modem the VM has not got. Genuinely
+untestable here rather than broken, and the more interesting of the two dialers
+on a GNOME-adjacent image -- plasma-dialer is listed and is Kirigami.
+"""
+
+[songrec]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "fits"
+reason = "Fits and works, but Mousai does the same job in the same toolkit and is the better-drawn of the two. Listing both would be listing one twice."
+
+[gnome-notes]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "fits"
+reason = "GTK3/libhandy notes, superseded here by Iotas, which is libadwaita, syncs with Nextcloud and costs less."
+
+# --- Listed ----------------------------------------------------------------
+#
+# All twenty-six run at 360x674, all follow the theme except where noted, and
+# all are libadwaita, so the install cost is what the app itself weighs rather
+# than a toolkit stack. Recorded briefly: the screenshots and metadata.toml
+# carry the detail.
+
+[railway]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Journey planner, 1 package, 1.72 MB. From/To, departure or arrival, date and time, all already thumb-shaped. Travel had nothing that planned a journey."
+
+[polari]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "IRC, 5 packages, 2.30 MB, with the networks offered rather than typed. Chat had no IRC entry at all."
+
+[tuba]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Mastodon for 1.57 MB where Tokodon costs 108 MB of KDE Frameworks on this image. The clearest single argument for staying in one toolkit family."
+
+[iotas]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Notes with Nextcloud sync, 1.31 MB. Notes previously held one shell plugin and Marknote."
+
+[decoder]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "QR codes both ways, 1.43 MB, with a bottom tab bar drawn for a phone."
+
+[gnome-2048]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+themed = "partial"
+reason = """
+Swipe-driven, which is why it is here and Quadrapassel is not. Themed is
+"partial" by eye rather than by number: the header bar follows the palette and
+the board keeps its own. The measured 0.29 is partly the random tile placement
+between the two runs, which is the same trap Kontrast fell into.
+"""
+
+[gnome-sudoku]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Tap a cell, tap a number. The difficulty picker is built from rows a thumb can hit. 0.40 MB, and Games now exists as a category."
+
+[gnome-console]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+themed = "partial"
+reason = "Themed chrome, own palette inside the terminal, which is correct rather than a defect. Foot is lighter; this one matches the shell."
+
+[wike]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Wikipedia without a browser, 180 KB."
+
+[gfeeds]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "RSS and Atom in one column, 18 packages, 6.82 MB. The libadwaita counterpart to Alligator."
+
+[read-it-later]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Wallabag queue, offline. 2.22 MB."
+
+[celluloid]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "mpv with a libadwaita front end, 0.25 MB, and unlike mpv it follows the theme."
+
+[lollypop]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Music browsed by album art, 2.10 MB, built for touch first."
+
+[mousai]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Song recognition through the microphone, 1.12 MB."
+
+[delfin]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Jellyfin client, 3.89 MB, server picker fits the column."
+
+[blanket]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Ambient sound in a two-column grid of large targets. 16.80 MB, almost all of it the audio."
+
+[eartag]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Music tag editor, 21 packages but only 2.84 MB, with Open File and Open Folder buttons rather than drag-and-drop alone."
+
+[file-roller]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Archives, 0.68 MB. Nothing else here opens a zip."
+
+[fragments]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "BitTorrent designed for a phone, 4.47 MB."
+
+[valuta]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Currency at the day's ECB rate: two large fields and a swap button. 6.18 MB."
+
+[switcheroo]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Image convert and resize, 1.12 MB. Has an Open button, so it works without a mouse to drag with."
+
+[obfuscate]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Censor a screenshot before sending it. 0.55 MB. Its empty state says Drop an Image Here, which is a desktop idiom, but the header Open button works."
+
+[solanum]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Pomodoro timer: one big number, one button. 0.22 MB."
+
+[raider]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Overwrite a file so it cannot be recovered. 40 KB, the smallest entry in the catalogue."
+
+[key-rack]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Read and edit what the keyring holds. 1.99 MB."
+
+[collision]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Check a download's hash. 0.49 MB. First recorded as no-window because it maps as dev.geopjr.Collision and the script was matching a guessed class."
