@@ -39,9 +39,11 @@ import os
 import re
 import subprocess
 import sys
-import tomllib
 import urllib.request
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import sweepdb  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "moarchy-store-sweep"
@@ -51,7 +53,8 @@ LPA_ARCHIVE = ("https://framagit.org/linuxphoneapps/linuxphoneapps.frama.io/-/ar
 
 def lpa_entries(refresh: bool = False) -> list[dict]:
     root = CACHE / "linuxphoneapps"
-    if refresh or not root.exists():
+    sweepdb.note_age(root, "LinuxPhoneApps")
+    if refresh or sweepdb.is_stale(root):
         CACHE.mkdir(parents=True, exist_ok=True)
         archive = CACHE / "lpa.tar.gz"
         print("fetching the LinuxPhoneApps database ...", file=sys.stderr)
@@ -107,6 +110,27 @@ def appstream_index() -> dict[str, str]:
     return index
 
 
+
+def report_deferred() -> None:
+    """Deferred verdicts old enough to re-ask, printed after the candidates.
+
+    A periodic sweep that only ever shows new packages slowly forgets the
+    things it decided to come back to. These are not new and are not noise:
+    each one was set aside with a written reason, and the reason may have
+    expired.
+    """
+    due = sweepdb.deferred_due()
+    if not due:
+        pending = len([1 for v in sweepdb.verdicts().values()
+                       if v.get("outcome") == "deferred"])
+        if pending:
+            print(f"\n{pending} deferred, none older than "
+                  f"{sweepdb.DEFERRED_DAYS} days yet (--deferred to see them)")
+        return
+    print(f"\n{len(due)} deferred and worth re-asking (--deferred for the reasons):")
+    for ident, when, _ in due[:10]:
+        print(f"  {ident:28} deferred {when}")
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -114,15 +138,16 @@ def main() -> int:
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--refresh", action="store_true")
     ap.add_argument("--min-rating", default="4")
+    ap.add_argument("--deferred", action="store_true",
+                    help="list deferred verdicts due for another look, and stop")
     args = ap.parse_args()
 
-    with (ROOT / "catalogue.toml").open("rb") as fh:
-        cat = tomllib.load(fh)
-    known = {a.get("pkg") or a.get("id") for a in cat.get("app", [])}
-    verdicts = ROOT / "sweep" / "verdicts.toml"
-    if verdicts.exists():
-        with verdicts.open("rb") as fh:
-            known |= set(tomllib.load(fh))
+    if args.deferred:
+        for ident, when, reason in sweepdb.deferred_due(0):
+            print(f"{ident}  ({when})\n    {reason[:160]}")
+        return 0
+
+    known = sweepdb.skip()
 
     index = appstream_index()
     matched, unmatched = [], []
@@ -157,6 +182,7 @@ def main() -> int:
     print(f"\n{len(matched)} not yet judged here")
     print(f"{len(unmatched)} rated apps in Arch could not be matched to a package "
           f"(no AppStream metainfo) -- run with --json to see them")
+    report_deferred()
     return 0
 
 

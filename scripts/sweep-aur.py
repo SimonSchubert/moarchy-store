@@ -43,10 +43,12 @@ import json
 import os
 import re
 import sys
-import tomllib
 import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import sweepdb  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "moarchy-store-sweep"
@@ -119,7 +121,8 @@ SHELL_NAMES = re.compile(
 def aur_packages(refresh: bool = False) -> list[dict]:
     CACHE.mkdir(parents=True, exist_ok=True)
     path = CACHE / "aur-packages-meta.json.gz"
-    if refresh or not path.exists():
+    sweepdb.note_age(path, "AUR")
+    if refresh or sweepdb.is_stale(path):
         print(f"fetching the AUR package database into {CACHE} ...", file=sys.stderr)
         with urllib.request.urlopen(AUR_META, timeout=120) as response:
             path.write_bytes(response.read())
@@ -128,16 +131,8 @@ def aur_packages(refresh: bool = False) -> list[dict]:
 
 
 def known() -> tuple[set[str], set[str]]:
-    """What is already catalogued, and what has already been judged."""
-    with (ROOT / "catalogue.toml").open("rb") as fh:
-        cat = tomllib.load(fh)
-    listed = {a["pkg"] for a in cat.get("app", []) if a.get("pkg")}
-    judged: set[str] = set()
-    verdicts = ROOT / "sweep" / "verdicts.toml"
-    if verdicts.exists():
-        with verdicts.open("rb") as fh:
-            judged = set(tomllib.load(fh))
-    return listed, judged
+    """Catalogued, and decided. Deferred is neither -- see scripts/sweepdb.py."""
+    return sweepdb.catalogued(), sweepdb.skip()
 
 
 def repo_packages() -> set[str]:
@@ -224,6 +219,27 @@ def score(pkg: dict) -> tuple[int, list[str]]:
     return points, why
 
 
+
+def report_deferred() -> None:
+    """Deferred verdicts old enough to re-ask, printed after the candidates.
+
+    A periodic sweep that only ever shows new packages slowly forgets the
+    things it decided to come back to. These are not new and are not noise:
+    each one was set aside with a written reason, and the reason may have
+    expired.
+    """
+    due = sweepdb.deferred_due()
+    if not due:
+        pending = len([1 for v in sweepdb.verdicts().values()
+                       if v.get("outcome") == "deferred"])
+        if pending:
+            print(f"\n{pending} deferred, none older than "
+                  f"{sweepdb.DEFERRED_DAYS} days yet (--deferred to see them)")
+        return
+    print(f"\n{len(due)} deferred and worth re-asking (--deferred for the reasons):")
+    for ident, when, _ in due[:10]:
+        print(f"  {ident:28} deferred {when}")
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -233,7 +249,14 @@ def main() -> int:
     ap.add_argument("--min-score", type=int, default=45)
     ap.add_argument("--why", metavar="PKG")
     ap.add_argument("--all", action="store_true", help="skip the known/dupe filters")
+    ap.add_argument("--deferred", action="store_true",
+                    help="list deferred verdicts due for another look, and stop")
     args = ap.parse_args()
+
+    if args.deferred:
+        for ident, when, reason in sweepdb.deferred_due(0):
+            print(f"{ident}  ({when})\n    {reason[:160]}")
+        return 0
 
     packages = aur_packages(args.refresh)
 
@@ -297,6 +320,7 @@ def main() -> int:
     print(f"\n{min(len(rows), args.limit)} of {len(rows)} candidates "
           f"(from {len(packages):,} AUR packages)")
     print("! = orphaned or flagged out of date")
+    report_deferred()
     return 0
 
 

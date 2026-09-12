@@ -49,11 +49,13 @@ import os
 import re
 import subprocess
 import sys
-import tomllib
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import UTC, date, datetime
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import sweepdb  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "moarchy-store-sweep"
@@ -84,7 +86,8 @@ def appstream_files(refresh: bool = False) -> list[str]:
     """The repo-wide AppStream catalogue, downloaded once and cached."""
     xml_dir = CACHE / "usr" / "share" / "swcatalog" / "xml"
     found = sorted(glob.glob(str(xml_dir / "*.xml.gz")))
-    if found and not refresh:
+    if found and not refresh and not sweepdb.is_stale(xml_dir):
+        sweepdb.note_age(xml_dir, "AppStream")
         return found
 
     CACHE.mkdir(parents=True, exist_ok=True)
@@ -188,15 +191,8 @@ def _last_release(comp) -> str:
 
 
 def known_packages() -> set[str]:
-    with (ROOT / "catalogue.toml").open("rb") as fh:
-        cat = tomllib.load(fh)
-    known = {a["pkg"] for a in cat.get("app", []) if a.get("pkg")}
-    verdicts = ROOT / "sweep" / "verdicts.toml"
-    if verdicts.exists():
-        with verdicts.open("rb") as fh:
-            # Already judged is already judged, whatever the outcome was.
-            known |= set(tomllib.load(fh))
-    return known
+    """Listed or decided. NOT deferred -- see scripts/sweepdb.py."""
+    return sweepdb.skip()
 
 
 def collect(refresh: bool = False) -> list[dict]:
@@ -251,6 +247,27 @@ def collect(refresh: bool = False) -> list[dict]:
     return sorted(rows.values(), key=lambda r: (-r["score"], r["pkg"]))
 
 
+
+def report_deferred() -> None:
+    """Deferred verdicts old enough to re-ask, printed after the candidates.
+
+    A periodic sweep that only ever shows new packages slowly forgets the
+    things it decided to come back to. These are not new and are not noise:
+    each one was set aside with a written reason, and the reason may have
+    expired.
+    """
+    due = sweepdb.deferred_due()
+    if not due:
+        pending = len([1 for v in sweepdb.verdicts().values()
+                       if v.get("outcome") == "deferred"])
+        if pending:
+            print(f"\n{pending} deferred, none older than "
+                  f"{sweepdb.DEFERRED_DAYS} days yet (--deferred to see them)")
+        return
+    print(f"\n{len(due)} deferred and worth re-asking (--deferred for the reasons):")
+    for ident, when, _ in due[:10]:
+        print(f"  {ident:28} deferred {when}")
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--json", action="store_true", help="JSON instead of a table")
@@ -258,7 +275,14 @@ def main() -> int:
     ap.add_argument("--category", help="only apps in this freedesktop category")
     ap.add_argument("--refresh", action="store_true", help="re-download the AppStream data")
     ap.add_argument("--limit", type=int, default=60)
+    ap.add_argument("--deferred", action="store_true",
+                    help="list deferred verdicts due for another look, and stop")
     args = ap.parse_args()
+
+    if args.deferred:
+        for ident, when, reason in sweepdb.deferred_due(0):
+            print(f"{ident}  ({when})\n    {reason[:160]}")
+        return 0
 
     rows = collect(args.refresh)
     total = len(rows)
@@ -288,6 +312,7 @@ def main() -> int:
               f"{','.join(r['categories'][:3])[:40]}")
     shown = min(len(rows), args.limit)
     print(f"\n{shown} of {len(rows)} candidates ({total} desktop apps in the repos)")
+    report_deferred()
     return 0
 
 

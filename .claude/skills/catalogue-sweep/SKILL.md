@@ -43,6 +43,52 @@ mechanical half so that the judgement half is the only thing left to do.
   record, because "does it install on the shipped image" stops being an honest
   question once the image has been written to.
 
+## Running it again
+
+This is meant to be run periodically, and everything about finding *new* apps
+rather than re-reading old ones is automatic. Nothing needs remembering between
+runs except this section.
+
+**Already-answered apps are skipped.** `listed` and `rejected` verdicts, and
+anything in `catalogue.toml`, never appear as candidates again. That is what
+`sweep/verdicts.toml` is for: 173 records so far, and the expensive half of a
+sweep is discovering that an app does not work, which should be paid once.
+
+**Deferred apps come back.** `deferred` is not an answer -- it means "worth
+another look when something changes" -- so it is deliberately *not* in the skip
+set. It resurfaces after 90 days, and `--deferred` lists them with their
+reasons at any time. This was wrong at first: all three scripts skipped every
+verdict whatever its outcome, which quietly buried 36 apps, several of them one
+fix from listable.
+
+**The data refreshes itself.** The AppStream, AUR and LinuxPhoneApps catalogues
+are cached under `~/.cache/moarchy-store-sweep` and re-fetched once they are
+over a week old. Every run prints how old the copy is, on stderr, because a
+sweep that silently reads a month-old snapshot and reports nothing new looks
+exactly like one that read today's and found nothing new. `--refresh` forces it.
+
+So a periodic run is:
+
+```bash
+./scripts/sweep-lpa.py                            # new, rated, packaged in Arch
+./scripts/sweep-discover.py --table               # new, declaring 360 and touch
+python3 scripts/lint-catalogue.py --check-repos   # what has LEFT the repos
+```
+
+The third is the one people forget, and it is not optional. Packages disappear
+quietly: four entries -- plasma-dialer, spacebar, portfolio-file-manager, livi
+-- sat in the catalogue after Arch Linux ARM stopped building them for aarch64,
+each drawn as an ordinary row with an Install button that could not work. One
+carried a screenshot taken on real hardware. Nothing else notices.
+
+Run `sweep-aur.py` occasionally rather than every time. It cannot produce a
+listable entry, and its value is the side effect: it finds repo packages that
+ship no AppStream metainfo, which is the one gap `sweep-discover.py` cannot see
+past.
+
+If a run finds nothing, check the age lines before concluding the repos are
+quiet.
+
 ## The loop
 
 One batch is 8–15 apps and ends in one commit. Do not start a second batch
@@ -252,18 +298,28 @@ rejections are the part that stops the next sweep re-testing the same thing.
 
 ## State
 
-- `sweep/verdicts.toml` — **committed.** One record per app ever examined,
-  including everything rejected. This is the lab notebook; `catalogue.toml`
-  already carries a hand-written version of it in the plugin-sweep comment, and
-  this generalises it.
+- `sweep/verdicts.toml` — **committed, and load-bearing.** One record per app
+  ever examined, including everything rejected. It is the lab notebook, and it
+  is also what makes a periodic sweep cheap: the scripts read it to decide what
+  not to offer again.
+
   ```toml
   [gnome-podcasts]
   date    = 2026-09-13
   outcome = "listed"        # listed | rejected | deferred
-  adaptive = "fits"
   reason  = ""              # required when rejected
   ```
-- `/tmp/candidates.json` — scratch, per batch. Not committed.
+
+  `outcome` is not decoration either. `listed` and `rejected` are skipped for
+  good; `deferred` comes back after 90 days. So choose it honestly: a `rejected`
+  you meant as "not yet" is an app nobody will ever look at again, and a
+  `deferred` you meant as "no" is one that will keep asking.
+
+  `lint-catalogue.py` checks the notebook and the catalogue agree about what
+  shipped, because a notebook that disagrees is worse than none.
+
+- `~/.cache/moarchy-store-sweep/` — the three upstream catalogues, re-fetched
+  when over a week old. Not committed, and safe to delete.
 
 ## When it goes wrong
 
