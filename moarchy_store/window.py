@@ -453,6 +453,21 @@ class DetailPage(Adw.NavigationPage):
         chips = [(category, "")]
         if toolkit:
             chips.append((toolkit, ""))
+
+        # The exception, never the rule. 81 of the catalogue's apps fit 360px
+        # and 66 follow the theme, because that is what being in the catalogue
+        # means -- so a chip saying "Fits" would appear almost everywhere and
+        # tell nobody anything, while crowding a 360px page that already
+        # carries three. A chip earns its place by warning you.
+        if app.adaptive == "tight":
+            chips.append(("Cramped at 360px", ""))
+        elif app.adaptive in ("clipped", "no-window"):
+            chips.append(("Does not fit 360px", "untested"))
+        if app.themed == "no":
+            chips.append(("Keeps its own colours", ""))
+        elif app.themed == "partial":
+            chips.append(("Themed in part", ""))
+
         chips.append(
             (f"Tested on {app.tested}", "verified")
             if app.verified
