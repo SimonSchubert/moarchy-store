@@ -1,31 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <!-- Until now this app named `system-software-install` and left the picture
-       to whatever icon theme answered. On mobileomarchy that is Breeze, which
-       is installed largely to answer this one name, and what it drew was a
-       Breeze icon sitting in a row of Adwaita ones. Nothing was wrong with it
-       except that it belonged to a different family.
+  <!-- A shopping bag, which is what an app store looks like: GNOME Software
+       draws one, elementary's AppCenter draws one, and a person scanning the
+       drawer for the place apps come from is looking for that outline.
 
-       So the store carries its own now, built the way that drawer's other icons
-       are: an object on the surface rather than a glyph on a coloured tile,
-       depth from stacking the same rect three times with lips stepping down a
-       colour ramp, and a 2px white specular inset from the left edge.
+       It was a parcel until now, and before that the themed name
+       `system-software-install`, which on mobileomarchy is answered by Breeze.
+       The parcel fixed the family problem, a Breeze icon sitting in a row of
+       Adwaita ones, but not the shape one. AppDrawer.qml paints these bare,
+       four to a row at 42px, and at that size an icon is a silhouette and a hue
+       and nothing else. The parcel was a rounded rectangle, and so are Notes,
+       Contacts and Text Editor beside it, so only the brown was doing any work.
+       A handle breaks the outline, and now the shape carries its share.
 
-       A parcel, and in Adwaita's brown, because brown is the one hue nothing
-       else in that drawer uses. At 42px hue is what separates icons, not
-       outline: this shares a rounded rectangle with Notes and with Contacts,
-       and the colour is what tells them apart before the glyph does. It also
-       happens to be what the app is, Categories saying PackageManager.
+       Brown stays. It is still the one hue nothing else in that drawer uses,
+       and a paper bag is brown anyway, so the colour and the object agree
+       rather than merely coexisting. It is also still what the app is,
+       Categories saying PackageManager.
+
+       The construction is the family's, measured off org.moarchy.Keep.svg so
+       the optical weight matches: an 88 wide object at x 20..108, y 28..120;
+       depth from stacking the same rect three times with 2px lips at the
+       bottom, each a step darker down the brown ramp (#b5835a, #865e3c,
+       #63452c); the folded cuff in #986a44 between the handle and the face; and
+       a 2px white specular at 0.187, inset from the left edge, the detail that
+       keeps flat colour from looking printed on. The handle is stacked the same
+       way, a #986a44 arc 2px under the #cdab8f one, because a strap with no lip
+       under its crown reads as a drawn line rather than as a thing.
 
        The arrow stays white and pointing down, which is what Breeze drew here
-       for as long as anyone has been tapping it.
+       for as long as anyone has been tapping it, and it is the one bold mark
+       the face needs. Three little app tiles in the Software manner were tried
+       and turn into a smear of colour at 42px, taking the brown down with them.
 
-       Drawn additively, plain rects and one path, because the shell that
-       rasterises it goes through Qt SVG, which is SVG Tiny and has no masks. -->
-  <rect x="18" y="30" width="92" height="88" rx="8" fill="#63452c"/>
-  <rect x="18" y="30" width="92" height="84" rx="8" fill="#865e3c"/>
-  <rect x="18" y="30" width="92" height="82" rx="8" fill="#b5835a"/>
-  <rect x="18" y="30" width="92" height="20" rx="8" fill="#865e3c"/>
-  <rect x="20" y="34" width="2" height="74" fill="#ffffff" opacity="0.187"/>
-  <rect x="57" y="56" width="14" height="26" rx="7" fill="#ffffff"/>
-  <path d="M46 76 L82 76 L64 104 Z" fill="#ffffff"/>
+       Nothing here is finer than 2px at 128, which is half a pixel at the 42px
+       the drawer actually asks for. The shell rasterises through QtSvg, which
+       drops clip paths and paints any clipPath left outside defs, as
+       mobileomarchy's omarchy-mobile-icon-repair explains at length. Nothing
+       here clips: plain rects, two cubics and one path. -->
+  <path d="M40 34 C 40 4, 88 4, 88 34" fill="none" stroke="#986a44" stroke-width="9" stroke-linecap="round"/>
+  <path d="M40 32 C 40 2, 88 2, 88 32" fill="none" stroke="#cdab8f" stroke-width="9" stroke-linecap="round"/>
+  <rect x="20" y="28" width="88" height="92" rx="8" fill="#63452c"/>
+  <rect x="20" y="28" width="88" height="90" rx="8" fill="#865e3c"/>
+  <rect x="20" y="28" width="88" height="88" rx="8" fill="#b5835a"/>
+  <path d="M20 36 A 8 8 0 0 1 28 28 L 100 28 A 8 8 0 0 1 108 36 L 108 48 L 20 48 Z" fill="#986a44"/>
+  <rect x="22" y="32" width="2" height="80" fill="#ffffff" opacity="0.187"/>
+  <path d="M58 58 L70 58 L70 82 L82 82 L64 102 L46 82 L58 82 Z" fill="#ffffff" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
 </svg>
