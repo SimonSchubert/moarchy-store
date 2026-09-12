@@ -27,8 +27,10 @@
 #   repo      plugin only: https git URL, cloned verbatim by `omarchy plugin add`
 #   name      display name
 #   category  grouping in the UI
-#   toolkit   libadwaita | kirigami | gtk | qt | tui | quickshell -- why it
-#             adapts, or that it does not
+#   toolkit   libadwaita | kirigami | gtk | qt | tui | quickshell | flutter
+#             -- why it adapts, or that it does not. flutter is the odd one:
+#             it draws every pixel itself and was written for a phone in the
+#             first place, so it does not reflow to 360px, it starts there.
 #   summary   one line, written for someone deciding whether to install
 #   icon      freedesktop icon name, taken from the app's own .desktop file --
 #             not guessed. TUIs have no .desktop file, so they get a terminal icon.
@@ -51,7 +53,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 21
+serial = 22
 
 # --- Reading ---------------------------------------------------------------
 
@@ -1330,3 +1332,37 @@ toolkit = "quickshell"
 summary = "Clipboard history you can browse and edit by touch."
 icon = "edit-paste-symbolic"
 tested = ""
+
+# --- Packaged here (serial 22) ----------------------------------------------
+#
+# The first entry in this file that exists because we packaged it. Everything
+# above is something the aarch64 repositories already carried and this file
+# merely judged; queens was an Android app with no Linux build at all.
+#
+# It cost less than expected. Flutter's SDK bootstraps a native arm64 toolchain
+# from a git clone -- Google ships no arm64 archive, but the linux-arm64 engine
+# artifacts are in the release bucket -- and the app needed none of its code
+# changed. What it needed was the linux/ runner upstream gitignores, which
+# moarchy-apps/apps/queens now carries, and one branch in that runner so a phone
+# can ask for no GTK header bar. Both are upstream at sidhant947/Queens#15.
+#
+# The Install row works because [moarchy] is a signed pacman repository the
+# image trusts, so the helper reaches it exactly like any other package: the
+# allowlist is untouched and nothing about the security model moved.
+#
+# It is not featured. The shelf wants an app that is the answer to a job, and
+# "another puzzle" is not that while gnome-sudoku, hitori and 2048 are all in
+# here already. It is also the only Flutter app in the catalogue, so it is worth
+# watching what a self-drawn toolkit costs on a device with no GPU before it is
+# recommended to anybody: llvmpipe renders it, but that is a statement about a
+# 5x5 grid of flat rectangles, not about Flutter.
+
+[[app]]
+pkg = "queens"
+name = "Queens"
+category = "Games"
+toolkit = "flutter"
+summary = "One queen per row, column and colour region. The board marks its own dead squares."
+icon = "queens"
+screenshot = "queens-dark.png"
+tested = "omarchy-mobile-vm"

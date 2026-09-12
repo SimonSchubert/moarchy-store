@@ -1554,3 +1554,10 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["wike-dark.png", "wike-light.png"]
 
+[queens]
+cost_pkgs   = 1
+cost_mb     = 7.05
+adaptive    = "fits"
+themed      = "no"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["queens-dark.png"]
