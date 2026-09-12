@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 18
+serial = 19
 
 # --- Reading ---------------------------------------------------------------
 
@@ -398,7 +398,7 @@ pkg = "elisa"
 name = "Elisa"
 category = "Media"
 toolkit = "kirigami"
-summary = "Music player with a library view that collapses to one column."
+summary = "Music player that keeps a desktop sidebar. Fits 360px, but only just."
 icon = "elisa"
 screenshot = "elisa-dark.png"
 tested = "omarchy-mobile-vm"

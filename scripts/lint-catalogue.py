@@ -85,6 +85,36 @@ def warn(msg: str) -> None:
     warnings.append(msg)
 
 
+
+def check_serial_rose(serial: int, cat_path: Path) -> None:
+    """A changed catalogue must carry a higher serial than the published one.
+
+    remote.py refuses a fetched catalogue whose serial is *lower* than the one
+    it already trusts, which stops a replayed old catalogue re-adding something
+    removed. It cannot stop two different catalogues sharing a serial, and that
+    is the mistake a human makes: edit a summary, re-sign, publish, and every
+    client that already has that serial is holding different bytes under the
+    same name.
+
+    Compared against origin/main because that is what clients actually fetch.
+    """
+    try:
+        published = subprocess.run(
+            ["git", "show", "origin/main:catalogue.toml"],
+            cwd=ROOT, capture_output=True, timeout=30)
+        if published.returncode != 0:
+            return
+        old = tomllib.loads(published.stdout.decode())
+    except Exception:
+        return
+    if published.stdout == cat_path.read_bytes():
+        return   # unchanged; the serial is allowed to stay put
+    old_serial = old.get("serial")
+    if isinstance(old_serial, int) and serial <= old_serial:
+        err(f"catalogue.toml differs from origin/main but serial is still "
+            f"{serial} -- bump it, or two different catalogues share a serial")
+
+
 def check_repos(packages: set[str]) -> None:
     """Ask the guest whether every catalogued package still exists.
 
@@ -176,6 +206,8 @@ def main() -> int:
     serial = cat.get("serial")
     if not isinstance(serial, int):
         err("catalogue.toml has no integer serial")
+    else:
+        check_serial_rose(serial, cat_path)
 
     size = cat_path.stat().st_size
     if size > REMOTE_MAX:

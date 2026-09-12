@@ -285,7 +285,13 @@ aarch64, each rendering as an ordinary row with an Install button that could not
 work. One of them carried a hardware screenshot. Packages leave the repos
 quietly, so run it before every publish, not only when adding apps.
 
-Then bump `serial` in `catalogue.toml`, sign, and commit:
+Then bump `serial` in `catalogue.toml`, sign, and commit. Bump it whenever the
+file changes at all, not only when apps are added: `remote.py` refuses a
+*lower* serial, which stops a replayed old catalogue, but nothing stops two
+different catalogues sharing one. Edit a summary, re-sign, publish, and every
+client holding that serial has different bytes under the same name.
+`lint-catalogue.py` compares against `origin/main` and errors if the file
+changed and the serial did not.
 
 ```bash
 ./scripts/sign-catalogue.sh
