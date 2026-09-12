@@ -1363,3 +1363,47 @@ reason = "Maps and draws an empty window, the VM exposing no updatable firmware.
 date = 2026-09-12
 outcome = "rejected"
 reason = "Not in the aarch64 repos. Dialect covers translation, is libadwaita, and is measured."
+
+[jami-qt]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+reason   = """
+24 packages and 109.62 MB, which is the weight that got NeoChat and Koko
+rejected -- and this is listed anyway, because those had cheap alternatives in
+the right toolkit and this has none. Nothing else here does video or voice
+calls at all, let alone without a server or an account.
+
+It also draws better than its price suggests: a dark onboarding screen with two
+full-width buttons, mapped at exactly 360x674, and the theme diff reads 0.80.
+"""
+
+[gcompris-qt]
+date     = 2026-09-12
+outcome  = "deferred"
+adaptive = "fits"
+reason   = """
+Genuinely drawn for touch -- it is a children's suite that spends its life on
+tablets -- and it takes the whole 360x720, covering the bar, which nothing else
+measured here does.
+
+Deferred on the screenshot rather than the app. A first run opens a
+configuration notice about language settings that covers most of the screen, so
+the only picture available advertises a dialog. Worth listing once someone
+dismisses that and shoots the activity grid underneath.
+"""
+
+[readest]
+date = 2026-09-12
+outcome = "rejected"
+reason = "123.27 MB for an ebook reader, being a Tauri app carrying a browser engine. Foliate is 3.15 MB and is tested on hardware."
+
+[vvave]
+date = 2026-09-12
+outcome = "rejected"
+reason = "36 packages and 96.22 MB of MauiKit for a music player, where Amberol is 1.84 MB and Lollypop 2.10 MB, both measured and both themed."
+
+[maui-pix]
+date = 2026-09-12
+outcome = "rejected"
+reason = "44 packages and 132.72 MB for an image viewer. Loupe is listed and costs nothing here."

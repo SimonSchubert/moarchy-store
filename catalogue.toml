@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 17
+serial = 18
 
 # --- Reading ---------------------------------------------------------------
 
@@ -1171,6 +1171,16 @@ toolkit = "libadwaita"
 summary = "Stream this phone's audio to anything on the network. A QR code and a URL."
 icon = "de.haeckerfelix.AudioSharing"
 screenshot = "audio-sharing-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "jami-qt"
+name = "Jami"
+category = "Chat"
+toolkit = "qt"
+summary = "Video and voice calls with no server and no account. 110MB of it."
+icon = "jami"
+screenshot = "jami-qt-dark.png"
 tested = "omarchy-mobile-vm"
 
 # --- Omarchy shell plugins -------------------------------------------------
