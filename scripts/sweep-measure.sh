@@ -64,6 +64,14 @@ fail() { printf '\033[31m!! %s\033[0m\n' "$*" >&2; }
 
 json_escape() { python3 -c 'import json,sys;print(json.dumps(sys.stdin.read().strip()))'; }
 
+# A guest with an empty home photographs as an empty app: "No Books Yet", "Add
+# some books", "Drop images here". Say so once rather than let a batch of
+# screenshots come out useless.
+if ! "$SSH" "test -f ~/.local/share/moarchy-fixtures.txt" 2>/dev/null; then
+  note "the guest has no fixtures -- shots of library apps will be empty states"
+  note "run ./scripts/sweep-seed.sh first"
+fi
+
 # --- 0. cost, before a single package lands ---------------------------------
 note "cost of $PKG, on the image as it stands"
 # The package list comes from pacman, the sizes from expac. NOT from pacman's
