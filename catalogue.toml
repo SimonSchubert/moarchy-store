@@ -53,7 +53,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 22
+serial = 23
 
 # --- Reading ---------------------------------------------------------------
 
@@ -263,6 +263,21 @@ icon = "org.gnome.Epiphany"
 tested = "pinephone-a64"
 
 # --- Media -----------------------------------------------------------------
+
+# Not in the official repos: spot-client is built from the AUR into moarchy's
+# own repository ([aur.spot-client] in moarchy's manifest), which is a sync
+# database both ports have. It earns the entry by being the only way a phone
+# plays Spotify at all -- the web player wants Widevine, there is none for
+# aarch64 anywhere, and every browser answers "Playback disabled". librespot
+# does not use EME: Spotify's own protocol, a Premium account, no CDM.
+[[app]]
+pkg = "spot-client"
+name = "Spot"
+category = "Media"
+toolkit = "libadwaita"
+summary = "Spotify client that plays through librespot. Premium only, no DRM."
+icon = "dev.alextren.Spot"
+tested = "omarchy-mobile-vm"
 
 [[app]]
 pkg = "amberol"
