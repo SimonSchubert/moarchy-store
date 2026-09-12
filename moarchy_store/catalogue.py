@@ -224,8 +224,15 @@ def _apply_metadata(app: App, entry: dict) -> None:
     for key in _TEXT:
         value = entry.get(key)
         if value is not None:
+            # Stripped, and not only for tidiness. A wrapping GtkLabel renders
+            # a trailing newline as an empty line, so eight of them -- which is
+            # what sweep-backfill.py's block quoting used to accumulate, one
+            # per run -- is a hand's width of nothing between About and
+            # Details. The writer is fixed; this makes it cost nothing if
+            # another one is ever not.
+            #
             # A TOML date is a date, not a string; str() is right for both.
-            setattr(app, key, str(value))
+            setattr(app, key, str(value).strip())
     for key in _LIST:
         value = entry.get(key)
         if isinstance(value, list):

@@ -78,11 +78,21 @@ def subcategory_for(cats: list[str]) -> str:
 
 
 def quote(value: str) -> str:
-    """A TOML string. Multi-line prose gets a literal block, which keeps
-    apostrophes and quotes readable in a file people review in diffs."""
+    """A TOML string. Multi-line prose gets a block, which keeps apostrophes
+    and quotes readable in a file people review in diffs.
+
+    The backslash before the closing delimiter is load-bearing. TOML drops the
+    newline that follows the opening `\"\"\"` and keeps the one before the
+    closing it, so `f'\"\"\"\\n{body}\\n\"\"\"'` round-trips to `body + "\\n"` --
+    and this script reads its own output, so every run appended one more.
+    Telly Skout's description had accumulated eight, which a wrapping GtkLabel
+    renders as eight empty lines between About and Details. A trailing
+    backslash swallows that newline, so the block means exactly its text and
+    the delimiter still gets a line of its own.
+    """
     if len(value) > 78 or "\n" in value:
         body = value.replace('"""', '\\"\\"\\"')
-        return f'"""\n{body}\n"""'
+        return f'"""\n{body}\\\n"""'
     return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
