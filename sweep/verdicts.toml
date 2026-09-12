@@ -660,3 +660,141 @@ date = 2026-09-12
 outcome = "listed"
 adaptive = "fits"
 reason = "Check a download's hash. 0.49 MB. First recorded as no-window because it maps as dev.geopjr.Collision and the script was matching a guessed class."
+
+# --- Second LinuxPhoneApps batch, 2026-09-12 -------------------------------
+
+[parla]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "A Delta Chat client, so messaging carried over e-mail: a protocol nothing else here speaks, and one that needs no new account. 4 packages, 10.07 MB."
+
+[hitori]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Logic puzzle on a grid of large numbers, 180 KB. Every cell is a touch target, which is more than can be said for the other two GNOME games tried."
+
+[gnome-usage]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Processor, memory and storage behind bottom tabs. 330 KB, and nothing here reported system load before."
+
+[seahorse]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Keyring and GPG keys, 1.46 MB. Sits beside Key Rack rather than duplicating it: that one edits secrets, this one manages keys."
+
+[metadata-cleaner]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Strip EXIF before sharing a photo, 7.64 MB. Its empty state invites a drop, but Open Files and Open Folders are both there."
+
+[gnome-mahjongg]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "clipped"
+reason   = """
+The window fits and the game does not. A full mahjong layout drawn into 360
+logical pixels puts every tile at a few pixels wide -- far under the 44px floor
+moarchy docs/style.md sets, and far under what a thumb can pick out of a stack.
+The header truncates to "Moves Left: ..." as well. It is legible on a desktop
+and it is a picture of a game here.
+"""
+
+[gnome-disk-utility]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "clipped"
+reason   = """
+Opens a "Select Disk Image(s) to Mount" file chooser rather than its own window,
+and that chooser is a desktop three-pane -- places sidebar, file list, column
+headers for Name/Size/Type/Modified -- squeezed into 360. Partitioning is not a
+phone errand anyway.
+"""
+
+[nheko]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "fits"
+reason = "Qt, so it cannot follow the theme, and it draws a white welcome screen under a dark shell. Fractal covers Matrix in the right toolkit for one package."
+
+[telegram-desktop]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "no-window"
+reason = "No window within 60s, and 47.23 MB. Telegram is a real gap in Chat, so this is worth another attempt with more patience rather than a rejection."
+
+[pika-backup]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "no-window"
+reason = "No window within 60s. Backup is a genuine gap and this is the best-regarded answer, so it wants retrying rather than dropping."
+
+[nautilus]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "no-window"
+reason = "No window within 60s. Portfolio is already listed and was built for touch, so nothing is lost meanwhile."
+
+[identity]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "fits"
+reason = "Compares two images or videos side by side. Fits and is themed, but side-by-side comparison at 360 is a desktop errand."
+
+[gnome-font-viewer]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "fits"
+reason = "Fits and is themed. Nobody installs fonts on a phone."
+
+[yelp]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "fits"
+reason = "The GNOME help browser. Fits, and what it documents is a desktop the user is not running."
+
+[hieroglyphic]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "fits"
+reason = "Draw a symbol, get the LaTeX for it -- a genuinely touch-native interaction, themed, fits. Deferred only because the catalogue has no audience for LaTeX yet."
+
+[skladnik]
+date = 2026-09-12
+outcome = "deferred"
+reason = "Not run. 23 packages and 15.20 MB of Qt Widgets for a sokoban, where Hitori is 180 KB."
+
+[luanti]
+date = 2026-09-12
+outcome = "rejected"
+reason = "Not run. A voxel game engine wanting a GPU this device does not have; 9.06 MB is the least of it."
+
+[graphs]
+date = 2026-09-12
+outcome = "rejected"
+reason = "Not run. 23 packages and 57.90 MB, almost all of it a scientific Python stack, for plotting."
+
+[warpinator]
+date = 2026-09-12
+outcome = "rejected"
+reason = "Not run. 31 packages and 9.87 MB of xapps for file transfer, where Warp is already listed and is libadwaita."
+
+[optiimage]
+date = 2026-09-12
+outcome = "rejected"
+reason = "Not run. 28 packages and 12.05 MB of Kirigami for image optimisation, where Switcheroo is 1.12 MB."
+
+[gnote]
+date = 2026-09-12
+outcome = "rejected"
+reason = "Not run. Superseded here by Iotas, which costs less and syncs."
+
+[marker]
+date = 2026-09-12
+outcome = "rejected"
+reason = "Not run. GTK3 markdown editor; Marknote and Iotas cover notes, and GNOME Text Editor covers plain text."

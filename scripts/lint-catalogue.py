@@ -58,9 +58,16 @@ VOCAB: dict[str, set[str]] = {
                   "QR codes", "Unit conversion", "Alarms", "Timers",
                   "Disk usage", "Remote desktop", "File transfer"},
     "Web": {"Ad blocking", "Reader mode", "Sync", "Extensions"},
-    "Phone": {"SMS", "MMS", "Calls", "Contacts", "Voicemail"},
+    "Phone": {"SMS", "MMS", "Calls", "Contacts", "Voicemail", "CardDAV", "Sync"},
     "Notes": {"Markdown", "Sync", "Encryption", "Offline", "Tags"},
     "Terminal": {"Tabs", "Sixel", "Ligatures"},
+    "Security": {"TOTP", "HOTP", "KeePass", "GPG", "Keyring", "Encryption",
+                 "Backup", "Sync", "Offline", "Shredding"},
+    "Time": {"Alarms", "Timers", "Stopwatch", "World clocks", "CalDAV", "Sync",
+             "Offline", "Pomodoro", "Recurring", "Reminders"},
+    "System": {"Disk usage", "Remote desktop", "VNC", "RDP", "File transfer",
+               "Clipboard", "Process list", "Offline"},
+    "Games": {"Offline", "Single player", "Multiplayer", "Puzzles", "Touch controls"},
 }
 
 errors: list[str] = []
@@ -116,6 +123,16 @@ def main() -> int:
     for entry in entries:
         if entry.get("source") == "plugin" and entry.get("id") in packages:
             err(f"{entry['id']}: a plugin id also appears as a package")
+
+    # AppRow gives the summary two lines and then ellipsises it (window.py's
+    # set_subtitle_lines(2)). At 360px that is about 82 characters, and a
+    # summary longer than that loses its last clause on the one surface most
+    # people ever read.
+    for entry in entries:
+        summary = entry.get("summary", "")
+        if len(summary) > 82:
+            warn(f"{entry.get('name')}: summary is {len(summary)} chars and the "
+                 "list row shows about 82")
 
     serial = cat.get("serial")
     if not isinstance(serial, int):
