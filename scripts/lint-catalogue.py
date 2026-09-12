@@ -162,14 +162,16 @@ def main() -> int:
             err(f"{entry['id']}: a plugin id also appears as a package")
 
     # AppRow gives the summary two lines and then ellipsises it (window.py's
-    # set_subtitle_lines(2)). At 360px that is about 82 characters, and a
+    # set_subtitle_lines(2)). At 360px that is about 80 characters -- measured,
+    # not guessed: a 79-character summary renders in full and an 82 loses its
+    # last word. A
     # summary longer than that loses its last clause on the one surface most
     # people ever read.
     for entry in entries:
         summary = entry.get("summary", "")
-        if len(summary) > 82:
+        if len(summary) > 80:
             warn(f"{entry.get('name')}: summary is {len(summary)} chars and the "
-                 "list row shows about 82")
+                 "list row shows about 80")
 
     serial = cat.get("serial")
     if not isinstance(serial, int):
