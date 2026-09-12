@@ -24,12 +24,25 @@ Mobile, postmarketOS, or any Arch-based phone.
 - See installed state, version and download size, read live from the system
 - Install, open and remove, from the app, by touch
 - Marks which entries were verified on real hardware and which are suggestions
+- Says what an app costs you: not the package's own size, but the dependency
+  stack it drags onto a GNOME-adjacent image. Tuba is Mastodon for 1.6 MB
+  where Tokodon is 108 MB of KDE Frameworks, and the store says so
+- Warns you when an app will not follow your theme, which on this image means
+  every Kirigami and Qt app, because it ships a GTK template and no Qt one
 - Takes its palette from the active Omarchy theme, so it matches the shell
   around it rather than shipping a look of its own
 
-Apps are grouped by the toolkit that makes them adaptive — **libadwaita** (GNOME)
-and **Kirigami** (Plasma Mobile) are the two families designed for phone widths.
-Kirigami apps run fine as ordinary Wayland clients; no KDE session needed.
+Apps are grouped by what you came looking for — Chat, Reading, Time, Security,
+Games — not by what they are built with. What they are built with still decides
+most of what the store can tell you about them: **libadwaita** (GNOME) and
+**Kirigami** (Plasma Mobile) are the two families designed for phone widths, and
+Kirigami apps run fine as ordinary Wayland clients, no KDE session needed.
+
+The difference shows up twice, and it is measured rather than assumed. In price,
+because a Kirigami app on a GNOME-adjacent image pays for the whole KDE stack
+before it draws anything. And in looks, because the image renders a GTK template
+on every theme change and has no Qt equivalent — so a Kirigami app keeps its own
+colours no matter what theme you set, and the store says so on its page.
 
 ## Two kinds of app, one list
 
@@ -107,6 +120,37 @@ toolkit  = "libadwaita"   # libadwaita | kirigami | gtk | qt | tui
 summary  = "E-book reader. One of the best things about having a Linux phone."
 tested   = "pinephone-a64"   # or "" if you have not run it on a device
 ```
+
+Keep `summary` under 80 characters. The list row gives it two lines and then
+cuts it, so a longer one loses its last clause on the one surface most people
+read — `scripts/lint-catalogue.py` warns when you go over.
+
+Everything else an entry can carry lives in **`metadata.toml`**, keyed by the
+same name: the description, what the app supports, what it costs, whether it
+follows the theme, and the screenshots. All of it optional — delete the file
+and the store renders exactly as it did before it existed. It is a separate
+file because `catalogue.toml` is the allowlist and root parses it; prose and
+screenshots have no business in there.
+
+```toml
+[foliate]
+subtitle    = "Read e-books in style"      # upstream's own one-liner
+description = "..."                         # ours, not upstream's marketing
+features    = ["EPUB", "Mobi", "FB2"]      # rendered as chips
+cost_pkgs   = 1
+cost_mb     = 3.15
+adaptive    = "fits"                        # fits | tight | clipped | no-window
+themed      = "yes"                         # yes | no | partial
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["foliate-dark.png", "foliate-light.png"]
+```
+
+You do not have to write those by hand. `.claude/skills/catalogue-sweep` runs
+the whole loop — find candidates, measure each one at 360×674 in the VM,
+screenshot it in a dark and a light theme, and write the entry — and
+`sweep/verdicts.toml` records every app ever examined, including everything
+rejected and why, so the next sweep does not pay to discover the same thing
+twice.
 
 A shell plugin instead:
 
