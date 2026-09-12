@@ -197,6 +197,35 @@ gallery, maps, browser, mail, podcasts, music, files, notes, weather, clock,
 calculator, OTP, transit — and for each ask what the best aarch64 answer is.
 "There isn't one" is a finding; record it.
 
+### 2a. Seed the guest, once
+
+```bash
+./scripts/sweep-seed.sh          # generated fixtures, idempotent
+./scripts/sweep-seed.sh --list   # what is there
+```
+
+A third of the catalogue reads a standard directory and shows what is in it.
+On a fresh image those directories are empty, so the shots come out as "No
+Books Yet", "Add some books", "Get Some Shows", "Drop images here to compress
+them" -- pictures of an app nobody has used, which sell nothing. Someone
+deciding whether Amberol is worth 1.8 MB learns more from a library with albums
+in it than from a button marked Add Folder.
+
+Everything is **generated in the guest**, by ffmpeg and ImageMagick, from
+nothing. That is a licensing decision, not a technical one: seeding real media
+means files whose rights have to be checked and re-checked by whoever touches
+this next, and generating means there is nothing to check.
+
+The metadata is real, because metadata is the part a screenshot shows. A music
+library displays composer, album, track and cover art and never the waveform,
+so the tags name actual public-domain compositions while the audio is a quiet
+tone -- and every file says so in its comment tag, so nobody mistakes it for a
+recording. Same for the text: Sonnet 18 and the opening of Alice are public
+domain and are quoted as themselves.
+
+Run it once per image. It is idempotent and skips if the stamp file is there;
+`--force` redoes it.
+
 ### 3. Cost the whole queue, then measure
 
 ```bash
