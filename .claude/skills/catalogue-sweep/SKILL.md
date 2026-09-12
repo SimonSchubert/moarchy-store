@@ -77,6 +77,13 @@ or Plasma Mobile, and this runs neither. KleverNotes is rated 5 and clips at
 out of the repo's own AppStream catalogue: upstream's claim about itself, for
 every packaged app, fetched to `~/.cache` so it needs no VM.
 
+Once a batch is chosen, `./scripts/sweep-backfill.py` fills the four fields
+upstream already publishes -- subtitle, description, homepage, released -- for
+every catalogued app that lacks them. It never overwrites, because the fields
+worth writing by hand are exactly the ones it would trample: `description`
+especially, which arrives as desktop marketing and has to be rewritten as an
+opinion about using the thing with a thumb.
+
 **`sweep-aur.py`** infers from dependencies and description, because the AUR
 ships no AppStream data at all. Weakest of the three, and the one that found
 the most, though not in the way it was meant to: 51 of its 277 candidates
@@ -220,9 +227,17 @@ Rules that are not negotiable:
 ### 6. Review, then commit
 
 ```bash
-./scripts/sweep-shots.sh                  # pngquant + oxipng over new shots
-python3 scripts/lint-catalogue.py         # must be 0 errors
+./scripts/sweep-shots.sh                       # pngquant + oxipng over new shots
+python3 scripts/lint-catalogue.py              # must be 0 errors
+python3 scripts/lint-catalogue.py --check-repos  # before every publish
 ```
+
+`--check-repos` asks the guest whether every catalogued package still exists,
+and it is not a formality: it found four entries -- plasma-dialer, spacebar,
+portfolio-file-manager and livi -- that Arch Linux ARM had stopped building for
+aarch64, each rendering as an ordinary row with an Install button that could not
+work. One of them carried a hardware screenshot. Packages leave the repos
+quietly, so run it before every publish, not only when adding apps.
 
 Then bump `serial` in `catalogue.toml`, sign, and commit:
 
