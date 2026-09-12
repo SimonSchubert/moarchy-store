@@ -272,6 +272,18 @@ the expected answer there and `yes` would mean the measurement is wrong.
 
 ### 5. Write
 
+```bash
+./scripts/sweep-record.py --from /tmp/measured --adaptive fits kalk loupe
+```
+
+Merges the harness output into `metadata.toml` -- cost, theme diff, shots --
+and leaves everything else in the table alone.
+
+It refuses to write `adaptive` unless you pass it, which is the whole point.
+The harness reports `mapped`, never `fits`, so an entry stays unjudged until a
+person has looked at the picture and said so. It also never touches `tested`: a
+VM run does not overwrite a hardware claim.
+
 `catalogue.toml` — the allowlist, and only these fields:
 
 ```toml
