@@ -125,20 +125,33 @@ album 'Chopin - Nocturnes' 'Frederic Chopin' 'Nocturnes' 1832 /tmp/c3.png \
   'Op. 9 No. 1 in B flat minor' 'Op. 9 No. 2 in E flat major' 'Op. 27 No. 2 in D flat major'
 
 # --- pictures --------------------------------------------------------------
-# Photo-shaped, photo-sized, and not obviously a test card, because the point
-# is a gallery that looks like a gallery.
-scene() {  # scene <file> <seed> <tint>
-  magick -size 1600x1200 "plasma:fractal" -seed "$2" \
-    -blur 0x3 -modulate 100,140,"$3" -contrast-stretch 2%x1% "$1"
+# Landscapes rather than noise. The first attempt used ImageMagick's plasma
+# fractal, which produces neon static: a gallery full of it looks worse than
+# the empty state it was meant to replace. A sky gradient, a low sun and two
+# layered ridges read as a photograph at thumbnail size, which is the size
+# these are ever seen at.
+scene() {  # scene <out> <sky-top> <sky-bottom> <ridge> <sun-x> <sun-y> <ridge-path> <fore-path>
+  magick -size 1600x1200 "gradient:$2-$3" \
+    \( -size 1600x1200 xc:none -fill '#fff8e0' -draw "circle $5,$6 $5,$(($6 + 70))" -blur 0x45 \) \
+    -compose screen -composite \
+    \( -size 1600x1200 xc:none -fill "$4" -draw "polygon $7" \) -compose over -composite \
+    \( -size 1600x1200 xc:none -fill '#00000055' -draw "polygon $8" \) -compose over -composite \
+    -attenuate 0.28 +noise Gaussian -blur 0x0.6 -contrast-stretch 0.5%x0.5% "$1"
 }
-scene ~/Pictures/coast-morning.jpg     11  90
-scene ~/Pictures/pine-ridge.jpg        27 110
-scene ~/Pictures/harbour-lights.jpg    43  70
-scene ~/Pictures/riverbank.jpg         58 120
+RIDGE_A='0,900 260,760 520,860 900,700 1240,820 1600,740 1600,1200 0,1200'
+RIDGE_B='0,820 300,700 640,880 980,730 1320,850 1600,790 1600,1200 0,1200'
+RIDGE_C='0,960 380,820 760,930 1100,790 1450,900 1600,860 1600,1200 0,1200'
+FORE_A='0,1010 340,930 700,1010 1050,920 1600,990 1600,1200 0,1200'
+FORE_B='0,1060 420,980 820,1050 1200,960 1600,1030 1600,1200 0,1200'
+
+scene ~/Pictures/coast-morning.jpg  '#1b3a5c' '#e8a973' '#2a2233' 1180 820 "$RIDGE_A" "$FORE_A"
+scene ~/Pictures/pine-ridge.jpg     '#22304a' '#c98f6e' '#1e2630' 420  760 "$RIDGE_B" "$FORE_B"
+scene ~/Pictures/harbour-lights.jpg '#101d33' '#5b6f8e' '#0d1420' 980  880 "$RIDGE_C" "$FORE_A"
+scene ~/Pictures/riverbank.jpg      '#2d4a3a' '#d8c08a' '#20301f' 700  800 "$RIDGE_B" "$FORE_A"
 mkdir -p ~/Pictures/Camera
-scene ~/Pictures/Camera/IMG_0041.jpg   71 100
-scene ~/Pictures/Camera/IMG_0042.jpg   83  95
-# One carrying EXIF, so Metadata Cleaner and Ear Tag have something to strip.
+scene ~/Pictures/Camera/IMG_0041.jpg '#3a2a45' '#e0a07a' '#231a2b' 300 840 "$RIDGE_C" "$FORE_B"
+scene ~/Pictures/Camera/IMG_0042.jpg '#14304a' '#9fb4c4' '#12222e' 1320 780 "$RIDGE_A" "$FORE_B"
+# One carrying EXIF, so Metadata Cleaner has something to strip.
 magick ~/Pictures/Camera/IMG_0041.jpg \
   -set exif:Make 'Pine64' -set exif:Model 'PinePhone' \
   -set exif:DateTimeOriginal '2026:08:14 09:12:33' \
@@ -146,10 +159,17 @@ magick ~/Pictures/Camera/IMG_0041.jpg \
   ~/Pictures/Camera/IMG_0043.jpg
 
 # --- video -----------------------------------------------------------------
+# drawtext needs ffmpeg built against libfreetype. The guest has it; not every
+# machine does, and a missing filter is a hard error rather than a fallback, so
+# the label is optional and the clip is not.
+HAS_DRAWTEXT=0
+ffmpeg -hide_banner -filters 2>/dev/null | grep -qE '^ [.TS]+ drawtext' && HAS_DRAWTEXT=1
+
 clip() {  # clip <file> <label> <seconds>
+  local vf=()
+  [ "$HAS_DRAWTEXT" = 1 ] && vf=(-vf "drawtext=text='$2':fontcolor=white:fontsize=54:x=(w-tw)/2:y=(h-th)/2")
   ffmpeg $Q -f lavfi -i "testsrc2=size=1280x720:rate=24:duration=$3" \
-    -f lavfi -i "sine=frequency=220:duration=$3" \
-    -vf "drawtext=text='$2':fontcolor=white:fontsize=54:x=(w-tw)/2:y=(h-th)/2" \
+    -f lavfi -i "sine=frequency=220:duration=$3" "${vf[@]}" \
     -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -shortest "$1"
 }
 clip ~/Videos/tide-timelapse.mp4 'Tide, timelapse'   18
@@ -261,8 +281,12 @@ build_epub ~/Documents/alice-in-wonderland.epub
 # CBZ: a comic is a zip of page images.
 mkdir -p /tmp/cbz
 for i in 1 2 3 4 5 6; do
-  magick -size 900x1300 "plasma:fractal" -seed $((i * 13)) -blur 0x2 \
-    "${TEXT[@]}" -gravity north -pointsize 48 -fill white -annotate +0+40 "Page $i" \
+  magick -size 900x1300 "gradient:#e8e2d4-#b9ae97" \
+    -fill '#3a3328' -draw "rectangle 60,120 840,640" \
+    -fill '#cfc6b2' -draw "rectangle 80,140 820,620" \
+    -fill '#3a3328' -draw "rectangle 60,700 430,1180" -draw "rectangle 470,700 840,1180" \
+    -fill '#cfc6b2' -draw "rectangle 80,720 410,1160" -draw "rectangle 490,720 820,1160" \
+    "${TEXT[@]}" -gravity north -pointsize 44 -fill '#3a3328' -annotate +0+40 "Page $i" \
     "/tmp/cbz/$(printf '%02d' $i).jpg"
 done
 rm -f ~/Documents/the-yellow-kid.cbz
