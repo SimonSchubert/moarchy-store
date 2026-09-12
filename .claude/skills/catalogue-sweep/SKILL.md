@@ -71,11 +71,12 @@ So a periodic run is:
 
 ```bash
 ./scripts/sweep-lpa.py                            # new, rated, packaged in Arch
-./scripts/sweep-discover.py --table               # new, declaring 360 and touch
+./scripts/sweep-discover.py                       # new, declaring 360 and touch
+./scripts/sweep-discover.py --links               # new, linking a toolkit and declaring nothing
 python3 scripts/lint-catalogue.py --check-repos   # what has LEFT the repos
 ```
 
-The third is the one people forget, and it is not optional. Packages disappear
+The fourth is the one people forget, and it is not optional. Packages disappear
 quietly: four entries -- plasma-dialer, spacebar, portfolio-file-manager, livi
 -- sat in the catalogue after Arch Linux ARM stopped building them for aarch64,
 each drawn as an ordinary row with an Install button that could not work. One
@@ -84,7 +85,18 @@ carried a screenshot taken on real hardware. Nothing else notices.
 Run `sweep-aur.py` occasionally rather than every time. It cannot produce a
 listable entry, and its value is the side effect: it finds repo packages that
 ship no AppStream metainfo, which is the one gap `sweep-discover.py` cannot see
-past.
+past. Its `R` column is that side effect made explicit -- a candidate that is
+also in the aarch64 sync database installs through the helper. A second, wider
+pass found that vein close to worked out: 27 such packages remained unjudged
+and 26 were libraries, daemons or flashing tools.
+
+`--links` is where that pass went instead, and it is the cheaper half of the
+same idea. `sweep-discover.py` shows an app when upstream *declares* 360 or
+touch, which is also a filter on whether upstream got round to declaring
+anything: Foliate declares neither. `--links` asks what the package links
+instead -- nobody depends on libadwaita or Kirigami by accident -- and found 63
+never-judged apps the declaration filter could not see. It is weaker evidence
+than a declaration and produces a queue for the VM, never an entry.
 
 If a run finds nothing, check the age lines before concluding the repos are
 quiet.
@@ -157,7 +169,16 @@ or Plasma Mobile, and this runs neither. KleverNotes is rated 5 and clips at
 
 **`sweep-discover.py`** reads `<display_length>` and `<control>touch</control>`
 out of the repo's own AppStream catalogue: upstream's claim about itself, for
-every packaged app, fetched to `~/.cache` so it needs no VM.
+every packaged app, fetched to `~/.cache` so it needs no VM. `--links` asks the
+other half of the question -- what the package *links*, from the aarch64 sync
+database -- for the apps that declare nothing at all. Silence is not a claim of
+unfitness, and treating it as one hid 63 apps.
+
+Both read `scripts/syncdb.py`, which is the pacman sync database for **aarch64**
+rather than x86_64. That distinction is not pedantry: 2,343 packages exist on
+x86_64 and not on the architecture this phone runs, and that gap is exactly how
+plasma-dialer, spacebar, portfolio-file-manager and livi came to sit in the
+catalogue drawn as ordinary rows with Install buttons that could not work.
 
 Once a batch is chosen, `./scripts/sweep-backfill.py` fills the four fields
 upstream already publishes -- subtitle, description, homepage, released -- for

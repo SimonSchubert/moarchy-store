@@ -56,6 +56,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import sweepdb  # noqa: E402
+import syncdb  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "moarchy-store-sweep"
@@ -80,6 +81,18 @@ NOT_APPS = {
 
 # AppStream allows names as well as pixel counts.
 NAMED_WIDTHS = {"xsmall": 360, "small": 768, "medium": 1024, "large": 1280, "xlarge": 1920}
+
+# What an app links, for the apps that declare nothing. Same weights and the
+# same reasoning as scripts/sweep-aur.py: none of these is reached for by
+# accident. See --links.
+ADAPTIVE_LINKS = {
+    "libadwaita": ("libadwaita", 50),
+    "libhandy": ("libhandy", 45),
+    "kirigami": ("kirigami", 45),
+    "kirigami-addons": ("kirigami", 45),
+    "kirigami6": ("kirigami", 45),
+    "mauikit": ("kirigami", 45),
+}
 
 
 def appstream_files(refresh: bool = False) -> list[str]:
@@ -248,6 +261,45 @@ def collect(refresh: bool = False) -> list[dict]:
 
 
 
+def linked(rows: list[dict]) -> list[dict]:
+    """Apps that link an adaptive toolkit and declare nothing about width.
+
+    The default filter shows an app only when upstream *says* it fits: a
+    display_length of 360 or less, or touch. That is the honest reading of a
+    declaration, and it is also a filter on whether upstream got round to
+    writing one. Foliate declares neither and is the best app in the catalogue.
+
+    So this asks the other question, the one scripts/sweep-aur.py has to ask
+    about the AUR because it has nothing else: what does the package link?
+    Nobody links libadwaita or Kirigami by accident. It is weaker than a
+    declaration -- a libadwaita app can still be a desktop app with a sidebar
+    that never collapses -- which is why the answer is a queue for the VM and
+    never an entry.
+
+    Anything already shown by the default filter is excluded, and so is
+    anything not built for aarch64: silence about width is a reason to look,
+    but a package that does not exist on the device is not a candidate at all.
+    """
+    repo = syncdb.packages()
+    out = []
+    for row in rows:
+        pkg = repo.get(row["pkg"])
+        if pkg is None:
+            continue
+        if (row["min_width"] is not None and row["min_width"] <= 360) or row["touch"]:
+            continue
+        hits = [ADAPTIVE_LINKS[d] for d in pkg["depends"] if d in ADAPTIVE_LINKS]
+        if not hits:
+            continue
+        toolkit, weight = max(hits, key=lambda h: h[1])
+        age = row["age_days"]
+        score = weight + (0 if age is None else
+                          15 if age <= 365 else 5 if age <= 1095 else -10)
+        out.append({**row, "toolkit": toolkit, "score": score,
+                    "isize_mb": round(pkg["isize"] / 1e6, 2)})
+    return sorted(out, key=lambda r: (-r["score"], r["pkg"]))
+
+
 def report_deferred() -> None:
     """Deferred verdicts old enough to re-ask, printed after the candidates.
 
@@ -275,6 +327,8 @@ def main() -> int:
     ap.add_argument("--category", help="only apps in this freedesktop category")
     ap.add_argument("--refresh", action="store_true", help="re-download the AppStream data")
     ap.add_argument("--limit", type=int, default=60)
+    ap.add_argument("--links", action="store_true",
+                    help="apps that LINK an adaptive toolkit but declare nothing")
     ap.add_argument("--deferred", action="store_true",
                     help="list deferred verdicts due for another look, and stop")
     args = ap.parse_args()
@@ -286,6 +340,31 @@ def main() -> int:
 
     rows = collect(args.refresh)
     total = len(rows)
+
+    if args.links:
+        known = known_packages()
+        rows = linked([r for r in rows
+                       if r["pkg"] not in known and r["pkg"] not in NOT_APPS
+                       and not (set(r["categories"]) & DESKTOP_ONLY)])
+        if args.category:
+            rows = [r for r in rows if args.category in r["categories"]]
+        if args.json:
+            json.dump(rows, sys.stdout, indent=2)
+            print()
+            return 0
+        print(f"{'package':26} {'toolkit':11} {'sc':>3} {'MB':>7} "
+              f"{'released':>10}  summary")
+        print("-" * 104)
+        for r in rows[: args.limit]:
+            print(f"{r['pkg'][:26]:26} {r['toolkit']:11} {r['score']:3} "
+                  f"{r['isize_mb']:7.2f} {r['released'] or '-':>10}  "
+                  f"{(r['summary'] or '')[:40]}")
+        shown = min(len(rows), args.limit)
+        print(f"\n{shown} of {len(rows)} link an adaptive toolkit and declare "
+              f"neither 360 nor touch")
+        print("a queue for the VM, not a claim -- linking is weaker than declaring")
+        report_deferred()
+        return 0
 
     if not args.all:
         known = known_packages()

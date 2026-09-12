@@ -118,7 +118,7 @@ def check_serial_rose(serial: int, cat_path: Path) -> None:
             f"{serial} -- bump it, or two different catalogues share a serial")
 
 
-def check_repos(packages: set[str]) -> None:
+def check_repos(packages: set[str], vm: bool = False) -> None:
     """Ask the guest whether every catalogued package still exists.
 
     Not a style check. plasma-dialer, spacebar and livi sat in the catalogue
@@ -127,12 +127,33 @@ def check_repos(packages: set[str]) -> None:
     dialer and the SMS app, which commit 13bf411 added saying a phone store
     without calls and SMS was missing the point.
 
-    Needs the VM, so it is behind a flag rather than run every time.
+    Two ways of asking, and they are not equivalent. The guest's own `pacman
+    -Si` is the authority: it is the machine that will run the install, with
+    the mirrors it actually has. The sync database read by scripts/syncdb.py is
+    the same question put to a mirror, needs no VM and no lease, and therefore
+    can run on every lint rather than only before a publish -- which matters,
+    because the four dead entries sat there for weeks and the flag that would
+    have caught them was the one nobody ran.
+
+    So: the offline check always runs, and the VM check runs when asked and
+    overrules it.
     """
-    vm = Path(os.environ.get("MOARCHY_VM", Path.home() / "Projects" / "omarchy-mobile"))
-    ssh = vm / "scripts" / "vm-ssh.sh"
+    try:
+        import syncdb
+        gone = syncdb.missing(packages)
+    except Exception as exc:
+        warn(f"offline repo check unavailable: {exc}")
+        gone = []
+    for missing in gone:
+        err(f"{missing} is in the catalogue and not in the aarch64 sync "
+            "database -- its Install button cannot work")
+
+    if not vm:
+        return
+    vm_dir = Path(os.environ.get("MOARCHY_VM", Path.home() / "Projects" / "omarchy-mobile"))
+    ssh = vm_dir / "scripts" / "vm-ssh.sh"
     if not ssh.exists():
-        warn(f"--check-repos needs the VM at {vm}; skipped")
+        warn(f"--check-repos needs the VM at {vm_dir}; skipped the authoritative half")
         return
     names = " ".join(sorted(packages))
     try:
@@ -143,6 +164,8 @@ def check_repos(packages: set[str]) -> None:
         warn(f"--check-repos could not reach the VM: {exc}")
         return
     for missing in out.stdout.split():
+        if missing in gone:
+            continue          # already reported, offline
         err(f"{missing} is in the catalogue and not in the repos -- its Install "
             "button cannot work")
 
@@ -150,7 +173,7 @@ def check_repos(packages: set[str]) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--check-repos", action="store_true",
-                    help="ask the VM whether every package still exists (slow)")
+                    help="also ask the VM itself, which is the authority (slow)")
     args = ap.parse_args()
 
     cat_path = ROOT / "catalogue.toml"
@@ -343,8 +366,7 @@ def main() -> int:
     if total > SHOTS_TOTAL_WARN:
         warn(f"screenshots/ is {total / 1024 / 1024:.1f} MB")
 
-    if args.check_repos:
-        check_repos(packages)
+    check_repos(packages, vm=args.check_repos)
 
     stale = sweepdb.needs_measure()
     if stale:

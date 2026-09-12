@@ -51,7 +51,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 20
+serial = 21
 
 # --- Reading ---------------------------------------------------------------
 
@@ -1200,6 +1200,65 @@ summary = "Video and voice calls with no server and no account. 110MB of it."
 icon = "jami"
 screenshot = "jami-qt-dark.png"
 tested = "omarchy-mobile-vm"
+
+# --- The dependency-link sweep (serial 21) ---------------------------------
+#
+# sweep-discover.py only ever showed apps that DECLARE 360 or touch, which is
+# also a filter on whether upstream got round to declaring anything: Foliate
+# declares neither. --links asks what the package links instead, and found 63
+# never-judged apps behind that silence. Twelve were measured; these four
+# survived, and all four are games, which is not what the sweep set out to find
+# and is where the catalogue was thinnest -- Games held four entries against
+# Media's twenty-three.
+#
+# They are the four GNOME games that are played by tapping. gnome-nibbles and
+# gnome-robots link libadwaita too and want arrow keys, which on this device
+# means raising a keyboard over the board.
+#
+# Each is one package and under a megabyte, because the GTK stack is already
+# on the image. Each follows the theme emphatically -- 0.74 to 0.79 against a
+# noise floor of 0.0418 -- so a phone in light mode gets a light board.
+
+[[app]]
+pkg = "lightsoff"
+name = "Lights Off"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Turn off all the lights. A five-by-five grid of thumb-sized tiles, 550KB."
+icon = "org.gnome.LightsOff"
+screenshot = "lightsoff-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "gnome-mines"
+name = "Mines"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Minesweeper, with four board sizes offered as tiles you can hit. 250KB."
+icon = "org.gnome.Mines"
+screenshot = "gnome-mines-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "iagno"
+name = "Reversi"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Reversi against the machine. Every control is a full-width button. 620KB."
+icon = "org.gnome.Reversi"
+screenshot = "iagno-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "swell-foop"
+name = "Swell Foop"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Clear the board by tapping groups of colour. Nothing to aim at. 690KB."
+icon = "org.gnome.SwellFoop"
+screenshot = "swell-foop-dark.png"
+tested = "omarchy-mobile-vm"
+
 
 # --- Omarchy shell plugins -------------------------------------------------
 #

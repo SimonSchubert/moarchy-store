@@ -63,20 +63,41 @@ if [ -f "$STAMP" ] && [ "${MODE:-seed}" != force ]; then
 fi
 
 mkdir -p ~/Music ~/Pictures ~/Videos ~/Documents ~/Downloads ~/.local/share
-Q="-loglevel error -y"
+# -nostdin is load-bearing, not tidiness. This whole script arrives on the
+# guest's stdin (`bash -s`), and ffmpeg reads stdin looking for interactive
+# commands -- so the first ffmpeg call swallowed the remaining 200 lines of the
+# script, printed its "Enter command:" help at the 'c' it found, and left bash
+# executing fragments of track titles: `Allemande: command not found`.
+Q="-nostdin -loglevel error -y"
 
 # ImageMagick has no default font on a headless image and fails outright --
 # "unable to read font" -- rather than falling back. Pick one that is there.
+#
+# Read the list ONCE into a variable and match against that, rather than piping
+# magick into grep or awk. Both of those exit on the first match, magick is
+# still writing, and it dies of SIGPIPE -- which `set -o pipefail` turns into a
+# failed pipeline. That broke this two ways at once: `grep -q` reported "font
+# not found" for a font that was found, because the pipeline's status was the
+# dead magick's rather than grep's; and the awk fallback below it aborted the
+# whole script under `set -e`. The symptom was a seed run that printed its
+# header, exited 141, said nothing, and left the guest empty -- so every shot
+# taken since c565629 was of an app with no content in it, which is the exact
+# thing that commit set out to fix.
+FONT_LIST=$(magick -list font 2>/dev/null || true)
 FONT=""
 for f in Adwaita-Sans DejaVu-Sans Liberation-Sans Noto-Sans; do
-  if magick -list font 2>/dev/null | grep -q "Font: $f\$"; then FONT=$f; break; fi
+  case $FONT_LIST in *"Font: $f"*) FONT=$f; break ;; esac
 done
-[ -n "$FONT" ] || FONT=$(magick -list font 2>/dev/null | awk '/Font:/{print $2; exit}')
+# Whatever it does have, then: every Font: line flattened onto one, first word
+# taken. No `head`, no `awk ... exit`, nothing that stops reading early.
+[ -n "$FONT" ] || FONT=$(printf '%s\n' "$FONT_LIST" |
+  sed -n 's/^[[:space:]]*Font:[[:space:]]*\([^[:space:]][^[:space:]]*\).*/\1/p' |
+  tr '\n' ' ' | cut -d' ' -f1)
 # And if ImageMagick knows no fonts by name at all -- which happens when it is
 # built without fontconfig, as on the Mac this was written on -- give it a file
 # instead. -font takes either.
 [ -n "$FONT" ] || FONT=$(fc-match -f '%{file}' sans-serif 2>/dev/null || true)
-[ -n "$FONT" ] || FONT=$(fc-list : file 2>/dev/null | head -1 | cut -d: -f1)
+[ -n "$FONT" ] || FONT=$(fc-list : file 2>/dev/null | tr '\n' ' ' | cut -d: -f1)
 [ -n "$FONT" ] || { echo "!! no usable font in this guest -- text cannot be drawn" >&2; exit 1; }
 echo "    drawing text with $FONT"
 TEXT=(-font "$FONT")
@@ -163,7 +184,8 @@ magick ~/Pictures/Camera/IMG_0041.jpg \
 # machine does, and a missing filter is a hard error rather than a fallback, so
 # the label is optional and the clip is not.
 HAS_DRAWTEXT=0
-ffmpeg -hide_banner -filters 2>/dev/null | grep -qE '^ [.TS]+ drawtext' && HAS_DRAWTEXT=1
+ffmpeg -nostdin -hide_banner -filters </dev/null 2>/dev/null |
+  grep -qE '^ [.TS]+ drawtext' && HAS_DRAWTEXT=1
 
 clip() {  # clip <file> <label> <seconds>
   local vf=()

@@ -685,6 +685,25 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["gnome-maps-dark.png", "gnome-maps-light.png"]
 
+[gnome-mines]
+subtitle    = "Clear hidden mines from a minefield"
+description = """
+Minesweeper, and the reason it works here is that it asks first: four board
+sizes offered as tiles big enough to hit, rather than a menu. The 8x8 board
+is the one that fits a thumb; 30x16 is on offer and is a promise this screen
+cannot keep.\
+"""
+subcategory = "Puzzles"
+features    = ["Offline", "Single player", "Puzzles", "Touch controls"]
+homepage    = "https://gitlab.gnome.org/GNOME/gnome-mines/"
+released    = "2026-03-14"
+cost_pkgs   = 1
+cost_mb     = 0.25
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["gnome-mines-dark.png", "gnome-mines-light.png"]
+
 [gnome-podcasts]
 subtitle    = "Listen to your favorite shows"
 description = """
@@ -782,6 +801,25 @@ adaptive    = "fits"
 themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["hitori-dark.png", "hitori-light.png"]
+
+[iagno]
+subtitle    = "Dominate the board in a classic reversi game, or play the reversed variant"
+description = """
+Reversi against the machine, with the colour and the difficulty picked from
+full-width buttons before anything starts. The board is eight by eight on a
+360px screen, so the tiles are about as small as this catalogue will accept
+-- comfortable seated, fiddly walking.\
+"""
+subcategory = "Board games"
+features    = ["Offline", "Single player", "Multiplayer", "Touch controls"]
+homepage    = "https://gitlab.gnome.org/GNOME/iagno"
+released    = "2026-03-18"
+cost_pkgs   = 1
+cost_mb     = 0.62
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["iagno-dark.png", "iagno-light.png"]
 
 [index-fm]
 subtitle    = "Manage your files"
@@ -904,6 +942,14 @@ themed      = "no"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["kasts-dark.png"]
 
+[kclock]
+cost_pkgs = 28
+cost_mb   = 15.68
+adaptive  = "fits"
+themed    = "no"
+measured  = "omarchy-mobile-vm 2026-09-12"
+shots     = ["kclock-dark.png"]
+
 [key-rack]
 subtitle    = "View and edit passwords"
 description = """
@@ -997,6 +1043,25 @@ adaptive    = "fits"
 themed      = "no"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["kweather-dark.png"]
+
+[lightsoff]
+subtitle    = "Turn off all the lights"
+description = """
+Every tile you touch flips itself and its four neighbours, and you have to
+leave the board dark. Twenty-five targets on one screen, none of them small,
+and no timer -- so it survives being put down mid-puzzle at a bus stop,
+which is most of what a phone game has to do.\
+"""
+subcategory = "Puzzles"
+features    = ["Offline", "Single player", "Puzzles", "Touch controls"]
+homepage    = "https://wiki.gnome.org/Apps/Lightsoff"
+released    = "2026-03-14"
+cost_pkgs   = 1
+cost_mb     = 0.55
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["lightsoff-dark.png", "lightsoff-light.png"]
 
 [lollypop]
 subtitle    = "Play and organize your music collection"
@@ -1331,6 +1396,25 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["solanum-dark.png", "solanum-light.png"]
 
+[swell-foop]
+subtitle    = "Clear the screen by removing groups of colored and shaped tiles"
+description = """
+Tap any group of matching tiles and they go, and the board falls into the
+gap. There is nothing to aim at more precisely than a block of colour, which
+is why it survives the trip from a mouse to a thumb better than most of what
+GNOME ships.\
+"""
+subcategory = "Puzzles"
+features    = ["Offline", "Single player", "Puzzles", "Touch controls"]
+homepage    = "https://wiki.gnome.org/Apps/Swell%20Foop"
+released    = "2026-03-14"
+cost_pkgs   = 1
+cost_mb     = 0.69
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["swell-foop-dark.png", "swell-foop-light.png"]
+
 [switcheroo]
 subtitle    = "Convert and manipulate images"
 description = "Convert between different image filetypes and resize them easily."
@@ -1470,10 +1554,3 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["wike-dark.png", "wike-light.png"]
 
-[kclock]
-cost_pkgs   = 28
-cost_mb     = 15.68
-adaptive    = "fits"
-themed      = "no"
-measured    = "omarchy-mobile-vm 2026-09-12"
-shots       = ["kclock-dark.png"]

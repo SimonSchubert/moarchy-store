@@ -1437,3 +1437,227 @@ date = 2026-09-12
 outcome = "listed"
 adaptive = "unknown"
 reason = "Still no window at 120s. DBusActivatable, and wants a modem the VM has not got. Remains the only dialer in the repos."
+
+# --- The second AUR pass, widened (serial 21) ------------------------------
+#
+# 119,292 packages, up 45 on the first run, so nothing was missed for being new.
+# What was missed was missed by the filter, and five holes are now fixed in
+# scripts/sweep-aur.py: a --limit that printed 80 of 980 rows and said nothing,
+# AUR orphan and out-of-date flags sinking repo packages they say nothing about,
+# MakeDepends never read, MauiKit absent from the toolkit table, and a regex
+# that scored every terminal emulator -40 as desktop infrastructure.
+#
+# The vein the first pass struck is worked out. 27 never-judged repo packages
+# carry a mobile signal and 26 are libraries, daemons, Plasma components or
+# flashing tools. The one app is satty, and it is in this batch.
+#
+# What follows is the survey half, and none of it is listable: the helper execs
+# pacman -S, so an AUR package has no sync database to be found in. Recorded so
+# the next pass does not re-read them, and because what is missing is itself a
+# finding.
+
+[onvifviewer]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. Kirigami ONVIF camera viewer for Plasma Mobile, 7 votes and a release this year -- the liveliest AUR-only find in either pass. Nothing in the catalogue watches a camera it does not own."
+
+[powersupply]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. libadwaita battery and charge detail written for mobile platforms. System has six entries and none of them answers what the battery is doing, which on a phone is the question."
+
+[moarchy-keep]
+date = 2026-09-12
+outcome = "deferred"
+reason = """
+AUR only, and ours: notes and checklists for a Linux phone, libadwaita, touched
+five days ago. Notes holds three entries, one of which is a shell plugin. This
+is the clearest case in the survey of the standing answer -- if an AUR app
+matters, package it for the repos rather than weaken the allowlist -- being
+about something we control.
+"""
+
+[birdie-alarm-mobile]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. A wakeup alarm written for a Linux phone. Time has nine entries -- clocks, calendars, countdowns, a metronome -- and no alarm, which is the one thing a phone on a bedside table is for."
+
+[gtk-meshtastic-client]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. GTK4/libadwaita Meshtastic client, maintained, released this year. Off-grid messaging is a real answer to a phone with no network, and Chat has nothing like it."
+
+[gnss-share]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only, and not an app -- a daemon that shares GNSS location with several clients at once. Recorded because Travel has five entries that all want a fix and the image provides none."
+
+[karoto]
+date = 2026-09-12
+outcome = "rejected"
+reason = "AUR only, PyQt6, and untouched since 2023-06 -- past the three-year line. A shopping list for Linux Mobile is a gap Notes really has, but not one this fills."
+
+[plasma-angelfish]
+date = 2026-09-12
+outcome = "rejected"
+reason = "AUR only, flagged out of date, untouched since 2021. Angelfish itself was rejected from the repos in the serial-3 sweep; this is the same browser, older, and unbuildable through the store either way."
+
+[daykountdown]
+date = 2026-09-12
+outcome = "rejected"
+reason = "AUR only, flagged out of date, untouched since 2022. Francis and Chess Clock already cover counting down, and both install."
+
+[deltatouch]
+date = 2026-09-12
+outcome = "rejected"
+reason = "AUR only, and built on the Lomiri UI toolkit, which this image does not have and will not get -- Lomiri is Ubuntu Touch's shell. Delta Chat on a repo toolkit would be worth having; this is not it."
+
+[harbour-shutter]
+date = 2026-09-12
+outcome = "rejected"
+reason = "AUR only, and a Sailfish application: it wants Silica, which is not packaged for Arch at all. The camera gap is real and this cannot fill it."
+
+[pinephone-toolkit]
+date = 2026-09-12
+outcome = "rejected"
+reason = "AUR only, untouched since 2021, and hardware-specific to the PinePhone in ways the VM cannot exercise. Filed with pinephone-compass for the same reason."
+
+# --- The dependency-link batch (serial 21) ---------------------------------
+#
+# Twelve measured at 360x674 on the image as it stood -- 816 packages, waydroid
+# among them, because another session had been working in the guest and the
+# skill says to ask before powering somebody's VM down rather than decide for
+# them. Costs below are relative to that, which is what sweep-cost.sh's header
+# records.
+#
+# Four listed, one deferred, seven rejected. The rejections are the finding:
+# linking libadwaita is a much weaker signal than declaring 360, and most of
+# what it turns up is a desktop app in a phone-sized window. Three of the seven
+# were clipped, two mapped no window at all, and one ships no .desktop file.
+
+[lightsoff]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "One package, 550 KB, and a five-by-five grid of tiles that are all well over 44 logical px. Themed 0.74. The only one of the four whose shot shows the game actually in play."
+
+[gnome-mines]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "One package, 250 KB -- the cheapest thing measured in either sweep. Opens on four difficulty tiles big enough to hit, header bar complete. Themed 0.77."
+
+[iagno]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "One package, 620 KB. Full-width buttons for game type, colour and difficulty. Themed 0.79, the highest in the batch. Its header bar carries no title, which is Adwaita's choice and not a clip."
+
+[swell-foop]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = """
+One package, 690 KB, and a welcome screen with a single Let's Play button.
+Themed 0.79. Two icons in the header bar render as missing-glyph boxes under
+this image's icon theme -- cosmetic, and the buttons still work, but it is the
+one blemish among the four.
+"""
+
+[simple-scan]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "tight"
+reason = """
+Runs, themes properly (0.80), and costs 10 packages and 9.09 MB against
+skanpage's 38 and 98.06 -- so if scanning ever matters here, this is the answer
+and skanpage is not. Deferred rather than listed for the same reason skanpage
+was: nobody can say it works without a scanner, and what the shot shows is "No
+Scanners Detected". Tight rather than fits because the header bar is crowded
+enough to ellipsise its own title to "Docum...".
+"""
+
+[satty]
+date = 2026-09-12
+outcome = "rejected"
+reason = """
+Ships no .desktop file at all -- `pacman -Ql satty` lists none -- so it cannot
+appear in the drawer and the store's Open button would have nothing to launch.
+Run bare it exits with "a value is required for '--filename <FILENAME>'",
+because it is the annotation half of a `grim | satty -f -` pipeline rather than
+an app. The one app-shaped repo package the widened AUR pass turned up, and it
+turns out not to be app-shaped.
+"""
+
+[spectacle]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "no-window"
+reason = """
+42 packages and 120.67 MB, and no window within 180s -- tried twice, the second
+time at three times the default patience, after haruna taught this harness that
+a slow app is not a broken one. It is KDE's screenshot tool and wants a portal
+this image does not run. The Kirigami tax again: neochat 101.82, koko 104.70,
+maui-station 96.11, and now 120.67 for nothing on screen.
+"""
+
+[gajim]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "clipped"
+reason = """
+Content is wider than the window: the credentials line, both fields and both
+buttons run off the right edge. What it opens on is a login wall, which sells
+nothing even where it fits. 36 packages and 15.82 MB against Dino, already
+listed, which answers XMPP and fits. The light relaunch mapped no window, so
+there is no theme reading either.
+"""
+
+[planify]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "clipped"
+reason = """
+The close button is cut off by the window edge and the content pane is offset
+past the right-hand side -- a sidebar layout that has not collapsed. Its empty
+state reads "Press 'a' to create a new task", which is a keyboard this device
+has to raise over the list. Errands and Endeavour are listed and both fit.
+"""
+
+[gpaste]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "clipped"
+reason = """
+A two-pane desktop layout forced into 360: the right pane's "Empty" runs off
+the edge mid-word and three header icons render as missing-glyph boxes. One
+package and 270 KB, which is the only good thing about it. Clipboard Plus is
+already listed for this, is built for the shell, and browses by touch.
+"""
+
+[contrast]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "fits"
+reason = """
+Fits perfectly and is still not a phone app, which is exactly what kontrast was
+rejected for -- this is the GNOME one, same tool, same argument. It also
+measured the same way kontrast did: 0.248 reads "partial" because the app
+paints itself in the colours under test, so the diff is describing the swatches
+rather than the theme. It floats at 360x280 instead of tiling, which is its own
+statement about what it thinks it is.
+"""
+
+[dragon]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "fits"
+themed = "no"
+reason = """
+Maps a clean 360x674 and draws a white app on a dark phone: RMSE 0.0418, which
+is the Qt noise floor to four decimal places, because the image ships gtk.css
+and gtk3.css templates and nothing for Qt. Its one control is a bordered button
+about 28 logical px tall, under the 44 the style guide asks for. 15 packages
+and 8.07 MB into a Media category that already has twenty-three entries,
+Celluloid and Showtime among them, both of which follow the theme.
+"""

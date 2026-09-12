@@ -383,11 +383,22 @@ fi
 
 # A light shot identical to the dark one is a duplicate of a thing that did
 # not happen. Keep it only when the app actually responded.
-SHOTS="[\"$PKG-dark.png\", \"$PKG-light.png\"]"
-if [ "$THEMED" = "no" ]; then
-  rm -f "$LIGHT"; SHOTS="[\"$PKG-dark.png\"]"
+if [ "$THEMED" = "no" ] && [ -f "$LIGHT" ]; then
+  rm -f "$LIGHT"
   note "dropped the light shot: it is the dark one"
 fi
+# Report the shots that EXIST, not the two this was hoping for. When the
+# relaunch under the light theme maps no window -- gajim does exactly this --
+# no light shot is written, and the old hardcoded pair put a filename into
+# metadata.toml that lint-catalogue.py then rejected for not being on disk. An
+# entry claiming evidence it has not got is the one thing this harness must
+# never produce, so the disk is the only source allowed to answer.
+SHOTS=$(python3 -c '
+import json, pathlib, sys
+d, pkg = pathlib.Path(sys.argv[1]), sys.argv[2]
+print(json.dumps([f"{pkg}-{mode}.png" for mode in ("dark", "light")
+                  if (d / f"{pkg}-{mode}.png").exists()]))
+' "$REPO_ROOT/screenshots" "$PKG")
 
 close_it
 [ "$KEEP" = 1 ] || "$SSH" "sudo pacman -Rns --noconfirm -- $PKG" >/dev/null 2>&1 || true

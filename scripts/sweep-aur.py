@@ -6,6 +6,7 @@
     ./scripts/sweep-aur.py --limit 200
     ./scripts/sweep-aur.py --refresh        # re-download the AUR metadata
     ./scripts/sweep-aur.py --why <pkg>      # why one package scored what it did
+    ./scripts/sweep-aur.py --limit 0        # all of them, not the first 80
 
 Read scripts/sweep-discover.py first: the repos are the better hunting ground
 and this is the harder one, for two reasons worth stating before anyone trusts
@@ -29,10 +30,24 @@ taken.
 
 The strongest inference available is the dependency list, which is the same
 signal the serial-3 repo sweep used: libadwaita and libhandy are GNOME's
-adaptive widget sets, Kirigami is Plasma Mobile's, and a package that links one
-of them was written by somebody who had narrow screens in mind. After that come
-the phone projects by name -- a package that says PinePhone, Phosh or
-postmarketOS is telling you exactly what it is for.
+adaptive widget sets, Kirigami is Plasma Mobile's, MauiKit is Nitrux's, and a
+package that links one of them was written by somebody who had narrow screens
+in mind. After that come the phone projects by name -- a package that says
+PinePhone, Phosh or postmarketOS is telling you exactly what it is for.
+
+**The R column is the reason to run this.** A candidate that is also in the
+aarch64 repos installs through the helper, and `sweep-discover.py` cannot see
+it if it ships no AppStream metainfo. That is where Komikku, Marknote and
+Filelight came from, and it is the one thing this script produces that can
+become an entry. Everything else is a survey.
+
+A second pass over 119,292 packages found that vein close to worked out: 27
+never-judged repo packages carry a mobile signal and 26 are libraries, daemons,
+Plasma components or flashing tools. The one app is satty. What the second pass
+did find was five holes in this filter, each now fixed and commented where it
+sits -- the `--limit` that hid 90% of its own output, AUR liveness flags
+sinking repo packages, `MakeDepends` never read, MauiKit missing from the
+table, and a `DESKTOP_WORDS` regex that scored every terminal emulator -40.
 """
 
 from __future__ import annotations
@@ -49,6 +64,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import sweepdb  # noqa: E402
+import syncdb  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "moarchy-store-sweep"
@@ -61,6 +77,11 @@ ADAPTIVE_DEPS = {
     "libhandy": 45, "libhandy1": 45, "libhandy-git": 45,
     "kirigami": 45, "kirigami2": 45, "kirigami6": 45,
     "kirigami-addons": 45, "kirigami-addons-git": 45,
+    # MauiKit is the third one, and it was missing: Nitrux's convergent set,
+    # built on Kirigami, and the reason maui-station and maui-pix were only
+    # ever found by their descriptions.
+    "mauikit": 45, "mauikit-filebrowsing": 45, "mauikit-texteditor": 45,
+    "kirigami-app-components": 45,
 }
 # Qt Quick alone is not evidence of anything -- a QML desktop app looks the same
 # from here -- but it is the substrate every Plasma Mobile app sits on, so it is
@@ -74,13 +95,23 @@ PHONE_TERMS = {
     "phosh": 55, "plasma mobile": 55, "plasma-mobile": 55,
     "postmarketos": 55, "mobian": 50, "sailfish": 25, "ubuntu touch": 40,
     "furios": 45, "glacier": 30,
+    # The projects the first pass could not say. Worth ~15 rows between them,
+    # which is honest about how small these communities are in the AUR.
+    "linux phone": 50, "mobile linux": 50, "linux mobile": 50,
+    "droidian": 45, "pinetab": 45, "nemomobile": 45, "nemo mobile": 45,
+    "sxmo": 50, "lomiri": 40, "ubports": 40,
 }
 # Weaker, and easy to say about anything, so they are worth much less.
 MOBILE_TERMS = {
     "convergent": 35, "convergence": 30, "adaptive": 25, "mobile-friendly": 35,
     "for mobile": 30, "mobile devices": 25, "touch-friendly": 30,
     "touchscreen": 25, "small screens": 35, "phone": 20, "handheld": 20,
+    "one-handed": 30, "narrow screen": 35, "small screen": 35,
 }
+# Deliberately absent, having been measured: "thumb" matches 141 packages and
+# every one of them is a thumbnailer, and "tablet" matches 138, mostly drawing
+# tablets and their DKMS modules. A term that mostly fires on the wrong thing
+# costs more reviewer time than it saves.
 
 # Not applications, whatever they depend on.
 NOT_APPS = re.compile(
@@ -98,7 +129,7 @@ DESKTOP_WORDS = re.compile(
     r"display manager|screensaver|bootloader|virtual machine|hypervisor|"
     r"cross-compil|toolchain|language server|build system|panel|taskbar|"
     r"systray|dock|conky|polybar|waybar|rofi|dmenu|wine|proton|"
-    r"package manager|aur helper|game launcher|steam|openxr|monado|vr |racing|emulator|gamepad|joystick|rad tool|screencast|miracast|hamachi|vpn gateway|pipewire volume|noise reduction|soundboard|sound pad|audio router|surround|libalpm|patched to bring)\b", re.I)
+    r"package manager|aur helper|game launcher|steam|openxr|monado|vr |racing|game emulator|console emulator|gamepad|joystick|rad tool|screencast|miracast|hamachi|vpn gateway|pipewire volume|noise reduction|soundboard|sound pad|audio router|surround|libalpm|patched to bring)\b", re.I)
 
 # The thing this filter gets wrong if left alone. Searching for "phosh" and
 # "Plasma Mobile" finds the phone software that scores highest of all -- and
@@ -135,10 +166,10 @@ def known() -> tuple[set[str], set[str]]:
     return sweepdb.catalogued(), sweepdb.skip()
 
 
-def repo_packages() -> set[str]:
-    """Everything the AppStream catalogue knows about, so an AUR package that
-    duplicates a repo one can be dropped: the repo version installs through the
-    helper and this one cannot."""
+def appstream_packages() -> set[str]:
+    """Everything `sweep-discover.py` can already see, so an AUR package that
+    duplicates one is dropped: the repo version installs through the helper,
+    this one cannot, and the other sweep is already offering it."""
     try:
         spec = ROOT / "scripts" / "sweep-discover.py"
         import importlib.util
@@ -150,6 +181,23 @@ def repo_packages() -> set[str]:
         return set()
 
 
+def repo_packages() -> set[str]:
+    """Everything installable on aarch64, which is a different question.
+
+    These two sets were one set, and conflating them cost the first run its
+    main finding. A name in the repos but not in AppStream is not a duplicate
+    to drop -- it is the single most valuable row this script produces, because
+    it installs through the helper and the other sweep is structurally blind to
+    it. Komikku, Marknote and Filelight were all of this shape.
+    """
+    try:
+        return syncdb.names()
+    except Exception as exc:
+        print(f"no sync database ({exc}); "
+              f"repo cross-reference is off", file=sys.stderr)
+        return set()
+
+
 def base_name(name: str) -> str:
     """`foo-git`, `foo-bin` and `foo` are one program with three packagings."""
     for suffix in ("-git", "-bin", "-beta", "-stable", "-appimage", "-nightly"):
@@ -158,12 +206,17 @@ def base_name(name: str) -> str:
     return name
 
 
-def score(pkg: dict) -> tuple[int, list[str]]:
+def score(pkg: dict, in_repos: frozenset[str] = frozenset()) -> tuple[int, list[str]]:
     name = pkg["Name"]
     desc = (pkg.get("Description") or "").lower()
     keywords = " ".join(pkg.get("Keywords") or []).lower()
     url = (pkg.get("URL") or "").lower()
     deps = {re.split(r"[<>=]", d)[0] for d in (pkg.get("Depends") or [])}
+    # Read at half weight, because they are a weaker statement: a package can
+    # build against libadwaita and ship a CLI. 46 packages name an adaptive
+    # toolkit here and nowhere else, and the first pass could not see any.
+    build = {re.split(r"[<>=]", d.split(":")[0])[0]
+             for d in (pkg.get("MakeDepends") or []) + (pkg.get("OptDepends") or [])}
     haystack = f"{desc} {keywords} {url}"
 
     points, why = 0, []
@@ -173,6 +226,10 @@ def score(pkg: dict) -> tuple[int, list[str]]:
         hit = next(d for d in deps if ADAPTIVE_DEPS.get(d, 0) == best_dep)
         points += best_dep
         why.append(f"depends on {hit} (+{best_dep})")
+    elif best_build := max((ADAPTIVE_DEPS.get(d, 0) for d in build), default=0):
+        hit = next(d for d in build if ADAPTIVE_DEPS.get(d, 0) == best_build)
+        points += best_build // 2
+        why.append(f"builds against {hit} (+{best_build // 2})")
     elif deps & QUICK_DEPS:
         points += 10
         why.append("depends on Qt Quick (+10)")
@@ -203,9 +260,17 @@ def score(pkg: dict) -> tuple[int, list[str]]:
         points += weight
         why.append(f"last touched {age}d ago ({weight:+d})")
 
+    # An orphaned, out-of-date AUR submission says nothing whatever about the
+    # repo package of the same name, which somebody else maintains. 162
+    # candidates were sunk by orphaning and 85 by the out-of-date flag, and the
+    # ones that matter here are exactly the ones the repos also carry.
+    packaged = base_name(name) in in_repos or name in in_repos
+    if packaged:
+        why.append("in the aarch64 repos (AUR liveness ignored)")
+
     for condition, weight, reason in (
-        (pkg.get("OutOfDate"), -25, "flagged out of date"),
-        (not pkg.get("Maintainer"), -20, "orphaned"),
+        (pkg.get("OutOfDate") and not packaged, -25, "flagged out of date"),
+        (not pkg.get("Maintainer") and not packaged, -20, "orphaned"),
         (NOT_APPS.search(name) or NOT_APPS_PREFIX.match(name), -60,
          "named like a library or asset"),
         (DESKTOP_WORDS.search(desc), -40, "described as desktop infrastructure"),
@@ -261,9 +326,10 @@ def main() -> int:
     packages = aur_packages(args.refresh)
 
     if args.why:
+        in_repos = frozenset(repo_packages())
         for pkg in packages:
             if pkg["Name"] == args.why:
-                points, why = score(pkg)
+                points, why = score(pkg, in_repos)
                 print(f"{pkg['Name']}  score {points}")
                 print(f"  {pkg.get('Description')}")
                 print(f"  depends: {', '.join(pkg.get('Depends') or []) or '(none listed)'}")
@@ -274,22 +340,26 @@ def main() -> int:
         return 1
 
     listed, judged = known()
-    in_repos = repo_packages() if not args.all else set()
+    in_repos = frozenset(repo_packages())
+    visible = appstream_packages() if not args.all else set()
 
     rows = []
     for pkg in packages:
-        points, why = score(pkg)
+        points, why = score(pkg, in_repos)
         if points < args.min_score:
             continue
         name = pkg["Name"]
+        stem = base_name(name)
         if not args.all:
-            stem = base_name(name)
             if {name, stem} & (listed | judged):
                 continue
-            if {name, stem} & in_repos:
+            # Dropped because the other sweep already offers it, NOT because it
+            # is in the repos -- being in the repos is the interesting case.
+            if {name, stem} & visible:
                 continue
         rows.append({
             "pkg": name, "score": points, "why": why,
+            "in_repos": bool({name, stem} & in_repos),
             "description": pkg.get("Description") or "",
             "url": pkg.get("URL") or "", "votes": pkg.get("NumVotes", 0),
             "popularity": round(pkg.get("Popularity", 0), 3),
@@ -311,15 +381,33 @@ def main() -> int:
         print()
         return 0
 
+    shown = rows[: args.limit] if args.limit else rows
     print(f"{'package':34} {'sc':>3} {'votes':>5} {'updated':>10}  description")
     print("-" * 110)
-    for row in rows[: args.limit]:
-        flag = "!" if (row["out_of_date"] or row["orphaned"]) else " "
+    for row in shown:
+        flag = ("R" if row["in_repos"] else
+                "!" if (row["out_of_date"] or row["orphaned"]) else " ")
         print(f"{row['pkg'][:34]:34} {row['score']:3} {row['votes']:5} "
               f"{row['last_modified']:>10} {flag} {row['description'][:52]}")
-    print(f"\n{min(len(rows), args.limit)} of {len(rows)} candidates "
+    print(f"\n{len(shown)} of {len(rows)} candidates "
           f"(from {len(packages):,} AUR packages)")
+    if len(rows) > len(shown):
+        # The quiet failure of the first run: 980 rows cleared the bar, 80 were
+        # printed, and nothing said so. A sweep that hides 90% of its own
+        # output reads exactly like a sweep that found nothing.
+        print(f"{len(rows) - len(shown)} more not shown -- --limit 0 for all")
     print("! = orphaned or flagged out of date")
+
+    # The rows worth the reviewer's time, and the reason to run this at all.
+    packaged = [r for r in rows if r["in_repos"]]
+    if packaged:
+        print(f"\nR = in the aarch64 repos and not in AppStream, so it installs "
+              f"through the helper\n    and sweep-discover.py cannot see it "
+              f"({len(packaged)} of them, the listable half):")
+        for row in packaged[:20]:
+            # The repo name, not the AUR one: `satty-git` is what the AUR calls
+            # it and `satty` is what goes in the queue and the allowlist.
+            print(f"  {base_name(row['pkg'])[:30]:30} {row['description'][:60]}")
     report_deferred()
     return 0
 

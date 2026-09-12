@@ -1,0 +1,23 @@
+# serial 21 batch. Twelve, chosen for what the catalogue is missing rather than
+# for score: there was no screenshot tool at all, and Games held four entries.
+#
+# satty comes from the widened AUR pass -- the one app-shaped repo package left
+# in that vein. The other eleven come from sweep-discover.py --links: they link
+# an adaptive toolkit and declare neither 360 nor touch, so the declaration
+# filter could never see them.
+#
+# The four games are the four that are played by tapping. gnome-nibbles and
+# gnome-robots link libadwaita too and are driven by arrow keys, which is a
+# keyboard this device raises over the board.
+satty
+spectacle
+simple-scan
+gajim
+planify
+gpaste
+gnome-mines
+iagno
+swell-foop
+lightsoff
+contrast
+dragon
