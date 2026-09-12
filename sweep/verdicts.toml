@@ -805,9 +805,44 @@ reason = "Rejected once already as desktop-shaped; LinuxPhoneApps rates its Kiri
 
 
 [shattered-pixel-dungeon]
-date = 2026-09-12
-outcome = "rejected"
-reason = "Not run. 188.47 MB for one roguelike, most of it a Java runtime."
+date     = 2026-09-12
+outcome  = "deferred"
+adaptive = "tight"
+reason   = """
+Rejected once on cost without being run. Run now, and the cost is confirmed --
+6 packages, 188.47 MB, of which jdk-openjdk is all but 48 -- but that is no
+longer the interesting part.
+
+**It does not launch from its desktop entry.** aarch64 ships 3.0.2, and
+`gtk-launch shattered-pixel-dungeon` never maps a window. The harness reported
+no-window twice, at WAIT=180 and again at WAIT=420, and it was right both
+times: GLFW takes the Wayland backend, the game calls setFullscreenMode on
+startup, and glfwGetWindowPos is GLFW_FEATURE_UNAVAILABLE there --
+"Wayland: The platform does not provide the window position" -- so it throws in
+Lwjgl3Application.loop and the process sits there forever with nothing on
+screen. One variable separates the two outcomes: the same gtk-launch under
+`env -u WAYLAND_DISPLAY` lands on XWayland and logs no error at all.
+
+This is not the ARM problem it looks like. LWJGL loads its arm64 natives
+without complaint, which is more than Mindustry manages.
+
+4.0.0 fixes it, and the package is `arch = any`, so this is Arch Linux ARM sync
+lag rather than a dead end -- Arch has 4.0.0-1 while aarch64 sits on 3.0.2-1.
+Installed by hand from the Arch mirror, 4.0.0 launches from the same desktop
+entry, on the same Wayland session, with an empty log. The guest was put back
+afterwards.
+
+The game itself is the best fit for this screen the catalogue has found. The
+window is 360x720 of portrait pixel art, it is played by tapping the map, and
+the bottom toolbar runs about 45 logical px. Two caveats for whoever lists it:
+the journal and menu buttons in the top right are nearer 32, under the 44 px
+floor, which is the `tight`; and it takes the panel at [0, 0], so omarchy's top
+bar is gone while you play.
+
+Deferred rather than listed because the store would install 3.0.2 today and
+ship an Install button for an icon that does nothing. Revisit when aarch64
+carries 4.0.0.
+"""
 
 [nautilus]
 date     = 2026-09-12
