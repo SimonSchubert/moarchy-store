@@ -55,7 +55,8 @@ VOCAB: dict[str, set[str]] = {
                "Timetables", "GPS"},
     "Files": {"Archives", "Search", "Thumbnails", "Network shares", "Trash"},
     "Utilities": {"TOTP", "HOTP", "Backup", "Sync", "Offline", "Encryption",
-                  "QR codes", "Unit conversion", "Alarms", "Timers"},
+                  "QR codes", "Unit conversion", "Alarms", "Timers",
+                  "Disk usage", "Remote desktop", "File transfer"},
     "Web": {"Ad blocking", "Reader mode", "Sync", "Extensions"},
     "Phone": {"SMS", "MMS", "Calls", "Contacts", "Voicemail"},
     "Notes": {"Markdown", "Sync", "Encryption", "Offline", "Tags"},
@@ -173,6 +174,33 @@ def main() -> int:
             referenced.add(shot)
             if not (shots_dir / shot).exists():
                 err(f"{entry.get('name')}: screenshot {shot} is not in screenshots/")
+
+    # --- sweep/verdicts.toml ----------------------------------------------
+    # The notebook and the catalogue have to agree about what shipped, or the
+    # notebook stops being usable as a reason to skip re-testing something.
+    verdicts_path = ROOT / "sweep" / "verdicts.toml"
+    if verdicts_path.exists():
+        with verdicts_path.open("rb") as fh:
+            verdicts = tomllib.load(fh)
+        for ident, entry in verdicts.items():
+            if not isinstance(entry, dict):
+                continue
+            outcome = entry.get("outcome", "")
+            if outcome not in ("listed", "rejected", "deferred"):
+                err(f"verdicts.toml [{ident}]: outcome {outcome!r} is not "
+                    "listed, rejected or deferred")
+            if outcome == "listed" and ident not in idents:
+                err(f"verdicts.toml says {ident} is listed, but it is not in catalogue.toml")
+            if outcome in ("rejected", "deferred") and ident in idents:
+                err(f"verdicts.toml says {ident} is {outcome}, but catalogue.toml lists it")
+            if outcome == "rejected" and not entry.get("reason", "").strip():
+                err(f"verdicts.toml [{ident}]: rejected without a reason")
+        # Most of the catalogue predates the notebook, so this is a count
+        # rather than 62 separate warnings. It should fall over time.
+        missing = [i for i in idents if i not in verdicts]
+        if missing:
+            warn(f"{len(missing)} catalogued apps have no verdict recorded yet "
+                 f"(e.g. {', '.join(sorted(missing)[:3])})")
 
     total = 0
     for path in sorted(shots_dir.glob("*.png")):

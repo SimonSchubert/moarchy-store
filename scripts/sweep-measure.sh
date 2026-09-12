@@ -117,8 +117,13 @@ osk_down() {
 }
 
 launch_and_wait() {
+  # 60s, not 30. Two apps in the first AUR batch were recorded as "no-window"
+  # and then turned up on screen minutes later, still running after the script
+  # had given up and uninstalled them: plasma-camera and haruna are simply slow
+  # to start on this hardware. A timeout is a statement about patience, so the
+  # verdict it produces says "no window within 60s", never "does not launch".
   "$SSH" "$E setsid -f gtk-launch $ID >/tmp/sweep-$PKG.log 2>&1; \
-    for i in \$(seq 1 30); do sleep 1; \
+    for i in \$(seq 1 60); do sleep 1; \
       hyprctl -j clients | jq -e --arg c '$CLASS' 'any(.initialClass==\$c or .class==\$c)' >/dev/null && exit 0; \
     done; exit 1" >/dev/null 2>&1
 }
@@ -167,11 +172,28 @@ close_it() {
   return 0
 }
 
+# The geometry the last shot was actually taken at. The theme diff is only
+# meaningful if both shots were the same shape -- see shoot().
+SHOT_GEOM=""
+
 shoot() {  # shoot <theme> <outfile>
   "$SSH" "$E omarchy-theme-set $1" >/dev/null 2>&1 || { fail "no theme $1"; return 1; }
   close_it; sleep 2
   launch_and_wait || return 1
-  osk_down || { fail "the keyboard is up -- refusing to shoot a 360x474 window"; return 1; }
+
+  # Settle: an app that focuses a text field on startup raises the keyboard
+  # *after* the window maps, so checking once and shooting is not enough. Lower
+  # it, wait for the window to grow back, and only then shoot.
+  local geom=""
+  for _ in 1 2 3; do
+    osk_down || true
+    sleep 1
+    geom=$(window_geometry)
+    case "$geom" in *'"size":[360,674]'*|*'"size": [360, 674]'*) break ;; esac
+    sleep 1
+  done
+  SHOT_GEOM=$geom
+
   sleep 2   # let it finish its first paint
   "$VM/scripts/vm-screenshot.sh" "$2" >/dev/null
 }
@@ -202,18 +224,28 @@ print(json.dumps({
 PY
   exit 0
 fi
-GEOM=$(window_geometry)
+GEOM=$SHOT_GEOM
+DARK_GEOM=$SHOT_GEOM
 note "mapped at $GEOM"
 
 # --- 4. light, with the relaunch that makes it mean anything ----------------
 note "switching to $LIGHT_THEME and relaunching"
 shoot "$LIGHT_THEME" "$LIGHT" || fail "no light shot"
+LIGHT_GEOM=$SHOT_GEOM
 
 # --- 5. did it actually recolour? -------------------------------------------
 # Compare only the app's own rectangle. The 26px bar at the top is the shell's
 # and is always themed; leaving it in reports every app as following the theme.
-THEMED=unknown; RMSE=""
-if [ -f "$DARK" ] && [ -f "$LIGHT" ]; then
+THEMED=unknown; RMSE=""; THEME_NOTE=""
+# Both shots must be the same shape, or the diff is comparing different parts
+# of two different layouts. KleverNotes measured "themed" at RMSE 0.23 purely
+# because it raised the keyboard for the dark shot and not the light one: the
+# windows were 474 and 674 tall, one crop was applied to both, and the number
+# described the misalignment rather than the palette.
+if [ -n "$DARK_GEOM" ] && [ "$DARK_GEOM" != "$LIGHT_GEOM" ]; then
+  THEME_NOTE="the two shots are different shapes ($DARK_GEOM vs $LIGHT_GEOM); no diff taken"
+  fail "$THEME_NOTE"
+elif [ -f "$DARK" ] && [ -f "$LIGHT" ]; then
   CROP=$(python3 - "$GEOM" <<'PY'
 import json, sys
 try:
@@ -232,9 +264,14 @@ PY
     # script the moment an app turns out to be themed.
     RMSE=$(magick compare -metric RMSE /tmp/sweep-d.png /tmp/sweep-l.png null: 2>&1 \
            | sed -n 's/.*(\([0-9.]*\)).*/\1/p' || true)
+    # Thresholds from measurement, not taste. Apps that follow the theme land
+    # far away from those that do not: Foliate 0.80 and gnome-calculator 0.66
+    # against KleverNotes 0.042 and marble-maps 0.071, both Kirigami and both
+    # structurally unable to follow it. The gap is an order of magnitude, so the
+    # band between 0.10 and 0.25 is genuinely "look at it yourself".
     THEMED=$(python3 -c "
 v = float('${RMSE:-0}')
-print('yes' if v > 0.15 else 'no' if v < 0.03 else 'partial')")
+print('yes' if v > 0.25 else 'no' if v < 0.10 else 'partial')")
     note "RMSE $RMSE -> themed=$THEMED"
   fi
 fi
@@ -250,15 +287,17 @@ fi
 close_it
 [ "$KEEP" = 1 ] || "$SSH" "sudo pacman -Rns --noconfirm -- $PKG" >/dev/null 2>&1 || true
 
-python3 - "$PKG" "$ID" "$COST_PKGS" "$COST_MB" "$THEMED" "${RMSE:-}" "$GEOM" "$SHOTS" <<'PY'
+python3 - "$PKG" "$ID" "$COST_PKGS" "$COST_MB" "$THEMED" "${RMSE:-}" "$GEOM" "$SHOTS" \
+        "${THEME_NOTE:-}" <<'PY'
 import json, sys
-_, pkg, ident, pkgs, mb, themed, rmse, geom, shots = sys.argv
+_, pkg, ident, pkgs, mb, themed, rmse, geom, shots, note = sys.argv
 print(json.dumps({
   "pkg": pkg, "desktop_id": ident, "launch": "ok",
   "cost_pkgs": int(pkgs), "cost_mb": float(mb),
   "geometry": json.loads(geom) if geom and geom != "null" else None,
   # "mapped" and not "fits": nobody has looked at the picture yet.
   "adaptive": "mapped", "themed": themed, "rmse": float(rmse) if rmse else None,
+  "theme_note": note or None,
   "shots": json.loads(shots),
 }, indent=2))
 PY

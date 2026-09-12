@@ -73,10 +73,6 @@ date = 2026-08-01
 outcome = "rejected"
 reason = "Desktop-shaped three-pane mail client. Also wants an unlocked keyring, the same way Fractal does."
 
-[marknote]
-date = 2026-08-01
-outcome = "rejected"
-reason = "Duplicates Note Note and the notes entries already listed."
 
 [impression]
 date = 2026-08-01
@@ -93,30 +89,18 @@ date = 2026-08-01
 outcome = "deferred"
 reason = "Wants sensors the A64 does not expose. Worth re-asking on hardware that has them."
 
-[komikku]
-date = 2026-08-01
-outcome = "deferred"
-reason = "Comic reader, plausibly fine at 360px. Passed over for weight, not for fit -- worth measuring."
 
 [newsflash]
 date = 2026-08-01
 outcome = "rejected"
 reason = "Desktop-shaped feed reader. Alligator covers the category and is Kirigami-adaptive."
 
-[neochat]
-date = 2026-08-01
-outcome = "deferred"
-reason = "Matrix, and Kirigami, so it should fit -- but it costs the KDE Frameworks stack on a GNOME image, as Kaidan does. Fractal covers Matrix for 1 package."
 
 [okular]
 date = 2026-08-01
 outcome = "rejected"
 reason = "Desktop document viewer. Papers covers PDF at phone width."
 
-[koko]
-date = 2026-08-01
-outcome = "rejected"
-reason = "Duplicates Loupe, which is already listed."
 
 # --- The Omarchy plugin sweep -----------------------------------------------
 #
@@ -163,3 +147,271 @@ at comfortably over 44px a key, and nothing is clipped. A good calibration case
 because, unlike Foliate, its first run shows the real UI rather than an empty
 state.
 """
+
+# ===========================================================================
+# The AUR survey, 2026-09-12
+#
+# 119,247 AUR packages read from packages-meta-ext-v1.json.gz. The AUR ships no
+# AppStream data, so unlike the repo sweep there is no <display_length> to read
+# and the filter has to infer from dependencies, description and keywords:
+# scripts/sweep-aur.py.
+#
+# 277 packages either name a Linux-phone project (PinePhone, Phosh, Plasma
+# Mobile, postmarketOS, Mobian, Ubuntu Touch, sxmo, Librem 5) or link Kirigami,
+# once shell components, kernels, firmware and flashing tools are removed.
+#
+# The finding that mattered was not an AUR app at all: 51 of those 277 names
+# exist in the official repos. They had been missed here because
+# scripts/sweep-discover.py can only see packages that ship AppStream metainfo,
+# and these ship none -- the same blind spot that leaves kclock, plasma-dialer,
+# spacebar, livi and portfolio-file-manager without metadata today. Searching
+# the AUR turned out to be a way of finding repo packages.
+#
+# Nothing from the AUR itself is listed, and this is structural rather than a
+# judgement about quality: data/moarchy-store-helper execs `/usr/bin/pacman -S`,
+# so an AUR package cannot be installed through the store at all, and the
+# allowlist cannot cover it. Building one means makepkg running arbitrary
+# PKGBUILD code, which is a different privilege question from the one the polkit
+# action answers. The VM also has no base-devel, rust, meson or ninja, so
+# nothing here was built or run.
+#
+# Costs below are from scripts/sweep-cost.sh, taken in one pass against an image
+# with 840 packages installed. That matters: measured serially, klevernotes cost
+# 38 packages on a fresh image and 25 an hour later, the same app the same day.
+# ===========================================================================
+
+# --- Listed ----------------------------------------------------------------
+
+[komikku]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+reason   = """
+Deferred in the repo sweep for weight, which was wrong: 33 packages but only
+8.87 MB, because it wants the GTK stack this image already has. Fits 360x674,
+and follows the theme emphatically (RMSE 0.78) -- the only one of this batch
+that does. Fills a category nothing else covered.
+"""
+
+[marknote]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+reason   = """
+Rejected in the repo sweep as "duplicates Note Note", which was a mistake worth
+recording: Note Note is a shell plugin, so Notes had no actual application in
+it. 15 packages, 9.24 MB, single column at 360, and it draws its own light
+chrome under a dark shell like every Kirigami app here.
+"""
+
+[filelight]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+reason   = """
+21 packages, 11.81 MB. Three large touch targets on the welcome screen and a
+sunburst that is genuinely usable with a thumb. Worth having on a device where
+16 GB is the whole disk.
+"""
+
+# --- Measured and not listed -----------------------------------------------
+
+[klevernotes]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "clipped"
+reason   = """
+Convergent in its own description and not at 360. It draws a two-pane layout
+that does not collapse: the header title truncates to "Welco...", and the right
+pane is cut by the screen edge rather than folded away. A first-run storage
+dialog sits over all of it. 25 packages and 93.90 MB for that.
+
+It also produced the measurement bug that this batch fixed. KleverNotes focuses
+a text field at startup, so the keyboard rose *after* the window mapped and the
+dark shot was 360x474 while the light one was 360x674. One crop was computed
+from one geometry and applied to both, so the diff compared misaligned content
+and reported RMSE 0.23 -- "themed" -- for an app whose pixels are identical
+between the two themes. sweep-measure.sh now settles the window before shooting
+and refuses to diff a pair whose shapes differ.
+"""
+
+[marble-maps]
+date     = 2026-09-12
+outcome  = "deferred"
+adaptive = "fits"
+reason   = """
+The best-shaped map here: full-bleed OpenStreetMap with a single search field,
+designed for a phone rather than narrowed to one. But 48 packages and 131.92 MB
+against gnome-maps, which is already listed and costs almost nothing on this
+image. Worth listing the day someone wants offline routing enough to pay for it.
+"""
+
+[neochat]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "fits"
+reason   = """
+Deferred in the repo sweep on suspicion; now measured, and the suspicion was
+right. It fits 360 properly and its login screen is a good mobile layout, but it
+is 50 packages and 101.82 MB where Fractal covers Matrix for one package and no
+new dependency at all.
+"""
+
+[koko]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "fits"
+reason   = "Fits, but 44 packages and 104.70 MB for a gallery. Loupe is listed and costs nothing here."
+
+[maui-station]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "fits"
+reason   = "Convergent terminal, and it works -- but 37 packages and 96.11 MB where foot and QML Konsole are already listed."
+
+[kdeconnect]
+date     = 2026-09-12
+outcome  = "deferred"
+adaptive = "fits"
+reason   = """
+34 packages, 17.42 MB, and it runs. Deferred on a question rather than a
+measurement: KDE Connect pairs a phone with a desktop, and this device IS the
+phone, so what it is for here is the other end of a pairing. Worth listing if
+someone works out what that means on a moarchy device.
+"""
+
+[kalm]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "fits"
+reason = "Breathing exercises. 12 packages, 6.29 MB, fits. No category here wants it yet."
+
+[keepsecret]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "fits"
+reason = "Password manager, 6.48 MB, fits. Secrets and Authenticator already cover this, and both follow the theme."
+
+[komodo]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "fits"
+reason = "todo.txt task manager, 12 packages, 6.33 MB. Errands and Endeavour are listed; this is worth a look only if todo.txt matters to someone."
+
+[hash-o-matic]
+date = 2026-09-12
+outcome = "rejected"
+adaptive = "fits"
+reason = "Checksum comparison, 16 packages, 7.81 MB. A desktop errand; nobody verifies an ISO on a phone."
+
+[kontrast]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "fits"
+reason   = """
+A designer's contrast checker, not a phone app. Recorded because of how it
+measured: its whole UI is randomised colour swatches, so the two shots differ
+for reasons that have nothing to do with theming and the diff read 0.36 --
+"themed" -- for a Kirigami app that cannot be. The written caveat about clocks,
+maps and randomised content is this, observed.
+"""
+
+[haruna]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "unknown"
+reason = """
+First recorded as "no-window", and that was the tool being impatient rather
+than the app failing: haruna mapped a window minutes later, still running after
+sweep-measure.sh had given up at 30s and uninstalled it. The timeout is now 60s
+and the verdict it writes says "no window within 60s". 25 packages, 9.06 MB,
+and it wants re-measuring properly.
+"""
+
+[plasma-camera]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "unknown"
+reason = """
+Same impatience as haruna: recorded as "no-window", then found on screen after
+the script had moved on. It does start. Whether it does anything is a separate
+question the VM cannot answer, having no camera -- the same reason snapshot and
+qrca are unverifiable here.
+"""
+
+[kamoso]
+date = 2026-09-12
+outcome = "deferred"
+reason = "Not run: needs a camera the VM does not have. 36 packages, 95.30 MB, which is a lot to pay to find out."
+
+[skanpage]
+date = 2026-09-12
+outcome = "deferred"
+reason = "Not run: needs a scanner. 38 packages, 98.06 MB."
+
+[marble-behaim]
+date = 2026-09-12
+outcome = "rejected"
+reason = "A 1492 globe. 48 packages and 131.82 MB for a novelty."
+
+# --- AUR-only, surveyed and not installable --------------------------------
+#
+# Recorded so the next sweep does not re-find them. Each is a real phone app
+# that the store cannot offer, because the helper cannot install from the AUR.
+# If any of these matter enough, the answer is to get them into the repos --
+# not to weaken the allowlist.
+
+[goguma]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. An IRC client written for mobile devices, and Chat has no IRC entry at all. The best argument in this survey for repo packaging."
+
+[phonic]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. GTK audiobook player targeted at mobile Linux; Media has podcasts and music but no audiobooks."
+
+[osmin]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. Offline satellite navigation built for mobile, on-road and off-road."
+
+[caerbannog]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. A pass frontend suited to mobile; the only phone-shaped answer to a password store on disk."
+
+[geopard]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. Adaptive Gemini browser, libadwaita, actively maintained."
+
+[dsnote]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. Kirigami notes with offline speech-to-text, which is an unusual thing to have on a phone with no network."
+
+[watchmate]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. PineTime companion, written for Linux phones. Pairs with hardware a moarchy user plausibly owns."
+
+[millipixels]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. GTK3 camera that understands the Librem 5 sensor pipeline. Relevant only on that hardware."
+
+[plasma-phonebook]
+date = 2026-09-12
+outcome = "deferred"
+reason = "AUR only. Contacts for Plasma Mobile; gnome-contacts is listed and is cheaper here."
+
+[pinephone-compass]
+date = 2026-09-12
+outcome = "rejected"
+reason = "AUR only, GTK3, untouched since 2024-02, and it needs a magnetometer the VM has not got."
+
+[purism-stream]
+date = 2026-09-12
+outcome = "rejected"
+reason = "AUR only, orphaned, last touched 2023-02. A YouTube client built for the Librem 5 that nobody maintains."

@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 8
+serial = 9
 
 # --- Reading ---------------------------------------------------------------
 
@@ -710,6 +710,51 @@ toolkit = "kirigami"
 summary = "Mastodon client, Kirigami."
 icon = "org.kde.tokodon"
 tested = ""
+
+# --- Found by surveying the AUR ---------------------------------------------
+#
+# These three are repo packages, and that is the point of the detour. The AUR
+# was swept for phone apps -- 119,247 packages, 277 of which name a Linux-phone
+# project or link Kirigami -- and 51 of those turned out to exist in the
+# official repos already. They had been missed here because the AppStream sweep
+# (scripts/sweep-discover.py) can only see packages that ship metainfo, and
+# these ship none. Nothing from the AUR itself is listed, and cannot be: the
+# helper execs `pacman -S`, so an AUR entry would be a row with a button that
+# cannot work. sweep/verdicts.toml records the whole survey.
+#
+# All three were run at 360x674 on 2026-09-12 and the screenshots are those
+# runs. Only Komikku follows the theme; the two KDE apps draw their own light
+# chrome under a dark shell, which is what `themed` in metadata.toml is for.
+
+[[app]]
+pkg = "komikku"
+name = "Komikku"
+category = "Reading"
+toolkit = "libadwaita"
+summary = "Manga and comics, online or downloaded for the train. Follows your theme."
+icon = "info.febvre.Komikku"
+screenshot = "komikku-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "marknote"
+name = "Marknote"
+category = "Notes"
+toolkit = "kirigami"
+summary = "Markdown notebooks in one column. The first notes app here that is not a shell plugin."
+icon = "org.kde.marknote"
+screenshot = "marknote-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "filelight"
+name = "Filelight"
+category = "Utilities"
+toolkit = "kirigami"
+summary = "What is eating the disk, as a sunburst you can tap into. Useful when 16GB is all there is."
+icon = "org.kde.filelight"
+screenshot = "filelight-dark.png"
+tested = "omarchy-mobile-vm"
 
 # --- Omarchy shell plugins -------------------------------------------------
 #
