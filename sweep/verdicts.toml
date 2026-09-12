@@ -25,32 +25,6 @@
 # window at exactly that size and draw correctly in it. What the run turned up
 # was not about layout at all.
 
-[chatty]
-date     = 2026-09-12
-outcome  = "listed"
-adaptive = "fits"
-reason   = """
-Never launches from the drawer as shipped. Its entry is DBusActivatable, its
-D-Bus service names a systemd unit carrying Requisite=gnome-session-initialized
-.target, and outside a GNOME session that target does not exist -- so systemd
-refuses the unit and the launch fails silently: no window, no process, and
-gtk-launch still exiting 0. A user entry with DBusActivatable=false fixes it,
-3 launches out of 3 with one and 0 out of 3 without. This belongs to the image
-rather than to the app.
-"""
-
-[fractal]
-date     = 2026-09-12
-outcome  = "listed"
-adaptive = "fits"
-reason   = """
-Hangs where no keyring is unlocked: it wants org.freedesktop.secrets and the
-gcr prompt maps behind Fractal's own window, so it sits on "Fetching Account
-Data..." with nothing to click. Given a keyring it reaches its login screen and
-launches from the drawer normally. Geary has the same dependency and will have
-the same problem.
-"""
-
 [dino]
 date     = 2026-09-12
 outcome  = "listed"
@@ -460,21 +434,6 @@ The board fits the column and the pieces are tappable. But a fresh install says
 "No chess engine is installed", and the store cannot fix that -- an engine is a
 separate package that is not a dependency. An entry whose first run tells you it
 cannot do the thing is not ready to list.
-"""
-
-[gnome-calls]
-date     = 2026-09-12
-outcome  = "listed"
-adaptive = "unknown"
-reason   = """
-Listed as a suggestion -- tested = "" -- rather than a measured entry, and only
-because the repos left no alternative. It never maps a window here: its entry is
-DBusActivatable, the Chatty pattern, and it wants ModemManager and a modem the
-VM has not got. Untestable in a VM rather than broken.
-
-It is in because plasma-dialer went out. Arch Linux ARM no longer builds it for
-aarch64, and a phone store with no dialer at all is worse than one offering the
-only dialer that exists with an honest "not yet tested on a device" chip.
 """
 
 [songrec]
@@ -1095,32 +1054,6 @@ outcome = "listed"
 adaptive = "fits"
 reason = "A seven-column month grid with week numbers at 360px is as tight as that can be drawn, and it is legible. 0.51 MB."
 
-[snapshot]
-date = 2026-09-12
-outcome = "listed"
-adaptive = "unknown"
-reason = "Maps a 362x314 camera-permission dialog and stops, the VM having no camera. Stays listed and stays tested = \"\": unverifiable here, not broken."
-
-[qrca]
-date = 2026-09-12
-outcome = "listed"
-adaptive = "unknown"
-reason = "No window within 60s, and it wants a camera. Same as snapshot: a suggestion until someone runs it on hardware."
-
-[mpv]
-date = 2026-09-12
-outcome = "listed"
-adaptive = "unknown"
-reason = "Maps no window when launched with no file, which is what mpv is. Not a thing this harness can measure; it stays a suggestion."
-
-[audiotube]
-date = 2026-09-12
-outcome = "listed"
-adaptive = "unknown"
-reason = "No window within 60s, and 39 packages for 96.25 MB. PlasmaTube covers YouTube at the same price and does map. Worth re-running before the next publish."
-
-# --- The rest of the back catalogue, one line each ---------------------------
-
 [alligator]
 date = 2026-09-12
 outcome = "listed"
@@ -1407,3 +1340,100 @@ reason = "36 packages and 96.22 MB of MauiKit for a music player, where Amberol 
 date = 2026-09-12
 outcome = "rejected"
 reason = "44 packages and 132.72 MB for an image viewer. Loupe is listed and costs nothing here."
+
+# ===========================================================================
+# The pre-harness entries, re-measured 2026-09-12
+#
+# Sixteen entries were screenshotted on a PinePhone by hand before the harness
+# existed, carrying a picture and a device string and none of the fields the
+# harness produces. All were re-run at 360x674. The old pictures are kept:
+# `screenshot` still points at the hardware capture and the detail page shows
+# it after the theme-matched pair, because a PinePhone shot is stronger
+# evidence than anything the VM makes.
+#
+# `tested` is unchanged throughout. A VM run does not overwrite a hardware
+# claim, and sweep-record.py will not write that field at all.
+#
+# Every result here agrees with its toolkit -- eight libadwaita apps in the
+# 0.73-0.87 band, eight Kirigami apps at 0.008-0.094 -- which is the check that
+# caught the batch being wrong the first time round.
+# ===========================================================================
+
+[calindori]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "clipped"
+reason   = """
+The finding of this batch, and an uncomfortable one: it does not fit, and it
+carries tested = "pinephone-a64".
+
+The month view is a seven-column grid drawn wider than the screen. Monday and
+Sunday are cut off at both edges, "Saturday" reads "urday" and "September 2026"
+reads "otember 2026". Two days of the week are not visible. The PinePhone is
+360x720 as well, so it was clipped there too -- the original claim was that it
+ran, not that it fitted, and nobody had a picture to check.
+
+Left listed with adaptive = "clipped" rather than removed, so the detail page
+says "Does not fit 360px" and the decision is visible. A calendar you cannot
+see Sunday in is a poor entry in a catalogue whose premise is fitting, and
+whether it stays is a judgement rather than a measurement.
+"""
+
+[chatty]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = """
+Launched, which serial 7 recorded that it never does. That commit found its
+entry was DBusActivatable and its D-Bus service named a systemd unit requiring
+gnome-session-initialized.target, so the launch failed silently: 0 windows out
+of 3 attempts. It maps a window now and draws "Start Chatting" at 360x674.
+Either the image moved or the harness reaches it differently; recorded as an
+observation rather than an explanation, and the old finding is not deleted.
+"""
+
+[fractal]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = """
+Reached its login screen rather than hanging on "Fetching Account Data..." the
+way serial 7 saw. That was a keyring that would not unlock, with the gcr prompt
+mapped behind Fractal's own window -- a state the guest is evidently no longer
+in. 16.04 MB, and the most expensive of the three libadwaita messengers.
+"""
+
+[snapshot]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = """
+Maps a proper 360x674 window now, where before it stopped at a 362x314
+permission dialog. What it draws is "Missing Camera Permission -- allow camera
+usage in Settings", which is honest and is not much of an advertisement. It
+fits; whether it works still needs a device with a camera.
+"""
+
+[mpv]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "unknown"
+reason = "Still maps no window with nothing to play, at 120s. Not a thing this harness can measure."
+
+[qrca]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "unknown"
+reason = "Still no window at 120s, and it wants a camera. 24 packages for 11.58 MB."
+
+[audiotube]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "unknown"
+reason = "Still no window at 120s. 39 packages for 96.25 MB, and PlasmaTube covers YouTube at the same price and does map."
+
+[gnome-calls]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "unknown"
+reason = "Still no window at 120s. DBusActivatable, and wants a modem the VM has not got. Remains the only dialer in the repos."

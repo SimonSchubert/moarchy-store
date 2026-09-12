@@ -179,6 +179,12 @@ Calindori is a touch friendly calendar application. It has been designed for mob
 subcategory = "Calendar"
 homepage    = "https://apps.kde.org/calindori/"
 released    = "2026-09-10"
+cost_pkgs   = 17
+cost_mb     = 7.75
+adaptive    = "clipped"
+themed      = "no"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["calindori-dark.png"]
 
 [celluloid]
 subtitle    = "Plays videos"
@@ -202,6 +208,12 @@ Chats is a simple to use to messaging app for 1:1 communication and small groups
 subcategory = "Messaging"
 homepage    = "https://gitlab.gnome.org/World/Chatty"
 released    = "2026-02-28"
+cost_pkgs   = 1
+cost_mb     = 0.39
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["chatty-dark.png", "chatty-light.png"]
 
 [chess-clock]
 subtitle    = "Time games of over-the-board chess"
@@ -337,6 +349,12 @@ Dino is a modern open-source chat client for the desktop. It focuses on providin
 subcategory = "Messaging"
 homepage    = "https://dino.im"
 released    = "2025-04-11"
+cost_pkgs   = 1
+cost_mb     = 1.42
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["dino-dark.png", "dino-light.png"]
 
 [eartag]
 subtitle    = "Edit audio file tags"
@@ -390,6 +408,12 @@ desktop integration and a deliberately plain interface.\
 subcategory = "Browser"
 homepage    = "https://apps.gnome.org/Epiphany"
 released    = "2026-08-13"
+cost_pkgs   = 1
+cost_mb     = 3.59
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["epiphany-dark.png", "epiphany-light.png"]
 
 [errands]
 subtitle    = "Manage your tasks"
@@ -463,6 +487,12 @@ shots       = ["foliate-dark.png", "foliate-light.png"]
 [foot]
 subtitle    = "A wayland native terminal emulator (server)"
 description = "Fast, lightweight, and minimalistic Wayland terminal emulator"
+cost_pkgs   = 1
+cost_mb     = 0.3
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["foot-dark.png", "foot-light.png"]
 
 [fractal]
 subtitle    = "Chat on Matrix"
@@ -472,6 +502,12 @@ Fractal is a Matrix messaging app for GNOME written in Rust. Its interface is op
 subcategory = "Messaging"
 homepage    = "https://gitlab.gnome.org/World/fractal"
 released    = "2026-07-19"
+cost_pkgs   = 1
+cost_mb     = 16.04
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["fractal-dark.png", "fractal-light.png"]
 
 [fragments]
 subtitle    = "Manage torrents"
@@ -601,6 +637,12 @@ A simple and elegant clock application. It includes world clocks, alarms, a stop
 subcategory = "Clock"
 homepage    = "https://apps.gnome.org/Clocks/"
 released    = "2026-03-11"
+cost_pkgs   = 2
+cost_mb     = 2.04
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["gnome-clocks-dark.png", "gnome-clocks-light.png"]
 
 [gnome-console]
 subtitle    = "Terminal Emulator"
@@ -694,6 +736,12 @@ GNOME Text Editor is a simple text editor focused on a pleasing default experien
 subcategory = "Text"
 homepage    = "https://apps.gnome.org/TextEditor/"
 released    = "2026-05-10"
+cost_pkgs   = 1
+cost_mb     = 0.6
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["gnome-text-editor-dark.png", "gnome-text-editor-light.png"]
 
 [gnome-usage]
 subtitle    = "Analyse your system"
@@ -741,6 +789,12 @@ description = "Index allows you to navigate your computer and preview multimedia
 subcategory = "Files"
 homepage    = "https://mauikit.org/"
 released    = "2024-12-02"
+cost_pkgs   = 47
+cost_mb     = 98.91
+adaptive    = "fits"
+themed      = "no"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["index-fm-dark.png"]
 
 ["io.github.andreivinca.note-note"]
 description = """
@@ -828,6 +882,12 @@ description = "Kalk is a convergent calculator for Plasma."
 subcategory = "Calculator"
 homepage    = "https://apps.kde.org/kalk/"
 released    = "2026-09-10"
+cost_pkgs   = 14
+cost_mb     = 9.86
+adaptive    = "fits"
+themed      = "no"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["kalk-dark.png"]
 
 [kasts]
 subtitle    = "Podcast application"
@@ -863,6 +923,12 @@ subtitle    = "Two-factor code generator for Plasma Mobile and Desktop"
 description = "Keysmith generates tokens for your two-factor logins (2FA)"
 homepage    = "https://apps.kde.org/keysmith/"
 released    = "2026-09-10"
+cost_pkgs   = 14
+cost_mb     = 6.56
+adaptive    = "fits"
+themed      = "no"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["keysmith-dark.png"]
 
 [komikku]
 subtitle    = "Discover and read manga & comics"
@@ -925,6 +991,12 @@ A convergent weather application for Plasma. Has flat and dynamic/animated views
 """
 homepage    = "https://invent.kde.org/utilities/kweather"
 released    = "2026-09-10"
+cost_pkgs   = 28
+cost_mb     = 15.65
+adaptive    = "fits"
+themed      = "no"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["kweather-dark.png"]
 
 [lollypop]
 subtitle    = "Play and organize your music collection"
@@ -947,6 +1019,12 @@ Explore images, view their metadata, and make quick edits by cropping, rotating,
 """
 homepage    = "https://apps.gnome.org/Loupe/"
 released    = "2026-03-13"
+cost_pkgs   = 1
+cost_mb     = 1.8
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["loupe-dark.png", "loupe-light.png"]
 
 [marknote]
 subtitle    = "Write down your thoughts"
@@ -1056,6 +1134,12 @@ A document viewer for the GNOME desktop. You can view, search or annotate docume
 """
 homepage    = "https://apps.gnome.org/Papers"
 released    = "2026-05-25"
+cost_pkgs   = 1
+cost_mb     = 3.33
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["papers-dark.png", "papers-light.png"]
 
 [parla]
 subtitle    = "A Delta Chat client for GNOME"
@@ -1106,6 +1190,12 @@ Terminal application offering additional keyboard buttons useful on touch device
 """
 homepage    = "https://apps.kde.org/qmlkonsole"
 released    = "2026-09-10"
+cost_pkgs   = 12
+cost_mb     = 6.04
+adaptive    = "fits"
+themed      = "no"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["qmlkonsole-dark.png"]
 
 [qrca]
 subtitle    = "Scan and create QR-Codes"
@@ -1220,6 +1310,12 @@ description = "Take pictures and videos on your computer, tablet, or phone."
 subcategory = "Recording"
 homepage    = "https://apps.gnome.org/Snapshot/"
 released    = "2026-03-11"
+cost_pkgs   = 3
+cost_mb     = 1.51
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["snapshot-dark.png", "snapshot-light.png"]
 
 [solanum]
 subtitle    = "Balance working time and break time"
@@ -1374,3 +1470,10 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["wike-dark.png", "wike-light.png"]
 
+[kclock]
+cost_pkgs   = 28
+cost_mb     = 15.68
+adaptive    = "fits"
+themed      = "no"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["kclock-dark.png"]
