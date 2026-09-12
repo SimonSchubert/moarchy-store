@@ -154,10 +154,6 @@ WIDGETS = """
   border-radius: 13px;
 }
 
-.app-tile.large {
-  border-radius: 15px;
-}
-
 .app-tile.hero {
   border-radius: 26px;
 }
@@ -231,10 +227,11 @@ WIDGETS = """
   background-color: @card_bg_color;
 }
 
-/* The category grid, and the Editor's Choice cards beside it. Both are
- * buttons, so all three of background, border and box-shadow have to be said:
- * Adwaita gives a button a border drawn as a shadow, and setting only the
- * colour leaves a hairline outline around every tile.
+/* The two grids: fourteen categories on the front page, and the app cards
+ * under and after them. Both are buttons, so all three of background, border
+ * and box-shadow have to be said: Adwaita gives a button a border drawn as a
+ * shadow, and setting only the colour leaves a hairline outline around every
+ * tile.
  *
  * Off the foreground rather than @card_bg_color, which is what a card
  * elsewhere in this app uses. A theme is free to set lighter_background to the
@@ -243,7 +240,7 @@ WIDGETS = """
  * is just floating text. A fraction of currentColor is visible on every theme
  * by construction, which is the same reason .app-tile is drawn that way. */
 .category-tile,
-.pick-card {
+.app-card {
   background: alpha(currentColor, 0.07);
   background-image: none;
   border: none;
@@ -252,12 +249,12 @@ WIDGETS = """
 }
 
 .category-tile:hover,
-.pick-card:hover {
+.app-card:hover {
   background: alpha(currentColor, 0.12);
 }
 
 .category-tile:active,
-.pick-card:active {
+.app-card:active {
   background: alpha(currentColor, 0.18);
 }
 
@@ -277,16 +274,34 @@ WIDGETS = """
   font-size: 0.92em;
 }
 
-.pick-card {
-  padding: 12px;
+.app-card {
+  padding: 8px;
 }
 
-.pick-name {
+/* What sits behind a screenshot: while it is being fetched, and around one
+ * whose aspect does not quite fill the cell. A shade darker than the card so
+ * the picture reads as inset rather than as the card's own top edge. */
+.card-shot {
+  background-color: alpha(currentColor, 0.10);
+  border-radius: 12px;
+}
+
+.card-name {
   font-weight: bold;
+  font-size: 0.95em;
 }
 
-.pick-summary {
-  font-size: 0.85em;
+/* What the app supports, in the grid. Smaller and quieter than .meta-chip,
+ * which is the detail page's version of the same idea: there, three chips are
+ * the page's summary and can afford to be read; here, six cells' worth are on
+ * screen at once and they are a texture you scan, not a line you read. */
+.feature-pill {
+  color: @moarchy_dim;
+  font-size: 0.72em;
+  font-weight: bold;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background-color: alpha(currentColor, 0.14);
 }
 """
 

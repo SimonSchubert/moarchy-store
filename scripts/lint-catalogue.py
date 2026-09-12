@@ -194,17 +194,17 @@ def main() -> int:
         if entry.get("source") == "plugin" and entry.get("id") in packages:
             err(f"{entry['id']}: a plugin id also appears as a package")
 
-    # AppRow gives the summary two lines and then ellipsises it (window.py's
-    # set_subtitle_lines(2)). At 360px that is about 80 characters -- measured,
-    # not guessed: a 79-character summary renders in full and an 82 loses its
-    # last word. A
-    # summary longer than that loses its last clause on the one surface most
-    # people ever read.
+    # The summary is the detail page's one-liner, under the name and above the
+    # chips, and it is no longer cut off -- the grid replaced the list row that
+    # used to give it two lines and ellipsise the rest. The budget survives the
+    # change with a different reason: at 360px about 80 characters is two lines
+    # of that blurb, and every line past them pushes Install further below the
+    # fold on a 720px screen.
     for entry in entries:
         summary = entry.get("summary", "")
         if len(summary) > 80:
-            warn(f"{entry.get('name')}: summary is {len(summary)} chars and the "
-                 "list row shows about 80")
+            warn(f"{entry.get('name')}: summary is {len(summary)} chars and two "
+                 "lines under the app's name is about 80")
 
     serial = cat.get("serial")
     if not isinstance(serial, int):

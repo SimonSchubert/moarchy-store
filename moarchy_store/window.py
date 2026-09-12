@@ -57,12 +57,11 @@ def icon_name_for(app: App) -> str:
     return "application-x-executable-symbolic"
 
 
-# The three tile sizes, with the icon each one holds and the class that gives
-# it a radius in proportion. A fourth would need a fourth radius in theme.py,
-# so they are spelled out here rather than computed from a ratio.
+# The tile sizes, with the icon each one holds and the class that gives it a
+# radius in proportion. A third would need a third radius in theme.py, so they
+# are spelled out here rather than computed from a ratio.
 TILE_SIZES = {
-    48: (30, ""),        # a list row
-    56: (34, "large"),   # an Editor's Choice card
+    48: (30, ""),        # a grid card with no screenshot yet
     104: (60, "hero"),   # the detail page
 }
 
@@ -238,9 +237,9 @@ def category_tile(title: str, on_click) -> Gtk.Widget:
     and a word, and not enough for anything else, so the name ellipsises rather
     than wrapping a category into two lines of ragged text.
 
-    The count of what you already have lives on the category's own page, in the
-    header bar, and not here. A grid is a way in; a number under every door is
-    something to read before you can use one.
+    No count of what you already have, here or on the category's own page. A
+    grid is a way in; a number under every door is something to read before you
+    can use one.
     """
     icon = category_image(title, 24)
 
@@ -264,52 +263,188 @@ def category_tile(title: str, on_click) -> Gtk.Widget:
     return tile
 
 
-def pick_card(app: App, on_activate) -> Gtk.Widget:
-    """One app on the Editor's Choice shelf.
+def shot_for_theme(app: App) -> str:
+    """The one screenshot to lead with: the one matching the running theme.
 
-    A card in a column rather than a tile in a strip that scrolls sideways.
-    The strip was the first attempt and it looks better in a screenshot: one
-    card and a slice of the next, which is what every phone store does. It
-    also puts nine of the ten picks behind a horizontal swipe inside a
-    vertically scrolling page, and this is a device whose only pointer is a
-    thumb. A column costs nothing to discover.
-
-    Wide, because the summary is the whole reason the app is on the shelf: a
-    strip of bare icons would be the one surface in this store that says
-    "good" without saying why.
+    With no staged Omarchy theme there is no colors.toml to ask, so libadwaita
+    -- which is drawing this window in that case -- is asked instead. The
+    detail page orders the rest behind this one; a card only ever shows this.
     """
+    mode = theme.mode()
+    if not mode:
+        mode = "dark" if Adw.StyleManager.get_default().get_dark() else "light"
+    return app.shot_for(mode) or app.screenshot
+
+
+def card_pills(app: App) -> list[str]:
+    """What a card says under the name.
+
+    `features` first: that is the vocabulary the catalogue keeps for exactly
+    this question -- what an app opens, what it speaks -- and it is the only
+    field here that answers "what is this for" rather than "what is this".
+    `subcategory` stands in when there are none. It is a fact from the same
+    sweep and it is at least finer than the category whose page you are
+    already standing on.
+
+    Three at most. A 148px cell fits two on a line, and a third wrapping onto
+    a second is the most a cell carries before it is a paragraph again. The
+    detail page lists every one of them.
+    """
+    pills = [f for f in app.features if f]
+    if not pills and app.subcategory:
+        pills = [app.subcategory]
+    return pills[:3]
+
+
+def feature_pill(text: str) -> Gtk.Widget:
+    pill = Gtk.Label(label=text)
+    pill.add_css_class("feature-pill")
+    pill.set_ellipsize(Pango.EllipsizeMode.END)
+    pill.set_max_width_chars(16)
+    return pill
+
+
+# How tall a card's picture is, in logical pixels. A shot is 720x1440, so at
+# the ~148px a two-across grid leaves it, showing the whole thing would be
+# 296px of picture per card and one and a half rows on a 720px screen. This is
+# a window onto the middle of the shot instead -- roughly 3:4, which is enough
+# of an app to recognise it and short enough that four cards fit a screen.
+CARD_SHOT_HEIGHT = 190
+
+
+def card_shot(app: App) -> tuple[Gtk.Widget, Gtk.Picture]:
+    """The picture at the top of a card, with the app's icon showing through
+    until -- or unless -- a screenshot arrives.
+
+    The placeholder is the icon tile the list used to show anyway, so an app
+    with no screenshot in the catalogue, and a phone that is simply offline,
+    both get the old row's picture rather than a grey rectangle.
+
+    Overflow HIDDEN rather than CSS alone: border-radius on a widget rounds
+    the background it paints, and a GtkPicture's texture is not that -- an
+    unclipped shot puts four square corners inside a rounded card.
+    """
+    frame = Gtk.Overlay()
+    frame.add_css_class("card-shot")
+    frame.set_overflow(Gtk.Overflow.HIDDEN)
+    frame.set_size_request(-1, CARD_SHOT_HEIGHT)
+    frame.set_hexpand(True)
+
+    frame.set_child(app_tile(app, size=48))
+
+    picture = Gtk.Picture()
+    picture.set_can_shrink(True)
+    # COVER, so a portrait shot fills the width of the cell and is cropped
+    # top and bottom rather than letterboxed into a stripe down the middle.
+    picture.set_content_fit(Gtk.ContentFit.COVER)
+    frame.add_overlay(picture)
+
+    badge_icon, tip = "", ""
+    if app.installed:
+        badge_icon, tip = "object-select-symbolic", "Installed"
+    elif not app.available:
+        badge_icon, tip = "dialog-warning-symbolic", "Not found in the repositories"
+
+    if badge_icon:
+        glyph = Gtk.Image.new_from_icon_name(badge_icon)
+        glyph.set_pixel_size(12)
+        # The disc is a Box around the image, not the image itself. CSS
+        # min-width on a GtkImage fights the pixel size it was given, and GTK
+        # says so once per measure pass, per badge.
+        badge = Gtk.Box()
+        badge.append(glyph)
+        badge.add_css_class("installed-badge")
+        if not app.installed:
+            badge.add_css_class("warning")
+        badge.set_halign(Gtk.Align.END)
+        badge.set_valign(Gtk.Align.START)
+        badge.set_margin_top(6)
+        badge.set_margin_end(6)
+        badge.set_tooltip_text(tip)
+        frame.add_overlay(badge)
+
+    return frame, picture
+
+
+def app_card(app: App, on_activate) -> Gtk.Widget:
+    """One app in the grid: what it looks like, what it is called, what it does.
+
+    This replaced a row with a 48px icon, and the reason is that an icon is the
+    one thing about a phone app that says nothing useful. Three quarters of
+    this catalogue is GNOME, so three quarters of the icons were a rounded
+    square in the same palette, and the row's real content was the summary
+    beside it -- a paragraph you had to read to tell two apps apart. A
+    screenshot answers "what is this" before you have read anything.
+    """
+    frame, picture = card_shot(app)
+
     name = Gtk.Label(label=app.name, xalign=0)
-    name.add_css_class("pick-name")
+    name.add_css_class("card-name")
     name.set_ellipsize(Pango.EllipsizeMode.END)
+    # Without this a long name asks for its full width as the cell's minimum,
+    # and a homogeneous FlowBox hands every other cell the same -- one
+    # "GNOME Text Editor" and the grid is one column wide.
+    name.set_max_width_chars(8)
 
-    summary = Gtk.Label(label=app.summary, xalign=0)
-    summary.add_css_class("app-summary")
-    summary.add_css_class("pick-summary")
-    summary.set_wrap(True)
-    summary.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
-    # A wrapping label asks for its whole text on one line as its natural
-    # width, and the page's scroller would rather grow sideways than wrap it.
-    # This caps what it may ask for; the allocation it actually gets is wider,
-    # and the text wraps into that. Two lines then ellipsise, as in AppRow.
-    summary.set_max_width_chars(26)
-    summary.set_lines(2)
-    summary.set_ellipsize(Pango.EllipsizeMode.END)
+    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+    box.set_valign(Gtk.Align.START)
+    box.append(frame)
+    box.append(name)
 
-    text = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-    text.set_valign(Gtk.Align.CENTER)
-    text.set_hexpand(True)
-    text.append(name)
-    text.append(summary)
-
-    row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
-    row.append(app_tile(app, size=56))
-    row.append(text)
+    pills = card_pills(app)
+    if pills:
+        wrap = Adw.WrapBox(child_spacing=4, line_spacing=4)
+        for text in pills:
+            wrap.append(feature_pill(text))
+        box.append(wrap)
 
     card = Gtk.Button()
-    card.add_css_class("pick-card")
-    card.set_child(row)
+    card.add_css_class("app-card")
+    card.set_child(box)
+    # The number the FlowBox counts with, exactly as for a category tile. A
+    # card's own minimum is the 48px placeholder icon plus padding, so left to
+    # itself the grid would fit three 64px cells on a 360px line and call that
+    # two-across working. 140 is the width at which three do not fit a phone
+    # (3x140 + spacing = 440 > 336) and do fit the 640px clamp.
+    card.set_size_request(140, -1)
     card.connect("clicked", lambda *_: on_activate(app))
+
+    shot = shot_for_theme(app)
+    if shot:
+        media.thumbnail(
+            shot,
+            lambda path, p=picture: GLib.idle_add(_show_card_shot, p, path),
+        )
     return card
+
+
+def _show_card_shot(picture: Gtk.Picture, path) -> bool:
+    try:
+        picture.set_filename(str(path))
+    except Exception:
+        pass  # a corrupt cache entry is not worth breaking the grid over
+    return False
+
+
+def app_grid(apps: list[App], on_activate) -> Gtk.Widget:
+    """Two across on a phone, three in a desktop window.
+
+    Both ends are set for the same reason the category grid sets them: left
+    alone a FlowBox fits as many cells as the minimum widths allow, and a
+    minimum width here is a picture that can shrink -- so it would happily
+    put five unreadable screenshots on a 360px line.
+    """
+    grid = Gtk.FlowBox()
+    grid.set_selection_mode(Gtk.SelectionMode.NONE)
+    grid.set_homogeneous(True)
+    grid.set_min_children_per_line(2)
+    grid.set_max_children_per_line(3)
+    grid.set_row_spacing(10)
+    grid.set_column_spacing(10)
+    grid.set_valign(Gtk.Align.START)
+    for app in apps:
+        grid.append(app_card(app, on_activate))
+    return grid
 
 
 def empty(box: Gtk.Box) -> None:
@@ -321,7 +456,7 @@ def empty(box: Gtk.Box) -> None:
 
 
 def app_group(title: str, apps: list[App], on_activate) -> Adw.PreferencesGroup:
-    """A card of rows, with the installed count in the corner.
+    """A grid of cards, with the installed count in the corner.
 
     The count used to live in the group description, which cost a line of
     vertical space per category to say what a chip says in the corner.
@@ -338,61 +473,8 @@ def app_group(title: str, apps: list[App], on_activate) -> Adw.PreferencesGroup:
     group.set_margin_end(12)
     group.set_margin_top(6)
     group.set_margin_bottom(6)
-    for app in apps:
-        group.add(AppRow(app, on_activate))
+    group.add(app_grid(apps, on_activate))
     return group
-
-
-class AppRow(Adw.ActionRow):
-    def __init__(self, app: App, on_activate):
-        super().__init__()
-        self.app = app
-        self.set_title(GLib.markup_escape_text(app.name))
-        self.set_subtitle(GLib.markup_escape_text(app.summary))
-        self.set_subtitle_lines(2)
-        self.set_activatable(True)
-        self.connect("activated", lambda *_: on_activate(app))
-
-        # Installed state rides on the tile as a corner badge rather than as a
-        # suffix. A suffix tick plus the chevron put two glyphs in the right
-        # margin of a 360px row, and the chevron said nothing the whole row
-        # being activatable did not already say.
-        prefix = Gtk.Overlay()
-        prefix.set_child(app_tile(app))
-        prefix.set_halign(Gtk.Align.START)
-        prefix.set_valign(Gtk.Align.CENTER)
-        prefix.set_margin_top(6)
-        prefix.set_margin_bottom(6)
-        prefix.set_margin_end(6)
-
-        badge_icon, tip = "", ""
-        if app.installed:
-            badge_icon, tip = "object-select-symbolic", "Installed"
-        elif not app.available:
-            badge_icon, tip = "dialog-warning-symbolic", "Not found in the repositories"
-
-        if badge_icon:
-            glyph = Gtk.Image.new_from_icon_name(badge_icon)
-            glyph.set_pixel_size(12)
-            # The disc is a Box around the image, not the image itself. CSS
-            # min-width on a GtkImage fights the pixel size it was given, and
-            # GTK says so -- twice per badge, per measure pass, which was 248
-            # warnings on every launch of a 62-installed catalogue.
-            badge = Gtk.Box()
-            badge.append(glyph)
-            badge.add_css_class("installed-badge")
-            if not app.installed:
-                badge.add_css_class("warning")
-            badge.set_halign(Gtk.Align.END)
-            badge.set_valign(Gtk.Align.END)
-            # Flush into the corner, with no negative margin to pull it
-            # outside. A negative margin makes the overlay request 16px for a
-            # child that insists on 18, and GTK warns on every measure pass --
-            # 248 lines per launch on a catalogue with 62 installed apps.
-            badge.set_tooltip_text(tip)
-            prefix.add_overlay(badge)
-
-        self.add_prefix(prefix)
 
 
 class DetailPage(Adw.NavigationPage):
@@ -628,16 +710,13 @@ class DetailPage(Adw.NavigationPage):
         """The screenshots to show, the one matching the running theme first.
 
         So the page opens on the app as it will actually look, and the other
-        mode is one swipe away rather than behind a control. With no staged
-        Omarchy theme there is no colors.toml to ask, so libadwaita -- which is
-        drawing this window in that case -- is asked instead.
+        mode is one swipe away rather than behind a control. The lead shot is
+        the same one the grid card showed, so tapping a card does not change
+        the picture under your thumb.
         """
-        mode = theme.mode()
-        if not mode:
-            mode = "dark" if Adw.StyleManager.get_default().get_dark() else "light"
         if not app.shots:
             return [app.screenshot] if app.screenshot else []
-        first = app.shot_for(mode)
+        first = shot_for_theme(app)
         order = [first] + [s for s in app.shots if s != first]
         # A screenshot named in catalogue.toml but absent from `shots` predates
         # the pairs, and for the first sixteen entries that means it was taken
@@ -717,7 +796,12 @@ class DetailPage(Adw.NavigationPage):
         if app.adaptive == "tight":
             chips.append(("Cramped at 360px", ""))
         elif app.adaptive in ("clipped", "no-window"):
-            chips.append(("Does not fit 360px", "untested"))
+            # Plain, not the dim "untested" style it started as. Rendered, that
+            # made the most important chip on the page the faintest one --
+            # quieter than "Kirigami" and far quieter than the green tested
+            # chip beside it, which is backwards for the only chip warning you
+            # the thing does not fit.
+            chips.append(("Does not fit 360px", ""))
         if app.themed == "no":
             chips.append(("Keeps its own colours", ""))
         elif app.themed == "partial":
@@ -825,12 +909,10 @@ class CategoryPage(Adw.NavigationPage):
         self.category = category
         self.window = window
 
-        # A WindowTitle rather than the page title alone, so the count that
-        # used to be a chip on the front page has somewhere to go. It is the
-        # one fact about a category that changes while you are looking at it.
-        self.window_title = Adw.WindowTitle(title=self.get_title(), subtitle="")
+        # The page title alone. A count of what you have already installed is
+        # a number to read before you can start looking, and the grid says the
+        # same thing in the corner of every card that has a tick on it.
         header = Adw.HeaderBar()
-        header.set_title_widget(self.window_title)
 
         self.list_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         clamp = Adw.Clamp(maximum_size=640)
@@ -850,18 +932,16 @@ class CategoryPage(Adw.NavigationPage):
 
         Called again after an install finishes, because this page is still on
         the stack underneath the detail page that did it -- popping back to a
-        row with no tick on it would be the store lying about the one thing it
+        card with no tick on it would be the store lying about the one thing it
         reads off the system.
         """
         empty(self.list_box)
-        apps = self.window.apps_in(self.category)
-        installed = sum(1 for a in apps if a.installed)
-        self.window_title.set_subtitle(f"{installed} of {len(apps)} installed")
-
         # No group title: the header bar already says which category this is,
         # and repeating it immediately below costs a line of a screen that has
         # 720 of them.
-        self.list_box.append(app_group("", apps, self.window.open_detail))
+        self.list_box.append(
+            app_group("", self.window.apps_in(self.category), self.window.open_detail)
+        )
 
 
 class StoreWindow(Adw.ApplicationWindow):
@@ -1023,6 +1103,12 @@ class StoreWindow(Adw.ApplicationWindow):
         and nothing else, and the shelf under it answers the question someone
         arriving actually has, which is not "which category" but "what should
         I install".
+
+        The category grid carries no heading. A heading earns its place by
+        telling one group of things apart from another, and this is the first
+        thing on the page: fourteen tinted glyphs with a word under each are
+        not going to be mistaken for anything, and "Categories" cost a line of
+        a 720px screen to say so.
         """
         grid = Gtk.FlowBox()
         grid.set_selection_mode(Gtk.SelectionMode.NONE)
@@ -1041,7 +1127,7 @@ class StoreWindow(Adw.ApplicationWindow):
                 category_tile(category, lambda c=category: self._open_category(c))
             )
 
-        categories = Adw.PreferencesGroup(title="Categories")
+        categories = Adw.PreferencesGroup()
         categories.set_margin_start(12)
         categories.set_margin_end(12)
         categories.set_margin_top(6)
@@ -1051,10 +1137,6 @@ class StoreWindow(Adw.ApplicationWindow):
         picks = [a for a in self.apps if a.featured]
         if not picks:
             return
-
-        shelf = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        for app in picks:
-            shelf.append(pick_card(app, self.open_detail))
 
         choice = Adw.PreferencesGroup(title="Editor's Choice")
         # Every word of this is a claim the catalogue can be checked against --
@@ -1068,7 +1150,13 @@ class StoreWindow(Adw.ApplicationWindow):
         choice.set_margin_end(12)
         choice.set_margin_top(12)
         choice.set_margin_bottom(12)
-        choice.add(shelf)
+        # The same grid the categories use, rather than the wide summary cards
+        # this shelf used to be. The summary was there because a row of icons
+        # would have been the one surface in the store saying "good" without
+        # saying why -- a screenshot says considerably more than that summary
+        # did, and the group description above still carries the claim the
+        # shelf is making.
+        choice.add(app_grid(picks, self.open_detail))
         self.list_box.append(choice)
 
     def apps_in(self, category: str) -> list[App]:

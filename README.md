@@ -147,9 +147,9 @@ tested   = "pinephone-a64"   # or "" if you have not run it on a device
 featured = true              # optional: put it on the front page's shelf
 ```
 
-Keep `summary` under 80 characters. The list row gives it two lines and then
-cuts it, so a longer one loses its last clause on the one surface most people
-read — `scripts/lint-catalogue.py` warns when you go over.
+Keep `summary` under 80 characters. It is the line under the app's name on its
+own page, where about 80 is two lines, and everything past them pushes Install
+further below the fold — `scripts/lint-catalogue.py` warns when you go over.
 
 Everything else an entry can carry lives in **`metadata.toml`**, keyed by the
 same name: the description, what the app supports, what it costs, whether it
