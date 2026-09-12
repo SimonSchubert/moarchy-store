@@ -284,6 +284,7 @@ summary  = "One line on why it works on a phone. Ours, not upstream's."
 icon     = "com.github.johnfactotum.Foliate"   # from its own .desktop, not guessed
 screenshot = "foliate-dark.png"
 tested   = "omarchy-mobile-vm"
+featured = true                                # optional, and see rule 6
 ```
 
 `metadata.toml` — everything else, keyed by ident. See its header for the
@@ -305,6 +306,14 @@ Rules that are not negotiable:
    labelled as what the app calls itself.
 5. **`summary` stays one line about the phone.** Not what the app is — what it
    is like to use with a thumb, and what it costs.
+6. **`featured` is not a sweep's to give.** It puts the app on the front page's
+   Editor's Choice shelf, under a line promising every pick was measured at
+   360px, follows your theme and costs a few megabytes — so the store says
+   *start here* about it to everybody who opens the app. `lint-catalogue.py`
+   enforces the measurable half (`fits`, `themed = "yes"`, a `tested` device);
+   the rest is judgement, the shelf is meant to stay around ten, and it is one
+   app per job — two music players on it would mean neither was the answer.
+   Propose it in the PR, do not add it because an entry qualifies.
 
 ### 6. Review, then commit
 
