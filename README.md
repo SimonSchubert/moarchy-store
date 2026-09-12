@@ -3,9 +3,9 @@
 A curated store of Linux phone apps that **actually fit a small screen**.
 
 <p align="center">
-  <img src="docs/screenshots/store-home.png" width="31%" alt="The front page: a three-across grid of category tiles, each an accent glyph over its name and how many of its apps are installed, with Editor's Choice beginning below it">
+  <img src="docs/screenshots/store-home.png" width="31%" alt="The front page: a three-across grid of category tiles, each an accent glyph over the category name, with Editor's Choice beginning below it">
   <img src="docs/screenshots/store-category.png" width="31%" alt="The Chat category: a back arrow, the title with 4 of 9 installed underneath, then one row per app with a rounded icon tile, a one-line note on why it works on a phone, and a green tick where it is already installed">
-  <img src="docs/screenshots/store-detail.png" width="31%" alt="Foliate's page: a large icon, its summary, chips for category, toolkit and the device it was tested on, then Open and Remove side by side above the package details">
+  <img src="docs/screenshots/store-detail.png" width="31%" alt="Foliate's page: a large icon, its summary, chips for category, toolkit and the device it was tested on, then Open and Remove side by side, with the screenshots beginning immediately below them">
 </p>
 
 <p align="center"><em>Shot in the omarchy-mobile VM at 360×720. The palette is
@@ -23,8 +23,8 @@ Mobile, postmarketOS, or any Arch-based phone.
 ## What it does
 
 - Browse curated apps by category, with a note on *why* each one works
-- Opens on the categories rather than on the catalogue, and on ten picks worth
-  starting with
+- Opens on a grid of the categories rather than on the catalogue, and on ten
+  picks worth starting with
 - See installed state, version and download size, read live from the system
 - Install, open and remove, from the app, by touch
 - Marks which entries were verified on real hardware and which are suggestions
@@ -42,8 +42,9 @@ Mobile, postmarketOS, or any Arch-based phone.
   <img src="docs/screenshots/store-picks.png" width="45%" alt="The Editor's Choice section: a heading, a line saying each pick was measured at 360px and follows your theme, then a card per app with its icon, name and one-line summary">
 </p>
 
-The front page is a grid of categories and, underneath it, about ten apps
-marked `featured = true` in the catalogue. It is the store saying *start here*,
+The front page is a grid of categories — a glyph and a name, nothing to read
+before you can use it — and underneath it about ten apps marked `featured =
+true` in the catalogue. It is the store saying *start here*,
 so the bar is higher than being listed: measured as `fits` at 360×674, `themed
 = "yes"`, run on a device, and cheap enough that installing it is not a
 decision. One app per job — two music players on that shelf would mean neither

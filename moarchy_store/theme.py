@@ -277,11 +277,6 @@ WIDGETS = """
   font-size: 0.92em;
 }
 
-.category-count {
-  font-size: 0.75em;
-  color: @moarchy_dim;
-}
-
 .pick-card {
   padding: 12px;
 }

@@ -144,8 +144,8 @@ CATEGORY_ICONS = {
             "globe-symbolic"),
 }
 
-# What "All apps" gets, and what a category this table has never heard of gets.
-# A new category in the catalogue should look unremarkable here, not broken.
+# What a category this table has never heard of gets. A new category in the
+# catalogue should look unremarkable here, not broken.
 GENERIC_ICONS = ("view-app-grid-symbolic", "view-grid-symbolic",
                  "applications-other-symbolic", "view-list-symbolic")
 
@@ -230,17 +230,18 @@ def category_image(category: str | None, pixels: int) -> Gtk.Image:
     return image
 
 
-def category_tile(title: str, apps: list[App], on_click) -> Gtk.Widget:
-    """One cell of the front page's grid: what the category is, and how much of
-    it you already have.
+def category_tile(title: str, on_click) -> Gtk.Widget:
+    """One cell of the front page's grid: a glyph and what the category is.
 
     A button rather than a row, because the whole cell is the target. At 360px
-    the grid is three across, which leaves about 106px -- enough for a glyph, a
-    word and a count, and not enough for anything else, so the name ellipsises
-    rather than wrapping a category into two lines of ragged text.
-    """
-    installed = sum(1 for a in apps if a.installed)
+    the grid is three across, which leaves about 106px -- enough for a glyph
+    and a word, and not enough for anything else, so the name ellipsises rather
+    than wrapping a category into two lines of ragged text.
 
+    The count of what you already have lives on the category's own page, in the
+    header bar, and not here. A grid is a way in; a number under every door is
+    something to read before you can use one.
+    """
     icon = category_image(title, 24)
 
     name = Gtk.Label(label=title)
@@ -248,17 +249,10 @@ def category_tile(title: str, apps: list[App], on_click) -> Gtk.Widget:
     name.set_ellipsize(Pango.EllipsizeMode.END)
     name.set_max_width_chars(12)
 
-    # The fraction only once there is a numerator. On a phone that has just
-    # been flashed every tile would otherwise read "0/23", fourteen times, and
-    # a column of zeroes says nothing the bare count does not.
-    count = Gtk.Label(label=f"{installed}/{len(apps)}" if installed else str(len(apps)))
-    count.add_css_class("category-count")
-
-    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
     box.set_valign(Gtk.Align.CENTER)
     box.append(icon)
     box.append(name)
-    box.append(count)
 
     tile = Gtk.Button()
     tile.add_css_class("category-tile")
@@ -266,7 +260,6 @@ def category_tile(title: str, apps: list[App], on_click) -> Gtk.Widget:
     # The number the FlowBox counts with: three of these plus spacing do not
     # fit a 360px screen four times, and do fit a 640px one.
     tile.set_size_request(96, -1)
-    tile.set_tooltip_text(f"{installed} of {len(apps)} installed")
     tile.connect("clicked", lambda *_: on_click())
     return tile
 
@@ -532,11 +525,55 @@ class DetailPage(Adw.NavigationPage):
         actions.add(self.status_label)
         page.add(actions)
 
-        # After the button, like the facts: prose is what you read once you
-        # have decided, or when the summary above did not settle it. The
-        # subtitle rides as the group description -- it is what the app calls
-        # itself, where `summary` is what we think of it, and stacking both
-        # under the hero would put two one-liners in a row.
+        # Directly under the button and ahead of the prose. Once the hero has
+        # said what this is, the next question is what it looks like, and a
+        # picture answers that faster than two paragraphs -- so what follows
+        # the action is the app itself, not a description of it.
+        #
+        # Fetched from GitHub and cached. The group only appears once an image
+        # actually arrives, so an offline phone shows a clean page rather than
+        # a broken-image placeholder.
+        shots = self._shot_order(app)
+        self.shot_group = Adw.PreferencesGroup(
+            title="Screenshot" if len(shots) < 2 else "Screenshots"
+        )
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.shot_carousel = Adw.Carousel()
+        self.shot_carousel.set_allow_long_swipes(False)
+
+        # Every page is built now and filled by index as fetches land. They
+        # complete out of order, so appending on arrival would shuffle light
+        # and dark around between runs.
+        self.shot_pictures = []
+        for _ in shots:
+            picture = Gtk.Picture()
+            picture.set_can_shrink(True)
+            picture.set_content_fit(Gtk.ContentFit.CONTAIN)
+            picture.set_size_request(-1, 420)
+            picture.add_css_class("shot-frame")
+            self.shot_carousel.append(picture)
+            self.shot_pictures.append(picture)
+        box.append(self.shot_carousel)
+
+        # Dots only when there is somewhere to swipe to.
+        if len(shots) > 1:
+            box.append(Adw.CarouselIndicatorDots(carousel=self.shot_carousel))
+
+        self.shot_group.add(box)
+        self.shot_group.set_visible(False)
+        page.add(self.shot_group)
+
+        for index, name in enumerate(shots):
+            media.fetch(
+                name,
+                lambda path, i=index: GLib.idle_add(self._show_screenshot, i, path),
+            )
+
+        # After the screenshot: prose is what you read once you have decided,
+        # or when the summary above did not settle it. The subtitle rides as
+        # the group description -- it is what the app calls itself, where
+        # `summary` is what we think of it, and stacking both under the hero
+        # would put two one-liners in a row.
         if app.description or app.subtitle:
             about = Adw.PreferencesGroup(title="About")
             if app.subtitle:
@@ -582,46 +619,6 @@ class DetailPage(Adw.NavigationPage):
             facts.add(self._row("Homepage", app.homepage))
         # No Verified row: the hero chip above already says it, in colour.
         page.add(facts)
-
-        # Screenshots are fetched from GitHub and cached. The group only
-        # appears once an image actually arrives, so an offline phone shows a
-        # clean page rather than a broken-image placeholder.
-        shots = self._shot_order(app)
-        self.shot_group = Adw.PreferencesGroup(
-            title="Screenshot" if len(shots) < 2 else "Screenshots"
-        )
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        self.shot_carousel = Adw.Carousel()
-        self.shot_carousel.set_allow_long_swipes(False)
-
-        # Every page is built now and filled by index as fetches land. They
-        # complete out of order, so appending on arrival would shuffle light
-        # and dark around between runs.
-        self.shot_pictures = []
-        for _ in shots:
-            picture = Gtk.Picture()
-            picture.set_can_shrink(True)
-            picture.set_content_fit(Gtk.ContentFit.CONTAIN)
-            picture.set_size_request(-1, 420)
-            picture.add_css_class("shot-frame")
-            self.shot_carousel.append(picture)
-            self.shot_pictures.append(picture)
-        box.append(self.shot_carousel)
-
-        # Dots only when there is somewhere to swipe to.
-        if len(shots) > 1:
-            box.append(Adw.CarouselIndicatorDots(carousel=self.shot_carousel))
-
-        self.shot_group.add(box)
-        self.shot_group.set_visible(False)
-        page.add(self.shot_group)
-
-        for index, name in enumerate(shots):
-            media.fetch(
-                name,
-                lambda path, i=index: GLib.idle_add(self._show_screenshot, i, path),
-            )
-
 
         toolbar.set_content(page)
         self.set_child(toolbar)
@@ -807,15 +804,15 @@ class DetailPage(Adw.NavigationPage):
 
 
 class CategoryPage(Adw.NavigationPage):
-    """Every app in one category, or the whole catalogue when category is None.
+    """Every app in one category.
 
     A page of its own rather than a filter on the front page: at 360px,
     browsing is choosing a shelf and then reading it, and the back gesture is
     already how everything else in this window is left.
     """
 
-    def __init__(self, category: str | None, window: "StoreWindow"):
-        super().__init__(title=category or "All apps")
+    def __init__(self, category: str, window: "StoreWindow"):
+        super().__init__(title=category)
         self.category = category
         self.window = window
 
@@ -852,14 +849,10 @@ class CategoryPage(Adw.NavigationPage):
         installed = sum(1 for a in apps if a.installed)
         self.window_title.set_subtitle(f"{installed} of {len(apps)} installed")
 
-        if self.category is None:
-            for category, group in by_category(apps).items():
-                self.list_box.append(app_group(category, group, self.window.open_detail))
-        else:
-            # No group title: the header bar already says which category this
-            # is, and repeating it immediately below costs a line of a screen
-            # that has 720 of them.
-            self.list_box.append(app_group("", apps, self.window.open_detail))
+        # No group title: the header bar already says which category this is,
+        # and repeating it immediately below costs a line of a screen that has
+        # 720 of them.
+        self.list_box.append(app_group("", apps, self.window.open_detail))
 
 
 class StoreWindow(Adw.ApplicationWindow):
@@ -927,11 +920,10 @@ class StoreWindow(Adw.ApplicationWindow):
                     GLib.idle_add(self.open_detail, app)
                     break
 
-        # MOARCHY_STORE_CATEGORY=<name> does the same for a category page, and
-        # the empty string opens All apps.
+        # MOARCHY_STORE_CATEGORY=<name> does the same for a category page.
         wanted = os.environ.get("MOARCHY_STORE_CATEGORY")
-        if wanted is not None:
-            GLib.idle_add(self._open_category, wanted or None)
+        if wanted:
+            GLib.idle_add(self._open_category, wanted)
 
         # Do not let the search entry take focus at startup. squeekboard raises
         # itself whenever a text field is focused, so an autofocused search box
@@ -1018,10 +1010,10 @@ class StoreWindow(Adw.ApplicationWindow):
 
         A grid rather than the catalogue itself. 109 rows in one column is a
         list you scroll past rather than read, and it opened on Chat every
-        time because C sorts early -- so the first screen now says what the
-        store has and how much of it you already carry, and the shelf under it
-        answers the question someone arriving actually has, which is not
-        "which category" but "what should I install".
+        time because C sorts early -- so the first screen is fourteen ways in
+        and nothing else, and the shelf under it answers the question someone
+        arriving actually has, which is not "which category" but "what should
+        I install".
         """
         grid = Gtk.FlowBox()
         grid.set_selection_mode(Gtk.SelectionMode.NONE)
@@ -1035,16 +1027,9 @@ class StoreWindow(Adw.ApplicationWindow):
         grid.set_row_spacing(8)
         grid.set_column_spacing(8)
 
-        # First, and not a category: the old flat list, for when you want to
-        # read the whole thing rather than go looking for something.
-        grid.append(
-            category_tile("All apps", self.apps, lambda: self._open_category(None))
-        )
-        for category, apps in by_category(self.apps).items():
+        for category in by_category(self.apps):
             grid.append(
-                category_tile(
-                    category, apps, lambda c=category: self._open_category(c)
-                )
+                category_tile(category, lambda c=category: self._open_category(c))
             )
 
         categories = Adw.PreferencesGroup(title="Categories")
@@ -1077,17 +1062,14 @@ class StoreWindow(Adw.ApplicationWindow):
         choice.add(shelf)
         self.list_box.append(choice)
 
-    def apps_in(self, category: str | None) -> list[App]:
-        """One category's apps by name, or the whole catalogue as it was
-        loaded -- by_category sorts each group itself."""
-        if category is None:
-            return list(self.apps)
+    def apps_in(self, category: str) -> list[App]:
+        """One category's apps, by name."""
         return sorted(
             (a for a in self.apps if a.category == category),
             key=lambda a: a.name.lower(),
         )
 
-    def _open_category(self, category: str | None) -> None:
+    def _open_category(self, category: str) -> None:
         self.category_page = CategoryPage(category, self)
         self.nav.push(self.category_page)
 
