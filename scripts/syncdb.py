@@ -43,6 +43,20 @@ CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "moarch
 MIRROR = os.environ.get("MOARCHY_ARM_MIRROR", "http://mirror.archlinuxarm.org/aarch64")
 REPOS = ("core", "extra")
 
+# And moarchy's own repository, which is a sync database the phone has and this
+# module did not know about. Every catalogued app used to come from core or
+# extra, so the omission never showed; the first entry that does not -- Spot,
+# built from the AUR because Spotify's web player wants a Widevine that does
+# not exist for aarch64 -- would have been reported as an Install button that
+# cannot work, when in fact `pacman -S` on the phone reaches it.
+#
+# Same URL the phone's own pacman.conf is given (moarchy's manifest, [repo]):
+# one fixed release tag, re-uploaded in place.
+OWN_REPO = os.environ.get("MOARCHY_REPO_NAME", "moarchy")
+OWN_REPO_URL = os.environ.get(
+    "MOARCHY_REPO_URL",
+    "https://github.com/SimonSchubert/moarchy/releases/download/repo")
+
 _CACHED: dict[str, dict] | None = None
 
 
@@ -97,14 +111,23 @@ def packages(refresh: bool = False) -> dict[str, dict]:
 
     CACHE.mkdir(parents=True, exist_ok=True)
     out: dict[str, dict] = {}
-    for repo in REPOS:
+    sources = [(repo, f"{MIRROR}/{repo}/{repo}.db") for repo in REPOS]
+    sources.append((OWN_REPO, f"{OWN_REPO_URL}/{OWN_REPO}.db"))
+    for repo, url in sources:
         path = CACHE / f"{repo}.db"
         sweepdb.note_age(path, f"aarch64 {repo}")
         if refresh or sweepdb.is_stale(path):
-            url = f"{MIRROR}/{repo}/{repo}.db"
             print(f"fetching {url} into {CACHE} ...", file=sys.stderr)
-            with urllib.request.urlopen(url, timeout=180) as response:
-                path.write_bytes(response.read())
+            try:
+                with urllib.request.urlopen(url, timeout=180) as response:
+                    path.write_bytes(response.read())
+            except Exception as exc:
+                # Core and extra are the mirror and must be there; this one is a
+                # GitHub release that a fresh clone may not have fetched yet, and
+                # a lint that dies on it would be worse than one that says so.
+                if repo != OWN_REPO or not path.exists():
+                    print(f"warn: {repo}.db unavailable ({exc})", file=sys.stderr)
+                    continue
         _parse(path.read_bytes(), repo, out)
     _CACHED = out
     return out
