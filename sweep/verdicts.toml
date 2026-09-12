@@ -96,11 +96,6 @@ outcome = "rejected"
 reason = "Desktop-shaped feed reader. Alligator covers the category and is Kirigami-adaptive."
 
 
-[okular]
-date = 2026-08-01
-outcome = "rejected"
-reason = "Desktop document viewer. Papers covers PDF at phone width."
-
 
 # --- The Omarchy plugin sweep -----------------------------------------------
 #
@@ -728,17 +723,6 @@ outcome = "deferred"
 adaptive = "no-window"
 reason = "No window within 60s, and 47.23 MB. Telegram is a real gap in Chat, so this is worth another attempt with more patience rather than a rejection."
 
-[pika-backup]
-date = 2026-09-12
-outcome = "deferred"
-adaptive = "no-window"
-reason = "No window within 60s. Backup is a genuine gap and this is the best-regarded answer, so it wants retrying rather than dropping."
-
-[nautilus]
-date = 2026-09-12
-outcome = "deferred"
-adaptive = "no-window"
-reason = "No window within 60s. Portfolio is already listed and was built for touch, so nothing is lost meanwhile."
 
 [identity]
 date = 2026-09-12
@@ -798,3 +782,109 @@ reason = "Not run. Superseded here by Iotas, which costs less and syncs."
 date = 2026-09-12
 outcome = "rejected"
 reason = "Not run. GTK3 markdown editor; Marknote and Iotas cover notes, and GNOME Text Editor covers plain text."
+
+# --- The AppStream blind spot, 2026-09-12 ----------------------------------
+#
+# Fifteen apps that LinuxPhoneApps rates 4 or 5 and Arch packages could not be
+# joined to a package name, because the join goes through AppStream component
+# ids and these ship no metainfo. That is the same gap that hid komikku,
+# marknote and filelight, so it was worth walking by hand. Eight are in the
+# repos; four were cheap enough to run.
+
+[gnome-characters]
+date = 2026-09-12
+outcome = "listed"
+adaptive = "fits"
+reason = "Emoji and special characters, three columns of large targets, 380 KB. Found only because the AppStream join failed and the leftovers were read by hand."
+
+[ptyxis]
+date = 2026-09-12
+outcome = "deferred"
+adaptive = "fits"
+themed = "no"
+reason = """
+GNOME's new terminal, 3 packages and 0.84 MB, and it fits. Deferred because
+Terminal already holds six entries and foot is lighter. Worth noting that it
+reads exactly the theming noise floor: Ptyxis carries its own palette system
+and overrides libadwaita's colours entirely, so it is "no" for a different
+reason than the Kirigami apps are.
+"""
+
+[puzzles]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "clipped"
+reason   = """
+Simon Tatham's collection, and the window fits. What it draws is a desktop
+menu bar -- Game, Type, Help -- above a board of hairline grid cells. A menu
+bar is a pointer idiom with nothing to hover, and the cells are far under the
+44px floor. Forty games nobody can tap.
+"""
+
+[anki]
+date = 2026-09-12
+outcome = "rejected"
+reason = "Not run. 33 packages and 99.36 MB, and its own mobile clients exist. Flashcards are not worth a Qt WebEngine on this image."
+
+[merkuro]
+date = 2026-09-12
+outcome = "deferred"
+reason = """
+Rated 5 for calendar, contacts and mail, and Mail is a gap nothing here fills.
+But it is 86 packages and 124.57 MB -- the whole of KDE PIM -- on an image whose
+calendar and contacts already cost nothing. Worth revisiting only if someone
+wants mail badly enough to pay for the rest.
+"""
+
+[okular]
+date = 2026-09-12
+outcome = "deferred"
+reason = "Rejected once already as desktop-shaped; LinuxPhoneApps rates its Kirigami mobile mode 5. 72 packages and 104.39 MB against Papers, which is listed and free here."
+
+
+[shattered-pixel-dungeon]
+date = 2026-09-12
+outcome = "rejected"
+reason = "Not run. 188.47 MB for one roguelike, most of it a Java runtime."
+
+[nautilus]
+date     = 2026-09-12
+outcome  = "listed"
+adaptive = "fits"
+reason   = """
+Two columns of large folder tiles at 360x674, themed, 1 package and 2.15 MB.
+Portfolio is still listed beside it and was built for touch from the start;
+this is the one people already know.
+
+Recorded as "no-window" twice before it was run correctly, and the cause was a
+bug here rather than in the app: the script took the alphabetically first
+.desktop a package ships, which for nautilus is nautilus-autorun-software --
+a helper that prints a usage message and exits. It now prefers the entry whose
+name matches the package, the way launcher.py picks one using the icon.
+"""
+
+[gpodder]
+date     = 2026-09-12
+outcome  = "rejected"
+adaptive = "clipped"
+reason   = """
+Superseded: it does launch once the right .desktop is chosen, and what it draws
+is a desktop app. A menu bar -- Application, Podcasts, Subscriptions, Episodes,
+Extras, View -- over a two-pane list, with the welcome dialog running off the
+right edge. Hyprland floated it at 382x301, wider than the screen it is on,
+which is itself the answer: it asks for a size this device does not have.
+The adaptive fork LinuxPhoneApps rates 5 is AUR-only. Podcasts and Kasts cover
+the category.
+"""
+
+[pika-backup]
+date     = 2026-09-12
+outcome  = "deferred"
+adaptive = "no-window"
+reason   = """
+No window at 180 seconds, an empty log, and DBusActivatable=true: the Chatty
+pattern, where the entry hands off to D-Bus and the activation fails silently
+outside a GNOME session. Backup is a real gap and this is the best-regarded
+answer, so it is worth a user .desktop with DBusActivatable=false -- the fix
+serial 7 found for Chatty -- rather than a rejection.
+"""

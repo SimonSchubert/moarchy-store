@@ -43,7 +43,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 12
+serial = 13
 
 # --- Reading ---------------------------------------------------------------
 
@@ -1081,6 +1081,26 @@ toolkit = "libadwaita"
 summary = "Strip EXIF before sharing a photo. Opens files, not only drops them."
 icon = "io.gitlab.metadatacleaner.metadatacleaner"
 screenshot = "metadata-cleaner-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "gnome-characters"
+name = "Characters"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "Emoji and special characters in a grid of big targets. 380KB."
+icon = "org.gnome.Characters"
+screenshot = "gnome-characters-dark.png"
+tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "nautilus"
+name = "Files"
+category = "Files"
+toolkit = "libadwaita"
+summary = "GNOME's file manager, two columns of big folder tiles at 360px."
+icon = "org.gnome.Nautilus"
+screenshot = "nautilus-dark.png"
 tested = "omarchy-mobile-vm"
 
 # --- Omarchy shell plugins -------------------------------------------------

@@ -54,25 +54,44 @@ discover -> triage -> measure -> judge -> write -> review -> commit
 
 ### 1. Discover
 
+Three sources, in increasing order of how much they already know, and the third
+is the one to start with:
+
 ```bash
-./scripts/sweep-discover.sh --table      # readable
-./scripts/sweep-discover.sh > /tmp/candidates.json
+./scripts/sweep-lpa.py                  # curated, rated, and joined to packages
+./scripts/sweep-discover.py --table     # what upstream claims about itself
+./scripts/sweep-aur.py                  # inference, for the AUR
 ```
 
-This reads the whole repo's AppStream data in the guest and ranks by what
-*upstream itself* claims: a `<display_length>` of 360 or less, a
-`<control>touch</control>`, and a recent `<release>`. It already drops
-everything in `catalogue.toml`.
+**`sweep-lpa.py` first.** linuxphoneapps.org rates apps for mobile
+compatibility -- 5 means "fits the screen and works fine with touch input" --
+and records which distributions package them. It publishes a conclusion, where
+the other two publish a claim and a guess. 795 apps, 219 packaged in Arch.
 
-**Never sweep the AUR**, and the reason is structural rather than aesthetic:
-`data/moarchy-store-helper` execs `/usr/bin/pacman -S`, so an AUR package
-cannot be installed through the store at all. An AUR entry would be a row with
-a button that cannot work.
+Its rating is not evidence for this device, and the script says so in its
+docstring. 5 there means it fits some phone, at some width, usually under Phosh
+or Plasma Mobile, and this runs neither. KleverNotes is rated 5 and clips at
+360x674 here. It produces a queue, never an entry.
 
-Cross-check against the curated lists when the AppStream yield thins out —
-LinuxPhoneApps.org (open data, fetch the source rather than scraping),
-apps.gnome.org, the KDE Plasma Mobile app list, the postmarketOS wiki. Take
-their names and intersect with `pacman -Sl`; the intersection is the point.
+**`sweep-discover.py`** reads `<display_length>` and `<control>touch</control>`
+out of the repo's own AppStream catalogue: upstream's claim about itself, for
+every packaged app, fetched to `~/.cache` so it needs no VM.
+
+**`sweep-aur.py`** infers from dependencies and description, because the AUR
+ships no AppStream data at all. Weakest of the three, and the one that found
+the most, though not in the way it was meant to: 51 of its 277 candidates
+turned out to be **repo** packages that `sweep-discover.py` could not see,
+because they ship no metainfo. Komikku, Marknote and Filelight came from there.
+
+That blind spot is worth walking deliberately. `sweep-lpa.py` prints how many
+rated apps it could not join to a package, and `--json` lists them; they are
+where the misses hide.
+
+**Never sweep the AUR for things to list.** `data/moarchy-store-helper` execs
+`/usr/bin/pacman -S`, so an AUR package cannot be installed through the store
+and the allowlist cannot cover it. An AUR entry would be a row with a button
+that cannot work. Surveying it is still worth doing -- it finds repo packages,
+and it records what exists -- but the output goes to `sweep/verdicts.toml`.
 
 ### 2. Triage
 
@@ -89,36 +108,50 @@ gallery, maps, browser, mail, podcasts, music, files, notes, weather, clock,
 calculator, OTP, transit — and for each ask what the best aarch64 answer is.
 "There isn't one" is a finding; record it.
 
-### 3. Measure
+### 3. Cost the whole queue, then measure
 
 ```bash
-./scripts/sweep-measure.sh foliate
+./scripts/sweep-cost.sh --queue sweep/queue.txt     # all of them, one pass
+./scripts/sweep-measure.sh foliate                  # then one at a time
 ```
 
-Per app: reads install cost *before* installing anything, installs, resolves
-the desktop id, launches under the dark theme, waits for a window, shoots,
-switches to the light theme, **relaunches**, shoots again, diffs the pair, and
-removes the package.
+Cost first, and for the whole batch, because install cost is *relative to what
+is already installed*. Measured serially it drifts: klevernotes cost 38
+packages on a fresh image and 25 an hour later, the same app on the same day,
+because other apps had been installed and removed in between. Numbers taken one
+at a time cannot be compared with each other, and comparing them is the entire
+point -- Tuba is Mastodon for 1.57 MB where Tokodon is 108 MB.
 
-It emits JSON and writes `screenshots/<pkg>-dark.png` (and `-light.png` when
-the app actually recoloured). It returns `adaptive: "mapped"` or
-`"no-window"` — never `"fits"`. That word is yours to write, in step 4.
+`sweep-measure.sh` then handles one app: install, resolve the desktop id, launch
+under the dark theme, wait for a window, shoot, switch to light, **relaunch**,
+shoot, diff, uninstall. It emits JSON and writes
+`screenshots/<pkg>-dark.png`, plus `-light.png` when the app actually
+recoloured. `WAIT=180` for something known to be slow.
 
-Three things the script guards that are easy to lose by hand:
+It returns `adaptive: "mapped"` or `"no-window"` -- never `"fits"`. That word is
+yours, in step 4.
+
+Four things it guards, each of which cost an hour to find:
 
 - **The keyboard.** `reserved` has been `[0,26,0,0]`, `[0,26,0,20]` and
   `[0,26,0,220]` on the same guest within minutes. The last is squeekboard up,
-  and the resulting 360×474 window still photographs like a plausible phone
-  app. Every shot asserts the bottom reservation is ≤ 20.
+  and the 360x474 window it leaves still photographs like a plausible phone app.
+  An app that focuses a text field on startup raises it *after* the window maps,
+  so the script lowers it and waits for the window to grow back before shooting.
 - **The relaunch after a theme switch.** GTK parses the user stylesheet once at
-  process start; that is why omarchy's own hook kills the
-  `--gapplication-service` daemons. Shooting without relaunching photographs
-  the old palette and reports a perfectly themed app as ignoring the theme.
-- **A launch that maps nothing.** `gtk-launch` exits 0 with no process and no
-  window when the entry is `DBusActivatable` and its unit wants a GNOME
-  session. Exit status proves nothing; the client list does. The script
-  captures the log, the journal, and the `DBusActivatable` line so the failure
-  is diagnosable rather than just recorded.
+  process start. The process is killed by pid, not asked to close: `hyprctl
+  dispatch closewindow` is rejected outright by this Hyprland, which wants the
+  lua form, and it failed silently -- so nothing was relaunched and Foliate
+  measured 0.045 (`partial`) instead of 0.80 (`yes`).
+- **Both shots being the same shape.** If they are not, no diff is taken at all.
+  KleverNotes measured `themed` at 0.23 with pixels identical between the two
+  themes, purely because one shot was 474 tall and the other 674 and a single
+  crop was applied to both.
+- **Windows it cannot name.** It counts windows before launching and waits for a
+  new one, rather than matching a class guessed from the desktop id. Railway's
+  entry is `de.schmidhuberj.DieBahn`, Collision maps as `dev.geopjr.Collision`,
+  SongRec as `re.fossplant.songrec`; all three were recorded "no-window" with
+  their windows on screen.
 
 ### 4. Judge — the part that is not automatable
 

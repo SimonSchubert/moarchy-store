@@ -59,6 +59,7 @@ Alligator is a convergent, cross-platform feed reader, supporting standard RSS/A
 
 
 
+
 """
 subcategory = "Feeds"
 homepage    = "https://apps.kde.org/alligator"
@@ -68,6 +69,7 @@ released    = "2026-09-10"
 subtitle    = "Plays music, and nothing else"
 description = """
 Amberol is a music player with no delusions of grandeur. If you just want to play music available on your local system then Amberol is the music player you are looking for.
+
 
 
 
@@ -83,6 +85,7 @@ An ebook reader and library management app supporting ".epub" files. Arianna dis
 
 
 
+
 """
 homepage    = "https://apps.kde.org/arianna/"
 released    = "2026-09-10"
@@ -91,6 +94,7 @@ released    = "2026-09-10"
 subtitle    = "YouTube Music app"
 description = """
 AudioTube can search YouTube Music, list albums and artists, play automatically generated playlists, albums and allows to put your own playlist together. It is adapted to mobile phones and desktop computers.
+
 
 
 
@@ -110,6 +114,7 @@ subtitle    = "Listen to ambient sounds"
 description = """
 Improve focus and increase your productivity by listening to different ambient sounds
 
+
 """
 homepage    = "https://apps.gnome.org/Blanket"
 released    = "2025-07-27"
@@ -127,6 +132,7 @@ Calindori is a touch friendly calendar application. It has been designed for mob
 
 
 
+
 """
 subcategory = "Calendar"
 homepage    = "https://apps.kde.org/calindori/"
@@ -136,6 +142,7 @@ released    = "2026-09-10"
 subtitle    = "Plays videos"
 description = """
 Celluloid is a simple media player that can play virtually all video and audio formats. It supports playlists and MPRIS2 media player controls. The design of Celluloid follows the GNOME Human Interface Guidelines, but can also be adapted for other systems that don't use client-side decorations (CSD). It is based on the mpv library and GTK.
+
 
 """
 homepage    = "https://celluloid-player.github.io"
@@ -154,6 +161,7 @@ Chats is a simple to use to messaging app for 1:1 communication and small groups
 
 
 
+
 """
 subcategory = "Messaging"
 homepage    = "https://gitlab.gnome.org/World/Chatty"
@@ -166,6 +174,7 @@ Chess Clock is a simple application to provide time control for over-the-board c
 
 
 
+
 """
 subcategory = "Board games"
 homepage    = "https://gitlab.gnome.org/World/chess-clock"
@@ -175,6 +184,7 @@ released    = "2025-10-31"
 subtitle    = "Check hashes for your files"
 description = """
 Verifying that a file you downloaded or received is actually the one you were expecting is often overlooked or too time-consuming to do. At the same time, it has become very easy to get your hands on a file that has been tampered with, due to the mass increase of malicious webpages and other actors.
+
 
 """
 homepage    = "https://collision.geopjr.dev/"
@@ -193,6 +203,7 @@ Optimize your images with Curtail, a useful image compressor that supports PNG, 
 
 
 
+
 """
 homepage    = "https://github.com/Huluti/Curtail"
 released    = "2026-05-25"
@@ -201,6 +212,7 @@ released    = "2026-05-25"
 subtitle    = "Play audio files"
 description = """
 An audio player that just plays audio files. It doesn't require an organized music library and won't overload you with tons of functionality.
+
 
 
 
@@ -227,6 +239,7 @@ subtitle    = "Stream movies and TV shows from Jellyfin"
 description = """
 Delfin is a native client for the Jellyfin media server. It features a fast and clean interface to stream your media in an embedded MPV-based video player.
 
+
 """
 homepage    = "https://delfin.avery.cafe/"
 released    = "2024-11-22"
@@ -250,6 +263,7 @@ Dino is a modern open-source chat client for the desktop. It focuses on providin
 
 
 
+
 """
 subcategory = "Messaging"
 homepage    = "https://dino.im"
@@ -259,6 +273,7 @@ released    = "2025-04-11"
 subtitle    = "Edit audio file tags"
 description = """
 Ear Tag is a simple audio file tag editor. It is primarily geared towards making quick edits or bulk-editing tracks in albums/EPs. Unlike other tagging programs, Ear Tag does not require the user to set up a music library folder. It can:
+
 
 """
 homepage    = "https://gitlab.gnome.org/World/eartag"
@@ -277,6 +292,7 @@ The Elisa music player is developed by the KDE community and strives to be simpl
 
 
 
+
 """
 homepage    = "https://apps.kde.org/elisa"
 released    = "2026-09-10"
@@ -285,6 +301,7 @@ released    = "2026-09-10"
 subtitle    = "Manage your tasks"
 description = """
 Endeavour is a task management application designed for simplicity. Save and order your todos. Manage multiple todo lists. And more
+
 
 
 
@@ -298,6 +315,7 @@ description = """
 WebKit rather than Blink, so it is far lighter than Chromium, and its URL bar
 sits at the bottom where a thumb can reach it. The GNOME browser, with tight
 desktop integration and a deliberately plain interface.
+
 """
 subcategory = "Browser"
 homepage    = "https://apps.gnome.org/Epiphany"
@@ -320,6 +338,7 @@ subtitle    = "Open, modify and create compressed archive files"
 description = """
 File Roller is a GNOME application for opening, creating, and modifying archive and compressed archive files.
 
+
 """
 subcategory = "Backup"
 homepage    = "https://gitlab.gnome.org/GNOME/file-roller/"
@@ -337,6 +356,7 @@ description = """
 Filelight is an application to visualize the disk usage on your computer by showing folders using an easy-to-understand view of concentric rings. Filelight makes it simple to free up space!
 
 
+
 """
 features    = ["Disk usage"]
 homepage    = "https://apps.kde.org/filelight"
@@ -352,6 +372,7 @@ shots       = ["filelight-dark.png"]
 subtitle    = "Read e-books in style"
 description = """
 Discover a new chapter in reading with Foliate, the modern e-book reader tailored for GNOME. Immerse yourself in a distraction-free interface, with customization features designed to match your unique preferences.
+
 
 
 
@@ -377,6 +398,7 @@ Fractal is a Matrix messaging app for GNOME written in Rust. Its interface is op
 
 
 
+
 """
 subcategory = "Messaging"
 homepage    = "https://gitlab.gnome.org/World/fractal"
@@ -386,6 +408,7 @@ released    = "2026-07-19"
 subtitle    = "Manage torrents"
 description = """
 An easy to use BitTorrent client. Fragments can be used to transfer files via the BitTorrent peer-to-peer file-sharing protocol, such as videos, music or installation images for Linux distributions.
+
 
 """
 subcategory = "File sharing"
@@ -405,6 +428,7 @@ Francis uses the well-known pomodoro technique to help you get more productive.
 
 
 
+
 """
 homepage    = "http://apps.kde.org/francis"
 released    = "2026-09-10"
@@ -413,6 +437,7 @@ released    = "2026-09-10"
 subtitle    = "News reader for GNOME"
 description = """
 Feeds is a minimal RSS/Atom feed reader built with speed and simplicity in mind.
+
 
 """
 subcategory = "Feeds"
@@ -430,6 +455,7 @@ subtitle    = "Obtain the 2048 tile"
 description = """
 Play the highly addictive 2048 game. 2048 is a clone of the popular single-player puzzle game. Gameplay consists of joining numbers in a grid and obtain the 2048 tile.
 
+
 """
 homepage    = "https://gitlab.gnome.org/GNOME/gnome-2048"
 released    = "2026-04-22"
@@ -444,6 +470,7 @@ shots       = ["gnome-2048-dark.png", "gnome-2048-light.png"]
 subtitle    = "Perform arithmetic, scientific or financial calculations"
 description = """
 Calculator is an application that solves mathematical equations. Though it at first appears to be a simple calculator with only basic arithmetic operations, you can switch into Advanced, Financial, or Programming mode to find a surprising set of capabilities.
+
 
 
 
@@ -466,6 +493,7 @@ GNOME Calendar is an elegant tool to help you plan and stay on top of your sched
 
 
 
+
 """
 subcategory = "Calendar"
 homepage    = "https://apps.gnome.org/Calendar/"
@@ -478,6 +506,7 @@ A simple and elegant clock application. It includes world clocks, alarms, a stop
 
 
 
+
 """
 subcategory = "Clock"
 homepage    = "https://apps.gnome.org/Clocks/"
@@ -487,6 +516,7 @@ released    = "2026-03-11"
 subtitle    = "View and use other desktops"
 description = """
 Connections allows you to connect to and use other desktops. This can be a great way to access content or software on a different desktop operating system. It can also be used as a way to provide support to users who might need help.
+
 
 
 
@@ -514,6 +544,7 @@ Contacts keeps and organize your contacts information. You can create, edit, del
 
 
 
+
 """
 subcategory = "Contacts"
 homepage    = "https://apps.gnome.org/Contacts/"
@@ -523,6 +554,7 @@ released    = "2026-03-15"
 subtitle    = "Find places around the world"
 description = """
 Maps gives you quick access to maps all across the world. It allows you to quickly find the place you’re looking for by searching for a city or street, or locate a place to meet a friend.
+
 
 
 
@@ -537,6 +569,7 @@ Play, update, and manage your podcasts from a lightweight interface that seamles
 
 
 
+
 """
 homepage    = "https://apps.gnome.org/Podcasts/"
 released    = "2025-10-17"
@@ -548,6 +581,7 @@ Sound Recorder provides a simple and modern interface that provides a straight-f
 
 
 
+
 """
 homepage    = "https://wiki.gnome.org/Apps/SoundRecorder"
 released    = "2022-03-19"
@@ -556,6 +590,7 @@ released    = "2022-03-19"
 subtitle    = "Test yourself in the classic puzzle"
 description = """
 GNOME Sudoku is a must-install for puzzle lovers. Based on the popular Japanese game, it comes with a simple interface that makes playing Sudoku fun for players of all skill level.
+
 
 """
 subcategory = "Puzzles"
@@ -575,6 +610,7 @@ GNOME Text Editor is a simple text editor focused on a pleasing default experien
 
 
 
+
 """
 subcategory = "Text"
 homepage    = "https://apps.gnome.org/TextEditor/"
@@ -584,6 +620,7 @@ released    = "2026-05-10"
 subtitle    = "Analyse your system"
 description = """
 Usage helps with simple to understand ways to analyze how the system uses its resources.
+
 """
 released    = "2025-03-22"
 cost_pkgs   = 2
@@ -593,11 +630,11 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["gnome-usage-dark.png", "gnome-usage-light.png"]
 
-
 [gnome-weather]
 subtitle    = "Show weather conditions and forecast"
 description = """
 A small application that allows you to monitor the current weather conditions for your city, or anywhere in the world.
+
 
 
 
@@ -618,7 +655,6 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["hitori-dark.png", "hitori-light.png"]
 
-
 [index-fm]
 subtitle    = "Manage your files"
 description = "Index allows you to navigate your computer and preview multimedia files."
@@ -626,10 +662,19 @@ subcategory = "Files"
 homepage    = "https://mauikit.org/"
 released    = "2024-12-02"
 
+["io.github.andreivinca.note-note"]
+description = """
+Its Python is stdlib-only, and the sync providers stay dormant until you sign in to one.
+"""
+
+["io.github.idr4n.clipboard-plus"]
+description = "Reads Omarchy's own clipboard store, so it starts no watcher of its own."
+
 [iotas]
 subtitle    = "Simple note taking"
 description = """
 Iotas aims to provide distraction-free note taking via its mobile-first design.
+
 
 """
 subcategory = "Text"
@@ -649,6 +694,7 @@ KDE Itinerary is a digital travel assistant with a priority on protecting your p
 
 
 
+
 """
 homepage    = "https://apps.kde.org/itinerary"
 released    = "2026-09-10"
@@ -660,6 +706,7 @@ Junction pops up automatically when you open a file or link in another app. Use 
 
 
 
+
 """
 homepage    = "https://junction.sonny.re"
 released    = "2026-01-13"
@@ -668,6 +715,7 @@ released    = "2026-01-13"
 subtitle    = "Modern chat app for every device"
 description = """
 Kaidan is a user-friendly and modern chat app for every device. It uses the open communication protocol XMPP (Jabber). Unlike other chat apps, you are not dependent on one specific service provider.
+
 
 
 
@@ -689,6 +737,7 @@ Kasts is a convergent podcast application that looks good on desktop and mobile.
 
 
 
+
 """
 subcategory = "Feeds"
 homepage    = "https://apps.kde.org/kasts/"
@@ -698,6 +747,7 @@ released    = "2026-09-10"
 subtitle    = "View and edit passwords"
 description = """
 Key Rack allows you to view, create and edit secrets, such as passwords or tokens, stored by apps. It supports both Flatpak secrets and system-wide keyrings.
+
 
 """
 homepage    = "https://gitlab.gnome.org/World/key-rack"
@@ -719,6 +769,7 @@ released    = "2026-09-10"
 subtitle    = "Discover and read manga & comics"
 description = """
 With its simple, elegant and adaptive interface, this reader lets you search, sort and read your series with ease.
+
 
 
 """
@@ -752,6 +803,7 @@ KTrip helps you navigate in public transport. It allows you to find journeys bet
 
 
 
+
 """
 homepage    = "https://apps.kde.org/ktrip"
 released    = "2026-09-10"
@@ -763,6 +815,7 @@ A convergent weather application for Plasma. Has flat and dynamic/animated views
 
 
 
+
 """
 homepage    = "https://invent.kde.org/utilities/kweather"
 released    = "2026-09-10"
@@ -771,6 +824,7 @@ released    = "2026-09-10"
 subtitle    = "Play and organize your music collection"
 description = """
 Lollypop is a lightweight modern music player designed to work excellently on the GNOME desktop environment.
+
 
 """
 homepage    = "https://wiki.gnome.org/Apps/Lollypop"
@@ -789,6 +843,7 @@ Explore images, view their metadata, and make quick edits by cropping, rotating,
 
 
 
+
 """
 homepage    = "https://apps.gnome.org/Loupe/"
 released    = "2026-03-13"
@@ -797,6 +852,7 @@ released    = "2026-03-13"
 subtitle    = "Write down your thoughts"
 description = """
 Marknote lets you create rich text notes and easily organise them into notebooks. You can personalise your notebooks by choosing an icon and accent color for each one, making it easy to distinguish between them and keep your notes at your fingertips. Your notes are saved as Markdown files in your Documents folder, making it easy to use your notes outside of Marknote as well as inside the app.
+
 
 
 """
@@ -814,6 +870,7 @@ shots       = ["marknote-dark.png"]
 subtitle    = "View and clean metadata in files"
 description = """
 Metadata within a file can tell a lot about you. Cameras record data about when and where a picture was taken and which camera was used. Office applications automatically add author and company information to documents and spreadsheets. This is sensitive information and you may not want to disclose it.
+
 """
 homepage    = "https://gitlab.com/metadatacleaner/metadatacleaner"
 released    = "2026-08-03"
@@ -823,7 +880,6 @@ adaptive    = "fits"
 themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["metadata-cleaner-dark.png", "metadata-cleaner-light.png"]
-
 
 [mousai]
 subtitle    = "Identify songs in seconds"
@@ -844,8 +900,25 @@ mpv is a free (as in freedom) media player for the command line. It supports a w
 
 
 
+
 """
 homepage    = "https://mpv.io/"
+
+[nautilus]
+subtitle    = "Access and organize files"
+description = """
+Files, also known as Nautilus, is the default file manager of the GNOME desktop. It provides a simple and integrated way of managing your files and browsing your file system.
+"""
+subcategory = "Files"
+homepage    = "https://apps.gnome.org/Nautilus/"
+released    = "2026-09-06"
+cost_pkgs   = 1
+cost_mb     = 2.15
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["nautilus-dark.png", "nautilus-light.png"]
+
 
 [obfuscate]
 subtitle    = "Censor private information"
@@ -872,6 +945,7 @@ A document viewer for the GNOME desktop. You can view, search or annotate docume
 
 
 
+
 """
 homepage    = "https://apps.gnome.org/Papers"
 released    = "2026-05-25"
@@ -889,11 +963,11 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["parla-dark.png", "parla-light.png"]
 
-
 [plasmatube]
 subtitle    = "Watch YouTube videos"
 description = """
 PlasmaTube allows you to watch YouTube videos on your phone or desktop using a elegant user interface integrated with the rest of Plasma.
+
 
 
 
@@ -905,6 +979,7 @@ released    = "2026-09-10"
 subtitle    = "Talk to people on IRC"
 description = """
 A simple Internet Relay Chat (IRC) client that is designed to integrate seamlessly with GNOME; it features a simple and beautiful interface which allows you to focus on your conversations.
+
 
 """
 subcategory = "Messaging"
@@ -924,6 +999,7 @@ Terminal application offering additional keyboard buttons useful on touch device
 
 
 
+
 """
 homepage    = "https://apps.kde.org/qmlkonsole"
 released    = "2026-09-10"
@@ -935,6 +1011,7 @@ Scan QR-Codes with your camera on phones and laptops, and create your own for ea
 
 
 
+
 """
 homepage    = "https://apps.kde.org/en/qrca"
 released    = "2026-09-10"
@@ -943,6 +1020,7 @@ released    = "2026-09-10"
 subtitle    = "Permanently delete your files"
 description = """
 File Shredder is a file deletion program designed to permanently remove sensitive files from your computer, enhancing data privacy.
+
 
 """
 subcategory = "Security"
@@ -960,6 +1038,7 @@ subtitle    = "Find all your travel information"
 description = """
 Railway lets you look up travel information across networks and borders without having to navigate through different websites. Due to the adaptive design, it is suitable to plan your trip in advance or mobile on the go:
 
+
 """
 subcategory = "Maps"
 homepage    = "https://mobile.schmidhuberj.de/railway"
@@ -975,6 +1054,7 @@ shots       = ["railway-dark.png", "railway-light.png"]
 subtitle    = "Save and read web articles"
 description = """
 Read It Later, is a simple Wallabag client. It has the basic features to manage your articles.
+
 
 """
 homepage    = "https://gitlab.gnome.org/World/read-it-later"
@@ -999,11 +1079,11 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["seahorse-dark.png", "seahorse-light.png"]
 
-
 [secrets]
 subtitle    = "Manage your passwords"
 description = """
 Secrets is a password manager which makes use of the KeePass v.4 format. It integrates perfectly with the GNOME desktop and provides an easy and uncluttered interface for the management of password databases.
+
 
 
 
@@ -1018,6 +1098,7 @@ Shortwave is an internet radio player that provides access to a station database
 
 
 
+
 """
 homepage    = "https://apps.gnome.org/Shortwave/"
 released    = "2025-12-24"
@@ -1026,6 +1107,7 @@ released    = "2025-12-24"
 subtitle    = "Watch without distraction"
 description = """
 Play your favorite movies and video files without hassle. Video Player features simple playback controls that fade out of your way when you're watching, fullscreen, adjustable playback speed, multiple language and subtitle tracks, and screenshots — everything you need for a straightforward viewing experience.
+
 
 
 
@@ -1044,6 +1126,7 @@ released    = "2026-03-11"
 subtitle    = "Balance working time and break time"
 description = """
 Solanum is a time tracking app that uses the pomodoro technique. Work in 4 sessions, with breaks in between each session and one long break after all 4.
+
 
 """
 homepage    = "https://apps.gnome.org/Solanum"
@@ -1074,6 +1157,7 @@ Tangram is a new kind of browser. It is designed to organize and run your Web ap
 
 
 
+
 """
 subcategory = "Browser"
 homepage    = "https://tangram.sonny.re"
@@ -1083,6 +1167,7 @@ released    = "2026-02-05"
 subtitle    = "A convergent Kirigami TV guide"
 description = """
 Telly Skout is a convergent Kirigami TV guide. It shows the TV program for your favorite channels from TV Spielfilm or an XMLTV file.
+
 
 
 
@@ -1097,6 +1182,7 @@ Powerful scratchpad with ability to perform a lot of text transformations, such 
 
 
 
+
 """
 homepage    = "https://gitlab.com/liferooter/textpieces"
 released    = "2025-11-15"
@@ -1108,6 +1194,7 @@ Tokodon is a Mastodon client. It allows you to interact with the Fediverse commu
 
 
 
+
 """
 homepage    = "https://apps.kde.org/tokodon/"
 released    = "2026-09-10"
@@ -1116,6 +1203,7 @@ released    = "2026-09-10"
 subtitle    = "Browse the Fediverse"
 description = """
 Explore the federated social web with Tuba for GNOME. Stay connected to your favorite communities, family and friends with support for popular Fediverse platforms like Mastodon, GoToSocial, Akkoma & more!
+
 
 """
 homepage    = "https://tuba.geopjr.dev/"
@@ -1131,6 +1219,7 @@ shots       = ["tuba-dark.png", "tuba-light.png"]
 subtitle    = "Convert between currencies"
 description = """
 Valuta is a simple and fast conversion tool, ideal for those who need to convert between different currencies repeatedly. Use it while traveling, budgeting, or anytime else you need to quickly convert between two currencies.
+
 
 """
 homepage    = "https://github.com/ideveCore/valuta"
@@ -1149,6 +1238,7 @@ Video Trimmer cuts out a fragment of a video given the start and end timestamps.
 
 
 
+
 """
 homepage    = "https://gitlab.gnome.org/YaLTeR/video-trimmer"
 released    = "2026-05-26"
@@ -1157,6 +1247,7 @@ released    = "2026-05-26"
 subtitle    = "Fast and secure file transfer"
 description = """
 Warp allows you to securely send files to each other via the internet or local network by exchanging a word-based code.
+
 
 
 
@@ -1169,6 +1260,7 @@ subtitle    = "Search and read Wikipedia articles"
 description = """
 Wike is a Wikipedia reader for the GNOME Desktop. Provides access to all the content of this online encyclopedia in a native application, with a simpler and distraction-free view of articles.
 
+
 """
 homepage    = "https://hugolabe.github.io/Wike/"
 released    = "2026-04-30"
@@ -1179,8 +1271,10 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["wike-dark.png", "wike-light.png"]
 
-["io.github.andreivinca.note-note"]
-description = "Its Python is stdlib-only, and the sync providers stay dormant until you sign in to one."
-
-["io.github.idr4n.clipboard-plus"]
-description = "Reads Omarchy's own clipboard store, so it starts no watcher of its own."
+[gnome-characters]
+cost_pkgs   = 1
+cost_mb     = 0.38
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["gnome-characters-dark.png", "gnome-characters-light.png"]

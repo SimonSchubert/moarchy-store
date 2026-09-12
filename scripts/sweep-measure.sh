@@ -40,6 +40,9 @@ VM=${MOARCHY_VM:-$HOME/Projects/omarchy-mobile}
 SSH="$VM/scripts/vm-ssh.sh"
 [ -x "$SSH" ] || { echo "!! no VM at $VM -- set MOARCHY_VM" >&2; exit 1; }
 
+# How long to wait for a window, in seconds. Raise it for an app that is known
+# to be slow rather than raising it for everyone: most map in under ten.
+WAIT=${WAIT:-60}
 DARK_THEME=${DARK_THEME:-tokyo-night}
 LIGHT_THEME=${LIGHT_THEME:-catppuccin-latte}
 KEEP=0
@@ -85,7 +88,20 @@ note "installing"
   fail "$PKG failed to install"; exit 1; }
 
 # --- 2. the launch handle ---------------------------------------------------
-DESKTOP=$("$SSH" "pacman -Ql $PKG | grep -o '/usr/share/applications/.*\.desktop$' | head -1" || true)
+# Which .desktop, when a package ships several.
+#
+# `head -1` takes the alphabetically first, and for nautilus that is
+# nautilus-autorun-software.desktop -- a helper that prints a usage message and
+# exits, which looks exactly like an app that will not start. The store solves
+# this in launcher.py by preferring the entry whose name matches the app's own
+# icon; the same rule works here, with the AppStream id standing in for it.
+DESKTOPS=$("$SSH" "pacman -Ql $PKG | grep -o '/usr/share/applications/.*\.desktop$'" || true)
+DESKTOP=$(printf '%s\n' "$DESKTOPS" | grep -iE "/(${PKG}|org\..*\.${PKG}|.*\.${PKG})\.desktop$" | head -1)
+[ -n "$DESKTOP" ] || DESKTOP=$(printf '%s\n' "$DESKTOPS" \
+  | awk '{print length($0)"\t"$0}' | sort -n | cut -f2- | head -1)
+if [ "$(printf '%s\n' "$DESKTOPS" | grep -c .)" -gt 1 ]; then
+  note "$PKG ships $(printf '%s\n' "$DESKTOPS" | grep -c .) desktop entries; using $(basename "$DESKTOP")"
+fi
 if [ -z "$DESKTOP" ]; then
   echo "{\"pkg\":\"$PKG\",\"launch\":\"no-desktop-entry\",\"cost_pkgs\":$COST_PKGS,\"cost_mb\":$COST_MB}"
   fail "$PKG ships no .desktop -- a TUI, or not an app"
@@ -134,7 +150,7 @@ launch_and_wait() {
   "$SSH" "$E setsid -f gtk-launch $ID >/tmp/sweep-$PKG.log 2>&1" >/dev/null 2>&1
 
   local i
-  for i in $(seq 1 60); do
+  for i in $(seq 1 "$WAIT"); do
     sleep 1
     after=$("$SSH" "$E hyprctl -j clients | jq -r '.[].address'" 2>/dev/null | sort | tr '\n' ' ')
     for addr in $after; do
