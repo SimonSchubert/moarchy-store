@@ -68,7 +68,12 @@ def merge(text: str, pkg: str, block: str) -> str:
         return text.rstrip("\n") + f"\n\n[{pkg}]\n" + block
     kept = [ln for ln in m.group(1).splitlines()
             if not any(ln.startswith(f"{k} ") or ln.startswith(f"{k}=") for k in owned)]
-    return text.replace(m.group(1), "\n".join(kept).rstrip("\n") + "\n" + block + "\n", 1)
+    # Exactly one trailing newline. The lookahead in the pattern stops before
+    # the "\n[" that separates tables, so that separator already exists --
+    # adding another here grows the file by a blank line on every run, which is
+    # how a script meant to be idempotent stops being it.
+    body = "\n".join(kept).rstrip("\n") + "\n" + block.rstrip("\n") + "\n"
+    return text.replace(m.group(1), body, 1)
 
 
 def main() -> int:
