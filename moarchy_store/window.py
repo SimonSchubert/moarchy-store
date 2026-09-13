@@ -8,6 +8,7 @@ there is no keyboard.
 from __future__ import annotations
 
 import os
+import threading
 from pathlib import Path
 
 import gi
@@ -962,7 +963,8 @@ class StoreWindow(Adw.ApplicationWindow):
         header = Adw.HeaderBar()
         refresh = Gtk.Button(icon_name="view-refresh-symbolic")
         refresh.set_tooltip_text("Refresh installed state")
-        # The refresh button also re-checks for a newly published catalogue.
+        # Also re-checks for a newly published catalogue, but on a worker: the
+        # tap itself only ever does the local half, which is instant.
         refresh.connect("clicked", lambda *_: self.refresh(check_remote=True))
         header.pack_end(refresh)
 
@@ -993,9 +995,11 @@ class StoreWindow(Adw.ApplicationWindow):
         self.nav.connect("popped", self._on_popped)
 
         self.apps: list[App] = []
+        # Whether a catalogue check is in flight. See _start_remote_check.
+        self._checking_remote = False
         self.refresh()
-        # Check for a newly published catalogue after the window is up, so a
-        # slow or dead network never delays first paint.
+        # Check for a newly published catalogue once the window is up, rather
+        # than competing with first paint for an A53.
         GLib.timeout_add_seconds(1, self._check_remote_once)
 
         # Debug aid: MOARCHY_STORE_DETAIL=<package or plugin id> opens straight
@@ -1026,17 +1030,47 @@ class StoreWindow(Adw.ApplicationWindow):
             self.category_page = None
 
     def _check_remote_once(self) -> bool:
-        if catalogue.refresh_remote():
-            self.refresh()
+        self._start_remote_check()
         return False  # one-shot
 
     def _drop_focus(self) -> bool:
         self.set_focus(None)
         return False
 
+    def _start_remote_check(self) -> None:
+        """Look for a newly published catalogue, on a worker thread.
+
+        Never on the main loop. remote.update() is two downloads with a 15s
+        timeout each and then a gpgv subprocess, so on a phone with no route
+        or a stalled connection it blocks for the better part of a minute --
+        during which the window cannot redraw or take a touch. Tapping refresh
+        used to do exactly that, which read as the app hanging.
+        """
+        if self._checking_remote:
+            return  # one already running; a second would only re-download
+        self._checking_remote = True
+        threading.Thread(target=self._remote_check_worker, daemon=True).start()
+
+    def _remote_check_worker(self) -> None:
+        """Runs off the main loop, so it touches no widget: the redraw goes
+        back through GLib.idle_add, and only if there was something new."""
+        try:
+            found = catalogue.refresh_remote()
+        finally:
+            self._checking_remote = False
+        if found:
+            GLib.idle_add(self.refresh)
+
     def refresh(self, check_remote: bool = False) -> None:
+        """Re-read installed state and redraw.
+
+        `check_remote` also starts a catalogue check, which lands later and
+        redraws again if it found a newer one. The local half never waits for
+        the network -- installed state is what the button promises, and it is
+        readable without a route to GitHub.
+        """
         if check_remote:
-            catalogue.refresh_remote()
+            self._start_remote_check()
         try:
             self.apps = enrich(load_apps())
         except FileNotFoundError as exc:
