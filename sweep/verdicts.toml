@@ -1702,3 +1702,57 @@ about 28 logical px tall, under the 44 the style guide asks for. 15 packages
 and 8.07 MB into a Media category that already has twenty-three entries,
 Celluloid and Showtime among them, both of which follow the theme.
 """
+
+[moarchy-chess]
+date = 2026-09-13
+outcome = "listed"
+adaptive = "fits"
+reason = "Ours, and measured on the phone rather than in the VM. 0.17 MB and one package. gnome-chess is not in the catalogue and would need gnuchess installed alongside it to have an opponent at all; this one brings its own and answers on a clock."
+
+[moarchy-reversi]
+date = 2026-09-13
+outcome = "listed"
+adaptive = "fits"
+reason = "Ours, 0.10 MB and one package, measured on the phone. Sits beside iagno deliberately: that one is listed and good, and this one is drawn for 360px with an opponent on a clock. Two entries for one game is a real cost, and the summaries carry the difference."
+
+[moarchy-tictactoe]
+date = 2026-09-13
+outcome = "listed"
+adaptive = "fits"
+reason = "Ours, 0.11 MB and one package. The game is solved at startup and the difficulty is how often the opponent is allowed to depart from the table, so nothing is ever waited for. Nothing in the catalogue had it."
+
+[moarchy-solitaire]
+date = 2026-09-13
+outcome = "listed"
+adaptive = "fits"
+reason = "Ours, 0.12 MB and one package. One tap a move, and it searches the remaining deal to say when it cannot be won. aisleriot is not in the aarch64 repos at a size or a shape that suits this screen, and Games had no card game at all."
+
+[moarchy-pegsolitaire]
+date = 2026-09-13
+outcome = "listed"
+adaptive = "fits"
+reason = "Ours, 0.10 MB and one package. Nine boards, every one solvable from its opening, and a hint that searches for a completion rather than guessing -- so taking every hint finishes the board."
+
+[moarchy-minesweeper]
+date = 2026-09-13
+outcome = "listed"
+adaptive = "fits"
+reason = "Ours, 0.09 MB and one package. Listed beside gnome-mines, which is also here: the difference is a portrait board and a latching flag button instead of a long press, which is the interaction a thumb actually has."
+
+[moarchy-mill]
+date = 2026-09-13
+outcome = "listed"
+adaptive = "fits"
+reason = "Ours, 0.12 MB and one package. Nine Men's Morris including the flying rule, which most implementations drop. Nothing in the catalogue or the aarch64 repos plays it."
+
+[moarchy-fiveletters]
+date = 2026-09-13
+outcome = "listed"
+adaptive = "fits"
+reason = "Ours, 0.17 MB and one package. Draws its own keyboard so the grid and the keys are on screen together, and marks each letter with a shape as well as a colour. 1,510 answers in the package, so it needs no network."
+
+[moarchy-breakout]
+date = 2026-09-13
+outcome = "listed"
+adaptive = "fits"
+reason = "Ours, 0.08 MB and one package -- the smallest thing in the catalogue. Slide anywhere to move the bat, so the hand is never over the bricks, and it pauses when the window stops being visible."

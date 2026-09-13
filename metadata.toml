@@ -1586,3 +1586,162 @@ adaptive    = "fits"
 themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["puzzle-games-dark.png", "puzzle-games-light.png"]
+
+[moarchy-chess]
+subtitle    = "The opponent is in the app"
+description = """
+Chess for a phone: a board drawn for 360 logical pixels, two taps a move, and \
+a search that answers on a clock rather than at a depth chosen on a laptop. \
+The opponent ships with it -- `gnome-chess` lists gnuchess as an optional \
+dependency, so the board you install there has nobody in it until you install \
+a second package. The game is written to disk on every move, because a phone \
+reclaims an app rather than closing it.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/chess"
+released    = "2026-09-12"
+cost_pkgs   = 1
+cost_mb     = 0.17
+adaptive    = "fits"
+themed      = "yes"
+measured    = "pinephone-a64 2026-09-13"
+shots       = ["moarchy-chess-dark.png"]
+
+[moarchy-reversi]
+subtitle    = "A board drawn for this screen"
+description = """
+Reversi with the board sized for a phone and an opponent that answers on a \
+clock. Iagno has done this on a desktop for twenty years and does it well; \
+what it does not do is fit 360 logical pixels or keep its game across being \
+reclaimed. Legal moves are marked, the score is a pair of thumb-sized cards, \
+and the whole thing is one cairo drawing area rather than sixty-four widgets.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/reversi"
+released    = "2026-09-12"
+cost_pkgs   = 1
+cost_mb     = 0.10
+adaptive    = "fits"
+themed      = "yes"
+measured    = "pinephone-a64 2026-09-13"
+shots       = ["moarchy-reversi-dark.png"]
+
+[moarchy-tictactoe]
+subtitle    = "Solved, then told to err"
+description = """
+Noughts and crosses that answers instantly, because the game is solved once at \
+startup and the opponent then plays from that table. The difficulty is how \
+often it is allowed to depart from it, which is what makes Fair beatable and \
+Perfect not. Three levels, a running score, and no waiting on anything.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/tictactoe"
+released    = "2026-09-13"
+cost_pkgs   = 1
+cost_mb     = 0.11
+adaptive    = "fits"
+themed      = "yes"
+measured    = "pinephone-a64 2026-09-13"
+shots       = ["moarchy-tictactoe-dark.png"]
+
+[moarchy-solitaire]
+subtitle    = "It tells you when a deal is lost"
+description = """
+Klondike with one tap a move: tap a card, tap where it goes, and the app works \
+out the rest. Draw one or draw three. The part that is not standard is that it \
+searches the remaining deal and says when no sequence of legal moves can win \
+it -- so a dead game is announced rather than played out.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/solitaire"
+released    = "2026-09-13"
+cost_pkgs   = 1
+cost_mb     = 0.12
+adaptive    = "fits"
+themed      = "yes"
+measured    = "pinephone-a64 2026-09-13"
+shots       = ["moarchy-solitaire-dark.png"]
+
+[moarchy-pegsolitaire]
+subtitle    = "The hint is a proof"
+description = """
+Peg solitaire on nine boards -- English, European, diamond and six more -- \
+every one of them chosen because it is solvable from its opening. The hint is \
+not a heuristic: it searches for a completion and offers a move that is on one, \
+so taking every hint finishes the board.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/pegsolitaire"
+released    = "2026-09-13"
+cost_pkgs   = 1
+cost_mb     = 0.10
+adaptive    = "fits"
+themed      = "yes"
+measured    = "pinephone-a64 2026-09-13"
+shots       = ["moarchy-pegsolitaire-dark.png"]
+
+[moarchy-minesweeper]
+subtitle    = "A latching flag, for thumbs"
+description = """
+Minesweeper on a portrait board, with the flag as a latching button instead of \
+a right-click or a long press -- tap it once and every tap plants a flag until \
+you tap it off. Three sizes, all of which fit the width. The clock starts on \
+the first tap and stops when the board is finished.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/minesweeper"
+released    = "2026-09-13"
+cost_pkgs   = 1
+cost_mb     = 0.09
+adaptive    = "fits"
+themed      = "yes"
+measured    = "pinephone-a64 2026-09-13"
+shots       = ["moarchy-minesweeper-dark.png"]
+
+[moarchy-mill]
+subtitle    = "Including the rule everybody forgets"
+description = """
+Nine Men's Morris: place nine, move along the lines, take one of theirs when \
+you close a mill. It plays the flying rule -- a player down to three pieces \
+moves anywhere -- which is the half most implementations quietly drop. The \
+opponent answers on a clock, and the board is three squares on one drawing \
+area.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/mill"
+released    = "2026-09-13"
+cost_pkgs   = 1
+cost_mb     = 0.12
+adaptive    = "fits"
+themed      = "yes"
+measured    = "pinephone-a64 2026-09-13"
+shots       = ["moarchy-mill-dark.png"]
+
+[moarchy-fiveletters]
+subtitle    = "A word a day, with its own keyboard"
+description = """
+One five-letter word a day, six guesses, from a list of 1,510 answers held in \
+the package -- no network, and the same word for everyone on a given day. It \
+draws its own keyboard rather than raising the system one, so the grid and the \
+keys are both on screen at once. Each letter carries a mark as well as a \
+colour, which is what makes it playable without relying on green against \
+yellow.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/fiveletters"
+released    = "2026-09-13"
+cost_pkgs   = 1
+cost_mb     = 0.17
+adaptive    = "fits"
+themed      = "yes"
+measured    = "pinephone-a64 2026-09-13"
+shots       = ["moarchy-fiveletters-dark.png"]
+
+[moarchy-breakout]
+subtitle    = "Slide anywhere to aim"
+description = """
+Breakout with the bat under your thumb: slide anywhere on the screen and the \
+bat follows, so your hand is never over the bricks. Levels, three lives, and a \
+ball that speeds up. The clock stops with the window -- it pauses when the app \
+stops being visible, which on a phone is most of the time.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/breakout"
+released    = "2026-09-13"
+cost_pkgs   = 1
+cost_mb     = 0.08
+adaptive    = "fits"
+themed      = "yes"
+measured    = "pinephone-a64 2026-09-13"
+shots       = ["moarchy-breakout-dark.png"]

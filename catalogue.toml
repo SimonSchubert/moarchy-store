@@ -53,7 +53,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 25
+serial = 26
 
 # --- Reading ---------------------------------------------------------------
 
@@ -1426,3 +1426,121 @@ summary = "300+ small logic, math and attention puzzles. Follows light and dark.
 icon = "puzzle-games"
 screenshot = "puzzle-games-dark.png"
 tested = "omarchy-mobile-vm"
+
+
+# --- Written here (serial 26) -----------------------------------------------
+#
+# Nine games from moarchy-apps, all measured on a PinePhone rather than in the
+# VM -- installed from [moarchy-apps] with pacman, launched through the
+# compositor, and photographed on the glass. Each is one package, 85 to 175 KB,
+# because every dependency they have is the GTK stack the image already
+# carries: python, python-gobject, gtk4, libadwaita, python-cairo. Nothing
+# compiles and nothing is vendored twice.
+#
+# They are here for what the android-gaps list does not measure. Linux is not
+# short of small games; a phone is short of games drawn for 360 logical pixels,
+# with an opponent that answers on a clock rather than at a depth chosen on a
+# laptop, and with state written to disk on every move because phones reclaim
+# apps rather than close them. That is the argument each of these makes, and it
+# is why two of them sit beside a GNOME game that does the same job on a
+# desktop.
+#
+# Reversi is the sharp case: `iagno` is listed above under the name Reversi and
+# has been for twenty years. Ours is here because the board is drawn for this
+# screen and the opponent is on a clock, not because Iagno is bad. Chess is the
+# same argument with one addition -- `pacman -Si gnome-chess` lists gnuchess as
+# an *optional* dependency, so the board you install has nobody in it until you
+# install a second package. The opponent here is in the app.
+#
+# None is featured. The shelf already lists sudoku, hitori and 2048, and nine
+# more games do not make any one of them more the answer to a job.
+
+[[app]]
+pkg = "moarchy-chess"
+name = "Chess"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Chess with the opponent in the app, not a second package. Two taps a move."
+icon = "org.moarchy.Chess"
+screenshot = "moarchy-chess-dark.png"
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "moarchy-reversi"
+name = "Reversi"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Reversi drawn for 360px, with an opponent that answers on a clock."
+icon = "org.moarchy.Reversi"
+screenshot = "moarchy-reversi-dark.png"
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "moarchy-tictactoe"
+name = "Tic-tac-toe"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Noughts and crosses, solved at startup and then told to err. No waiting."
+icon = "org.moarchy.TicTacToe"
+screenshot = "moarchy-tictactoe-dark.png"
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "moarchy-solitaire"
+name = "Solitaire"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Klondike, one tap a move, and an app that says when a deal is lost."
+icon = "org.moarchy.Solitaire"
+screenshot = "moarchy-solitaire-dark.png"
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "moarchy-pegsolitaire"
+name = "Peg Solitaire"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Nine boards, all solvable, and a hint that is a proof rather than a guess."
+icon = "org.moarchy.PegSolitaire"
+screenshot = "moarchy-pegsolitaire-dark.png"
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "moarchy-minesweeper"
+name = "Minesweeper"
+category = "Games"
+toolkit = "libadwaita"
+summary = "A portrait board, a latching flag for thumbs, and a clock that stops."
+icon = "org.moarchy.Minesweeper"
+screenshot = "moarchy-minesweeper-dark.png"
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "moarchy-mill"
+name = "Mill"
+category = "Games"
+toolkit = "libadwaita"
+summary = "Nine Men's Morris: three squares, an opponent on a clock, and flying."
+icon = "org.moarchy.Mill"
+screenshot = "moarchy-mill-dark.png"
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "moarchy-fiveletters"
+name = "Five Letters"
+category = "Games"
+toolkit = "libadwaita"
+summary = "A five-letter word a day. Its own keyboard, and a mark as well as a colour."
+icon = "org.moarchy.FiveLetters"
+screenshot = "moarchy-fiveletters-dark.png"
+tested = "pinephone-a64"
+
+[[app]]
+pkg = "moarchy-breakout"
+name = "Breakout"
+category = "Games"
+toolkit = "libadwaita"
+summary = "A bat that follows your thumb, and a clock that stops with the window."
+icon = "org.moarchy.Breakout"
+screenshot = "moarchy-breakout-dark.png"
+tested = "pinephone-a64"
