@@ -43,19 +43,36 @@ CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "moarch
 MIRROR = os.environ.get("MOARCHY_ARM_MIRROR", "http://mirror.archlinuxarm.org/aarch64")
 REPOS = ("core", "extra")
 
-# And moarchy's own repository, which is a sync database the phone has and this
-# module did not know about. Every catalogued app used to come from core or
+# And the repositories that are ours, which are sync databases the phone has and
+# this module did not know about. Every catalogued app used to come from core or
 # extra, so the omission never showed; the first entry that does not -- Spot,
 # built from the AUR because Spotify's web player wants a Widevine that does
 # not exist for aarch64 -- would have been reported as an Install button that
 # cannot work, when in fact `pacman -S` on the phone reaches it.
 #
-# Same URL the phone's own pacman.conf is given (moarchy's manifest, [repo]):
-# one fixed release tag, re-uploaded in place.
-OWN_REPO = os.environ.get("MOARCHY_REPO_NAME", "moarchy")
-OWN_REPO_URL = os.environ.get(
-    "MOARCHY_REPO_URL",
-    "https://github.com/SimonSchubert/moarchy/releases/download/repo")
+# There are two of them now, and the same omission happened a second time in
+# exactly the same shape: moarchy-vitals is in [moarchy-apps] and the lint
+# called its Install button dead, while `pacman -Si moarchy-vitals` on the
+# phone answered "Repository : moarchy-apps" and `pacman -Sp` printed the URL
+# it would fetch. What this module models is what the device can reach, so a
+# repo the device's pacman.conf carries belongs here or the model is wrong.
+#
+#   [moarchy]       the distro: the shell, the keyboard, the keyring, the meta
+#                   package. One fixed release tag, re-uploaded in place.
+#   [moarchy-apps]  the apps built in moarchy-apps, as a signed repo on Pages.
+#
+# Both URLs are the ones the phone's own pacman.conf is given, and that is the
+# rule rather than a coincidence: if these two lists disagree, this one is the
+# one that is wrong.
+OWN_REPOS = (
+    (os.environ.get("MOARCHY_REPO_NAME", "moarchy"),
+     os.environ.get("MOARCHY_REPO_URL",
+                    "https://github.com/SimonSchubert/moarchy/releases/download/repo")),
+    (os.environ.get("MOARCHY_APPS_REPO_NAME", "moarchy-apps"),
+     os.environ.get("MOARCHY_APPS_REPO_URL",
+                    "https://simonschubert.github.io/moarchy-apps/aarch64")),
+)
+OWN_REPO_NAMES = frozenset(name for name, _ in OWN_REPOS)
 
 _CACHED: dict[str, dict] | None = None
 
@@ -112,7 +129,7 @@ def packages(refresh: bool = False) -> dict[str, dict]:
     CACHE.mkdir(parents=True, exist_ok=True)
     out: dict[str, dict] = {}
     sources = [(repo, f"{MIRROR}/{repo}/{repo}.db") for repo in REPOS]
-    sources.append((OWN_REPO, f"{OWN_REPO_URL}/{OWN_REPO}.db"))
+    sources += [(repo, f"{url}/{repo}.db") for repo, url in OWN_REPOS]
     for repo, url in sources:
         path = CACHE / f"{repo}.db"
         sweepdb.note_age(path, f"aarch64 {repo}")
@@ -125,7 +142,7 @@ def packages(refresh: bool = False) -> dict[str, dict]:
                 # Core and extra are the mirror and must be there; this one is a
                 # GitHub release that a fresh clone may not have fetched yet, and
                 # a lint that dies on it would be worse than one that says so.
-                if repo != OWN_REPO or not path.exists():
+                if repo not in OWN_REPO_NAMES or not path.exists():
                     print(f"warn: {repo}.db unavailable ({exc})", file=sys.stderr)
                     continue
         _parse(path.read_bytes(), repo, out)

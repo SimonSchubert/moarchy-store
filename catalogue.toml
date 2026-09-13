@@ -53,7 +53,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 24
+serial = 25
 
 # --- Reading ---------------------------------------------------------------
 
@@ -1087,6 +1087,16 @@ summary = "What is using the processor, the memory and the disk. Bottom tabs, 33
 icon = "org.gnome.Usage"
 screenshot = "gnome-usage-dark.png"
 tested = "omarchy-mobile-vm"
+
+[[app]]
+pkg = "moarchy-vitals"
+name = "Vitals"
+category = "System"
+toolkit = "libadwaita"
+summary = "Processor, memory, tasks and network. btop's content, tabs at the bottom."
+icon = "org.moarchy.Vitals"
+screenshot = "moarchy-vitals-dark.png"
+tested = "pinephone-a64"
 
 [[app]]
 pkg = "seahorse"

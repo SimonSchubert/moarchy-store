@@ -775,6 +775,23 @@ themed      = "yes"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["gnome-usage-dark.png", "gnome-usage-light.png"]
 
+[moarchy-vitals]
+subtitle    = "What the phone is doing"
+description = """
+Processor, memory, storage, battery and network, and what is using them, on \
+three pages with the switcher along the bottom where a thumb is. Per-core bars, \
+load, temperature, swap, disk and network throughput, and a task list that \
+groups an app's processes into one row you can end with a tap.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/vitals"
+released    = "2026-09-13"
+cost_pkgs   = 1
+cost_mb     = 0.16
+adaptive    = "fits"
+themed      = "yes"
+measured    = "pinephone-a64 2026-09-13"
+shots       = ["moarchy-vitals-dark.png"]
+
 [gnome-weather]
 subtitle    = "Show weather conditions and forecast"
 description = """

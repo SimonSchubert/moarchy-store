@@ -632,6 +632,12 @@ outcome = "listed"
 adaptive = "fits"
 reason = "Logic puzzle on a grid of large numbers, 180 KB. Every cell is a touch target, which is more than can be said for the other two GNOME games tried."
 
+[moarchy-vitals]
+date = 2026-09-13
+outcome = "listed"
+adaptive = "fits"
+reason = "Processor, memory, storage, battery and network with the switcher at the bottom, 0.16 MB and one package. Ours, and the one entry here measured on the phone rather than in the VM. Usage is listed beside it and stops at processor, memory and disk; this adds the network, the heat and the charge, and a task list that groups an app's processes into one row and can end it."
+
 [gnome-usage]
 date = 2026-09-12
 outcome = "listed"
