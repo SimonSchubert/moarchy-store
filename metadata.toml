@@ -1561,3 +1561,11 @@ adaptive    = "fits"
 themed      = "no"
 measured    = "omarchy-mobile-vm 2026-09-12"
 shots       = ["queens-dark.png"]
+
+[puzzle-games]
+cost_pkgs   = 1
+cost_mb     = 9.01
+adaptive    = "fits"
+themed      = "yes"
+measured    = "omarchy-mobile-vm 2026-09-12"
+shots       = ["puzzle-games-dark.png", "puzzle-games-light.png"]

@@ -53,7 +53,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 23
+serial = 24
 
 # --- Reading ---------------------------------------------------------------
 
@@ -1380,4 +1380,39 @@ toolkit = "flutter"
 summary = "One queen per row, column and colour region. The board marks its own dead squares."
 icon = "queens"
 screenshot = "queens-dark.png"
+tested = "omarchy-mobile-vm"
+
+# --- Packaged here, second (serial 24) --------------------------------------
+#
+# Puzzle cost less than queens did, and the difference is upstream's own tree:
+# it commits linux/ next to snap/, macos/ and windows/, so the Linux target
+# already worked and all moarchy-apps carries is one patch -- the same
+# QUEENS_NO_TITLEBAR idea under another name. Upstream as sidhant947/Puzzle#168.
+#
+# The measurement is the interesting half. queens came back themed = "no"
+# because Flutter draws its own pixels and reads no GTK stylesheet; this one
+# came back "yes" at RMSE 0.84, and the pictures agree -- it follows the light
+# and dark preference through the desktop portal and repaints completely. So
+# "Flutter ignores your theme" is not a fact about Flutter, it is a fact about
+# an app that never asked. What it does not follow is the accent colour; the
+# purple is its own in both shots.
+#
+# One wart worth knowing before anybody files it as a bug against us: the
+# shell's keyboard pill sits over the third item of the app's bottom navigation
+# bar, so SETTINGS reads as SETTI. The app is not clipped -- the pill is drawn
+# on top of it -- and the row is still tappable left of the pill.
+#
+# Not featured, for the reason queens is not: two puzzle collections cannot both
+# be the answer to one job, and the shelf already lists sudoku, hitori and 2048.
+# It is the better of the two for a phone if anyone has to choose -- 300 games
+# against one, a light and dark that both work, and it was written for touch.
+
+[[app]]
+pkg = "puzzle-games"
+name = "Puzzle Games"
+category = "Games"
+toolkit = "flutter"
+summary = "300+ small logic, math and attention puzzles. Follows light and dark."
+icon = "puzzle-games"
+screenshot = "puzzle-games-dark.png"
 tested = "omarchy-mobile-vm"
