@@ -53,7 +53,7 @@ version = 1
 # Bumped on every publish. Clients refuse a remote catalogue whose serial is
 # lower than the one they already trust, so a replayed older catalogue cannot
 # quietly re-add something that was removed.
-serial = 26
+serial = 27
 
 # --- Reading ---------------------------------------------------------------
 
@@ -1544,3 +1544,32 @@ summary = "A bat that follows your thumb, and a clock that stops with the window
 icon = "org.moarchy.Breakout"
 screenshot = "moarchy-breakout-dark.png"
 tested = "pinephone-a64"
+
+# --- Written here (serial 27) ----------------------------------------------
+#
+# A coin tracker, and the first row of ours that has not been on a phone.
+# `tested = ""` renders as "Not yet tested on a device", which is a suggestion
+# rather than a claim, and it stays that way until somebody runs it on one: the
+# evidence behind this row is the app run and photographed at 360x720 under the
+# cairo renderer, which is what a Mali-400 falls back to as well, and no more
+# than that.
+#
+# Not from android-gaps.md. That list is F-Droid filtered by translation count
+# and screenshots, and no coin tracker survived the filter -- but the probe it
+# describes, run by hand on 2026-09-13, comes back empty on all three sets:
+# `tickrs` in extra is a terminal ticker, which on a phone means opening a
+# terminal on a keyboard covering half the screen; the AUR has a desktop
+# charting and trading terminal the helper cannot install from there anyway;
+# and Flathub has wallets. Somewhere to *keep* coins is a different and much
+# more dangerous thing than somewhere to look at what they cost, which is why
+# this one has no wallet, no portfolio and no amount in it anywhere.
+
+[[app]]
+pkg = "moarchy-coins"
+name = "Coins"
+category = "Utilities"
+toolkit = "libadwaita"
+summary = "The top hundred by market cap, and the ones you star on their own page."
+icon = "org.moarchy.Coins"
+screenshot = "moarchy-coins-dark.png"
+tested = ""

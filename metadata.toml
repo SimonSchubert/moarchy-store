@@ -1745,3 +1745,25 @@ adaptive    = "fits"
 themed      = "yes"
 measured    = "pinephone-a64 2026-09-13"
 shots       = ["moarchy-breakout-dark.png"]
+
+[moarchy-coins]
+subtitle    = "A watchlist, not a wallet"
+description = """
+The top hundred coins by market capitalisation, from CoinGecko's public API, \
+with a star on every row and the starred ones on a tab of their own -- in the \
+order you starred them, because a watchlist that re-sorts itself under a thumb \
+halfway down it is the bug this exists to avoid. One request a minute, on a \
+thread, and the clock stops the moment the window leaves the screen; a refresh \
+that fails keeps the prices that were there and says how old they are, because \
+prices from four minutes ago are worth something and a blank page is worth \
+nothing. There is no account, no wallet, no portfolio and no amount -- it knows \
+which coins you watch and nothing whatever about what you hold.\
+"""
+homepage    = "https://github.com/SimonSchubert/moarchy-apps/tree/main/apps/coins"
+released    = "2026-09-14"
+cost_pkgs   = 1
+cost_mb     = 0.09
+adaptive    = "fits"
+themed      = "yes"
+measured    = ""
+shots       = ["moarchy-coins-dark.png"]

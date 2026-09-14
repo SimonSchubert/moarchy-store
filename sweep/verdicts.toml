@@ -1756,3 +1756,22 @@ date = 2026-09-13
 outcome = "listed"
 adaptive = "fits"
 reason = "Ours, 0.08 MB and one package -- the smallest thing in the catalogue. Slide anywhere to move the bat, so the hand is never over the bricks, and it pauses when the window stops being visible."
+
+[moarchy-coins]
+date = 2026-09-14
+outcome = "listed"
+adaptive = "fits"
+reason = """
+Ours. 0.09 MB and one package: no python-cairo, because nothing in it is drawn,
+and no python-requests, because one GET of a JSON document is urllib's job.
+
+Not measured on a device or in the VM -- run and photographed at 360x720 under
+the cairo renderer, which is what the phone falls back to as well. That is what
+`tested = ""` in the catalogue says, and it is the whole of the evidence.
+
+Not from android-gaps.md: no coin tracker survived that list's quality filter.
+The probe it describes, run by hand on 2026-09-13, finds `tickrs` in extra (a
+terminal ticker), cryptowatch-desktop-bin on the AUR (a desktop trading
+terminal, and AUR-only, so the helper cannot install it), and wallets on
+Flathub. None of them is a glanceable list with a thumb-reachable watchlist.
+"""
